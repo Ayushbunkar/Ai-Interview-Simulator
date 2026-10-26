@@ -8,12 +8,15 @@ import {
   questions,
   codingProblems,
   interviewReports,
+  resumeProfiles,
+  revisionQueue,
 } from "../db/schema";
 import { eq, and, sql, desc } from "drizzle-orm";
 import { getAIProvider, isLiveAIConfigured } from "../ai";
 import {
   CompanyProfile,
   InterviewMode,
+  InterviewModeVariant,
   RoundNumber,
   AnswerEvaluation,
   ClarificationResponse,
@@ -25,8 +28,12 @@ import {
   CODING_ROUND_RUBRIC,
   calculateWeightedScore,
 } from "../rubric";
-import { evaluateCandidateCommunication } from "../assessment/communication-evaluator";
+import { evaluateCandidateCommunication, evaluateSingleTurnCommunication } from "../assessment/communication-evaluator";
 import { computeSkillRadarAnalysis } from "../assessment/skill-evaluator";
+import { updateSkillsProfileFromSession, syncRevisionQueueFromSession } from "../assessment/revision-engine";
+import { evaluateAdaptiveTurn, isNearDuplicateQuestion, calculateAdaptiveDifficulty } from "./adaptive-engine";
+import { generateProgressiveProjectQuestions } from "../intelligence/resume-job-extractor";
+import { logAPIUsage } from "../ai/usage-tracker";
 
 export interface CreateInterviewInput {
   title?: string;
@@ -34,10 +41,12 @@ export interface CreateInterviewInput {
   companyProfile: CompanyProfile;
   difficulty: "fresher" | "entry_level" | "intermediate" | "experienced";
   mode: InterviewMode;
+  interviewModeVariant?: InterviewModeVariant;
   primaryLanguage?: "java" | "python" | "cpp";
   durationMinutes?: number;
   topicsEmphasized?: string[];
   resumeText?: string;
+  resumeProfileId?: string;
 }
 
 export const ROUND_NAMES: Record<RoundNumber, string> = {
@@ -58,9 +67,18 @@ export async function createSession(input: CreateInterviewInput) {
   await ensureDbInitialized();
 
   const sessionId = "session-" + Math.random().toString(36).substring(2, 10);
-  const title = input.title || `${input.companyProfile} ${input.targetRole} Interview`;
-  const durationMinutes = input.durationMinutes || 60;
+  const variant = input.interviewModeVariant || "full_mock";
+  const title = input.title || `${input.companyProfile} ${input.targetRole} (${variant}) Interview`;
+  let durationMinutes = input.durationMinutes || 60;
+  if (variant === "pressure_interview") {
+    durationMinutes = Math.min(durationMinutes, 30);
+  }
   const now = new Date();
+
+  let startingRound: RoundNumber = 1;
+  if (variant === "advanced_technical") startingRound = 2;
+  else if (variant === "coding_interview") startingRound = 3;
+  else if (variant === "behavioral_hr") startingRound = 4;
 
   // Create session
   await db.insert(interviewSessions).values({
@@ -70,12 +88,14 @@ export async function createSession(input: CreateInterviewInput) {
     companyProfile: input.companyProfile,
     difficulty: input.difficulty,
     mode: input.mode,
+    interviewModeVariant: variant,
+    resumeProfileId: input.resumeProfileId || null,
     primaryLanguage: input.primaryLanguage || "java",
     durationMinutes,
     topicsEmphasized: JSON.stringify(input.topicsEmphasized || []),
     resumeText: input.resumeText || null,
     status: "in_progress",
-    currentRound: 1,
+    currentRound: startingRound,
     currentQuestionIndex: 0,
     timeRemainingSeconds: durationMinutes * 60,
     isPaused: false,
@@ -90,18 +110,18 @@ export async function createSession(input: CreateInterviewInput) {
       sessionId,
       roundNumber: r as RoundNumber,
       roundName: ROUND_NAMES[r as RoundNumber],
-      status: r === 1 ? "in_progress" : "pending",
-      startedAt: r === 1 ? now : null,
+      status: r === startingRound ? "in_progress" : r < startingRound ? "completed" : "pending",
+      startedAt: r === startingRound ? now : null,
     });
   }
 
-  // Pick first question for Round 1
-  const firstQuestion = await getNextQuestionForRound(sessionId, 1, 0, input);
+  // Pick first question for starting round
+  const firstQuestion = await getNextQuestionForRound(sessionId, startingRound, 0, input);
 
   // Add welcome and initial question message
   const welcomeText = `Welcome to your ${input.companyProfile} Technical Interview for the ${input.targetRole} position.
-I will be conducting your 4-round technical and behavioral evaluation today.
-We will begin with Round 1: ${ROUND_NAMES[1]}.
+Mode: ${variant.replace(/_/g, " ").toUpperCase()}.
+I will be conducting your evaluation today. We will begin with Round ${startingRound}: ${ROUND_NAMES[startingRound]}.
 
 Let's begin with your first question:
 ${firstQuestion.questionText}`;
@@ -109,7 +129,7 @@ ${firstQuestion.questionText}`;
   await db.insert(conversationMessages).values({
     id: "msg-" + Math.random().toString(36).substring(2, 10),
     sessionId,
-    roundNumber: 1,
+    roundNumber: startingRound,
     sender: "interviewer",
     messageType: "question",
     content: welcomeText,
@@ -124,8 +144,59 @@ export async function getNextQuestionForRound(
   sessionId: string,
   roundNumber: RoundNumber,
   questionIndex: number,
-  sessionInput?: { companyProfile?: string; targetRole?: string; resumeText?: string }
+  sessionInput?: { companyProfile?: string; targetRole?: string; resumeText?: string; resumeProfileId?: string; interviewModeVariant?: string }
 ) {
+  // 1. If in Round 2 and candidate has an attached resume profile with projects, ask progressively deeper questions about verified projects
+  if (roundNumber === 2 && sessionInput?.resumeProfileId) {
+    const [prof] = await db
+      .select()
+      .from(resumeProfiles)
+      .where(eq(resumeProfiles.id, sessionInput.resumeProfileId));
+
+    if (prof && prof.extractedProjects) {
+      try {
+        const projects = JSON.parse(prof.extractedProjects);
+        if (projects.length > 0) {
+          const proj = projects[questionIndex % projects.length];
+          const progressive = generateProgressiveProjectQuestions(proj);
+          const qText = questionIndex === 0
+            ? progressive.architectureQuestion
+            : questionIndex === 1
+            ? progressive.tradeOffQuestion
+            : progressive.reliabilityAndFailureQuestion;
+
+          return {
+            id: `proj-${proj.name.replace(/[^a-zA-Z0-9]/g, "-").slice(0, 15)}-${questionIndex}`,
+            category: "backend_api",
+            topic: `Project Architecture: ${proj.name}`,
+            difficulty: "medium",
+            companyTags: JSON.stringify(["Project Discussion"]),
+            questionText: qText,
+            expectedAnswer: `Detailed explanation of ${proj.name} architecture, candidate personal contribution, trade-offs of ${proj.technologies.join(", ")}, and validation/failure handling.`,
+            explanation: "Evaluates candidate's genuine engineering ownership, design trade-offs, and reliability testing.",
+            followUps: JSON.stringify(["What was your biggest architectural bottleneck?"]),
+            rubricFocus: "Project Knowledge & Architecture",
+            createdAt: new Date(),
+          };
+        }
+      } catch {
+        // Fall back to question bank
+      }
+    }
+  }
+
+  // 2. If Revision Interview mode, query priority items from revision queue
+  if (sessionInput?.interviewModeVariant === "revision_interview") {
+    const revItems = await db.select().from(revisionQueue).limit(5);
+    if (revItems.length > 0) {
+      const rev = revItems[questionIndex % revItems.length];
+      if (rev.questionId) {
+        const [qRecord] = await db.select().from(questions).where(eq(questions.id, rev.questionId));
+        if (qRecord) return qRecord;
+      }
+    }
+  }
+
   // Query questions already asked in this session
   const answered = await db
     .select({ qId: candidateAnswers.questionId })
@@ -259,7 +330,7 @@ export async function submitCandidateAnswer(params: {
     questionId: questionId || null,
     questionText,
     answerText,
-    evaluationScore: evaluation.score,
+    evaluationScore: Math.round(evaluation.score),
     rubricBreakdown: JSON.stringify(evaluation.rubricScores),
     strengths: JSON.stringify(evaluation.strengths),
     weaknesses: JSON.stringify(evaluation.weaknesses),
@@ -280,7 +351,24 @@ export async function submitCandidateAnswer(params: {
   if (session.mode === "practice") {
     // In practice mode, provide immediate formative feedback
     interviewerReply += `[Feedback: Score ${evaluation.score}/100]\n${evaluation.feedback}\n\n`;
+
+    // Immediate communication coaching in Practice Mode
+    const commIssue = evaluateSingleTurnCommunication(answerText);
+    if (commIssue) {
+      interviewerReply += `💡 [Communication Tip]: In "${commIssue.submittedSentence}", note: ${commIssue.reason}. Try phrasing it as: "${commIssue.improvedInterviewVersion || commIssue.correctedSentence}".\n\n`;
+    }
   }
+
+  // Audit API usage
+  await logAPIUsage({
+    service: isLiveAIConfigured() ? "groq_ai" : "system",
+    endpoint: "/api/interviews/answer",
+    modelOrLang: process.env.GROQ_MODEL || "deterministic-engine",
+    status: "success",
+    responseTimeMs: Math.max(10, Date.now() - now.getTime()),
+    promptTokensEst: Math.round((questionText.length + answerText.length) / 4),
+    completionTokensEst: Math.round(evaluation.feedback.length / 4),
+  });
 
   if (isRoundFinished) {
     // Complete current round
@@ -829,6 +917,14 @@ ${p.tasks.map(t => `- ${t}`).join("\n")}`
       completedAt: now,
     })
     .where(eq(interviewSessions.id, sessionId));
+
+  // Sync persistent candidate skills profile and spaced-repetition revision queue
+  try {
+    await updateSkillsProfileFromSession(sessionId);
+    await syncRevisionQueueFromSession(sessionId);
+  } catch (syncErr) {
+    console.error("Skills / Revision queue sync error:", syncErr);
+  }
 
   return { reportId, overallScore, reportData, markdownExport };
 }

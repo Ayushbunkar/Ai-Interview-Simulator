@@ -17,6 +17,8 @@ import {
   Info,
 } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
+import { APIUsageSummary } from "@/lib/types";
+import { Activity, ShieldCheck } from "lucide-react";
 
 interface SettingsState {
   ai: {
@@ -43,6 +45,7 @@ export default function SettingsPage() {
   const { theme, toggleTheme } = useTheme();
 
   const [settings, setSettings] = useState<SettingsState | null>(null);
+  const [usageSummary, setUsageSummary] = useState<APIUsageSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
 
@@ -60,9 +63,14 @@ export default function SettingsPage() {
 
   const fetchSettings = async () => {
     try {
-      const res = await fetch("/api/settings");
+      const [res, uRes] = await Promise.all([
+        fetch("/api/settings"),
+        fetch("/api/usage"),
+      ]);
       const data = await res.json();
+      const uData = await uRes.json();
       setSettings(data);
+      setUsageSummary(uData?.summary || null);
       if (data.preferences) {
         setDefaultLanguage(data.preferences.defaultLanguage);
         setDefaultDuration(data.preferences.defaultDuration);
@@ -355,6 +363,62 @@ export default function SettingsPage() {
           </button>
         </div>
       </form>
+
+      {/* 3B. API Usage & Reliability Dashboard */}
+      <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-bold text-white flex items-center gap-2">
+            <Activity className="h-4 w-4 text-cyan-400" />
+            <span>API Usage & Reliability Dashboard</span>
+          </h2>
+          <span className="rounded bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 text-[10px] font-semibold text-cyan-300">
+            Local Application Auditing
+          </span>
+        </div>
+
+        <p className="text-xs text-gray-400">
+          Tracks application-side request counts, latency, and error states.
+          <strong className="text-gray-300"> Disclaimer:</strong> All token numbers and request metrics represent application-side approximations rather than provider-confirmed quota consumption.
+        </p>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="rounded-lg border border-gray-800 bg-gray-950 p-3 text-center">
+            <div className="text-xl font-bold text-blue-400">{usageSummary?.totalAiRequests ?? 0}</div>
+            <div className="text-[10px] text-gray-500 mt-0.5">Groq AI Requests</div>
+          </div>
+          <div className="rounded-lg border border-gray-800 bg-gray-950 p-3 text-center">
+            <div className="text-xl font-bold text-emerald-400">{usageSummary?.totalCompilerRequests ?? 0}</div>
+            <div className="text-[10px] text-gray-500 mt-0.5">Compiler Executions</div>
+          </div>
+          <div className="rounded-lg border border-gray-800 bg-gray-950 p-3 text-center">
+            <div className="text-xl font-bold text-purple-400">~{usageSummary?.estimatedTokens ?? 0}</div>
+            <div className="text-[10px] text-gray-500 mt-0.5">Estimated Tokens</div>
+          </div>
+          <div className="rounded-lg border border-gray-800 bg-gray-950 p-3 text-center">
+            <div className="text-xl font-bold text-amber-400">{usageSummary?.totalErrors ?? 0}</div>
+            <div className="text-[10px] text-gray-500 mt-0.5">Recorded Exceptions</div>
+          </div>
+        </div>
+
+        {usageSummary?.recentLogs && usageSummary.recentLogs.length > 0 && (
+          <div className="space-y-1.5 pt-2">
+            <h4 className="text-[11px] font-semibold text-gray-300">Recent API Audit Log</h4>
+            <div className="max-h-36 overflow-y-auto space-y-1 rounded-lg border border-gray-800 bg-gray-950 p-2 font-mono text-[10px]">
+              {usageSummary.recentLogs.map((log, idx) => (
+                <div key={idx} className="flex items-center justify-between text-gray-400">
+                  <span className="text-gray-300">[{log.service.toUpperCase()}] {log.endpoint}</span>
+                  <div className="flex items-center gap-2">
+                    <span className={log.status === "success" ? "text-emerald-400" : "text-red-400"}>
+                      {log.status}
+                    </span>
+                    <span className="text-gray-500">{log.responseTimeMs}ms</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
 
       {/* 4. Local Data Management */}
       <div className="rounded-xl border border-red-500/20 bg-gray-900/60 p-5 space-y-4">

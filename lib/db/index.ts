@@ -199,6 +199,91 @@ export async function ensureDbInitialized() {
         value TEXT NOT NULL,
         updated_at TIMESTAMP NOT NULL DEFAULT NOW()
       );
+
+      ALTER TABLE interview_sessions ADD COLUMN IF NOT EXISTS interview_mode_variant TEXT NOT NULL DEFAULT 'full_mock';
+      ALTER TABLE interview_sessions ADD COLUMN IF NOT EXISTS resume_profile_id TEXT;
+
+      CREATE TABLE IF NOT EXISTS resume_profiles (
+        id TEXT PRIMARY KEY,
+        candidate_name TEXT,
+        target_role TEXT,
+        experience_level TEXT,
+        raw_resume_text TEXT,
+        raw_job_description TEXT,
+        extracted_skills TEXT NOT NULL DEFAULT '[]',
+        extracted_projects TEXT NOT NULL DEFAULT '[]',
+        extracted_technologies TEXT NOT NULL DEFAULT '[]',
+        extracted_topics TEXT NOT NULL DEFAULT '[]',
+        job_requirements TEXT NOT NULL DEFAULT '[]',
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS candidate_skills_profile (
+        id TEXT PRIMARY KEY,
+        skill_category TEXT NOT NULL UNIQUE,
+        label TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'not_assessed',
+        score INTEGER,
+        times_assessed INTEGER NOT NULL DEFAULT 0,
+        times_correct INTEGER NOT NULL DEFAULT 0,
+        evidence_notes TEXT NOT NULL DEFAULT '[]',
+        last_assessed_at TIMESTAMP,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS revision_queue (
+        id TEXT PRIMARY KEY,
+        item_type TEXT NOT NULL,
+        question_id TEXT,
+        problem_id TEXT,
+        title TEXT NOT NULL,
+        topic TEXT NOT NULL,
+        skill_category TEXT NOT NULL,
+        reason TEXT NOT NULL,
+        evidence_context TEXT NOT NULL,
+        reference_notes TEXT NOT NULL,
+        repetition_count INTEGER NOT NULL DEFAULT 0,
+        interval_days INTEGER NOT NULL DEFAULT 1,
+        ease_factor REAL NOT NULL DEFAULT 2.5,
+        next_review_due TIMESTAMP NOT NULL DEFAULT NOW(),
+        status TEXT NOT NULL DEFAULT 'pending',
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS revision_attempts (
+        id TEXT PRIMARY KEY,
+        revision_item_id TEXT NOT NULL REFERENCES revision_queue(id),
+        candidate_response TEXT NOT NULL,
+        score INTEGER NOT NULL,
+        feedback TEXT NOT NULL,
+        reviewed_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS api_usage_logs (
+        id TEXT PRIMARY KEY,
+        service TEXT NOT NULL,
+        endpoint TEXT NOT NULL,
+        model_or_lang TEXT NOT NULL,
+        status TEXT NOT NULL,
+        response_time_ms INTEGER NOT NULL,
+        prompt_tokens_est INTEGER NOT NULL DEFAULT 0,
+        completion_tokens_est INTEGER NOT NULL DEFAULT 0,
+        error_message TEXT,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS coding_steps_log (
+        id TEXT PRIMARY KEY,
+        session_id TEXT NOT NULL REFERENCES interview_sessions(id),
+        problem_id TEXT NOT NULL REFERENCES coding_problems(id),
+        step_type TEXT NOT NULL,
+        content TEXT NOT NULL,
+        metadata TEXT,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
     `);
 
     // 2. Check if questions are seeded, if not auto-seed

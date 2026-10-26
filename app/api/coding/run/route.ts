@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getCompilerProvider } from "@/lib/compiler";
 import { prepareExecutionSource } from "@/lib/compiler/harness";
+import { logAPIUsage } from "@/lib/ai/usage-tracker";
 
 const RunCodeSchema = z.object({
   language: z.enum(["java", "python", "cpp"]),
@@ -37,6 +38,15 @@ export async function POST(request: NextRequest) {
       sourceCode: preparedCode,
       stdin: validated.stdin,
       timeoutMs: 15000,
+    });
+
+    await logAPIUsage({
+      service: "onlinecompiler",
+      endpoint: "/api/coding/run",
+      modelOrLang: validated.language,
+      status: result.success ? "success" : "error",
+      responseTimeMs: Math.round(Number(result.time || "0.2") * 1000),
+      errorMessage: result.error || result.stderr || undefined,
     });
 
     return NextResponse.json({

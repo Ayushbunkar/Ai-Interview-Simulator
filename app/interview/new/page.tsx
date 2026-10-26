@@ -15,7 +15,8 @@ import {
   Play,
   CheckCircle2,
 } from "lucide-react";
-import { CompanyProfile, InterviewMode } from "@/lib/types";
+import { CompanyProfile, InterviewMode, InterviewModeVariant, ExtractedProject } from "@/lib/types";
+import { Upload, Trash2, CheckCircle, Zap } from "lucide-react";
 
 function InterviewSetupContent() {
   const router = useRouter();
@@ -30,15 +31,32 @@ function InterviewSetupContent() {
   const [targetRole, setTargetRole] = useState("Junior Java / Backend Developer");
   const [difficulty, setDifficulty] = useState<"fresher" | "entry_level" | "intermediate" | "experienced">("fresher");
   const [mode, setMode] = useState<InterviewMode>("strict");
+  const [interviewModeVariant, setInterviewModeVariant] = useState<InterviewModeVariant>("full_mock");
   const [primaryLanguage, setPrimaryLanguage] = useState<"java" | "python" | "cpp">("java");
   const [durationMinutes, setDurationMinutes] = useState(45);
   const [resumeText, setResumeText] = useState("");
+  const [jobDescription, setJobDescription] = useState("");
+  const [resumeProfileId, setResumeProfileId] = useState<string | null>(null);
+  const [extractedInfo, setExtractedInfo] = useState<{ skills: string[]; projects: ExtractedProject[]; technologies: string[] } | null>(null);
+  const [parsingResume, setParsingResume] = useState(false);
   const [selectedTopics, setSelectedTopics] = useState<string[]>([
     "Java Fundamentals & OOP",
     "SQL & DBMS",
     "Data Structures & Complexity",
     "REST APIs & Web",
   ]);
+
+  const modeVariants: { id: InterviewModeVariant; label: string; desc: string }[] = [
+    { id: "full_mock", label: "Full Mock Interview", desc: "Standard 4-round hiring simulation (Fundamentals, Advanced, Coding, HR)." },
+    { id: "technical_fundamentals", label: "Technical Fundamentals", desc: "Focuses exclusively on Round 1: Core OOP, Java, syntax & data structures." },
+    { id: "advanced_technical", label: "Advanced CS & Projects", desc: "Round 2 deep dive: system design, databases, networks, and verified projects." },
+    { id: "coding_interview", label: "Coding Room Drill", desc: "Immediate LeetCode-style problem solving with Monaco editor & compiler." },
+    { id: "behavioral_hr", label: "Behavioral & HR Round", desc: "STAR framework behavioral evaluation, situational questions & culture fit." },
+    { id: "pressure_interview", label: "Pressure Interview", desc: "Fast-paced express evaluation with stricter timing (25m) and fewer hints." },
+    { id: "voice_practice", label: "Voice Practice Drill", desc: "Spoken verbal practice with microphone turn-taking and articulation checks." },
+    { id: "communication_practice", label: "Communication Coaching", desc: "Immediate grammar, filler word, and interview phrasing feedback." },
+    { id: "revision_interview", label: "Spaced Revision Interview", desc: "Practices questions and topics from your personal spaced-repetition queue." },
+  ];
 
   const companies: { id: CompanyProfile; label: string; desc: string }[] = [
     { id: "TCS", label: "TCS", desc: "Digital & Ninja placement style. Focus on OOP, Java, SQL, and fundamentals." },
@@ -67,6 +85,51 @@ function InterviewSetupContent() {
     );
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setParsingResume(true);
+    setError(null);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("targetRole", targetRole);
+      formData.append("experienceLevel", difficulty);
+      formData.append("rawJobDescription", jobDescription);
+
+      const res = await fetch("/api/resume/parse", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to parse resume document");
+
+      setResumeProfileId(data.profileId);
+      setExtractedInfo(data.extracted);
+      setResumeText(data.rawResumeText);
+    } catch (err: any) {
+      setError(err.message || "Failed to upload and parse resume.");
+    } finally {
+      setParsingResume(false);
+    }
+  };
+
+  const handleClearResume = async () => {
+    if (resumeProfileId) {
+      try {
+        await fetch(`/api/resume/profile/${resumeProfileId}`, { method: "DELETE" });
+      } catch {
+        // continue
+      }
+    }
+    setResumeProfileId(null);
+    setExtractedInfo(null);
+    setResumeText("");
+    setJobDescription("");
+  };
+
   const handleStart = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -77,11 +140,13 @@ function InterviewSetupContent() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title: `${companyProfile} ${targetRole} Mock Session`,
+          title: `${companyProfile} ${targetRole} (${interviewModeVariant})`,
           targetRole,
           companyProfile,
           difficulty,
           mode,
+          interviewModeVariant,
+          resumeProfileId: resumeProfileId || undefined,
           primaryLanguage,
           durationMinutes: Number(durationMinutes),
           topicsEmphasized: selectedTopics,
@@ -208,7 +273,7 @@ function InterviewSetupContent() {
           <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-5 space-y-3">
             <div className="text-xs font-bold text-white flex items-center gap-2">
               <ShieldAlert className="h-4 w-4 text-amber-400" />
-              <span>Simulation Mode</span>
+              <span>Simulation Feedback Mode</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <button
@@ -221,11 +286,11 @@ function InterviewSetupContent() {
                 }`}
               >
                 <div className="flex items-center justify-between font-semibold text-xs text-white">
-                  <span>Strict Interview (Recommended)</span>
+                  <span>Strict Interview (Hiring Pressure)</span>
                   {mode === "strict" && <CheckCircle2 className="h-3.5 w-3.5 text-amber-400" />}
                 </div>
                 <p className="mt-1 text-[11px] text-gray-400">
-                  Real hiring pressure: No immediate answers revealed, no unsolicited hints. Evaluates performance at the end with a full report.
+                  Real hiring conditions: No immediate answers or hints revealed during rounds. Full evaluation presented in the final report.
                 </p>
               </button>
 
@@ -239,13 +304,50 @@ function InterviewSetupContent() {
                 }`}
               >
                 <div className="flex items-center justify-between font-semibold text-xs text-white">
-                  <span>Practice & Coaching Mode</span>
+                  <span>Practice & Formative Coaching</span>
                   {mode === "practice" && <CheckCircle2 className="h-3.5 w-3.5 text-blue-400" />}
                 </div>
                 <p className="mt-1 text-[11px] text-gray-400">
-                  Formative coaching: Instant score and feedback after every answer, progressive hints, and reference explanation benchmarks.
+                  Live coaching: Formative scores, immediate speech/grammar coaching tips, and progressive hints after each answer.
                 </p>
               </button>
+            </div>
+          </div>
+
+          {/* 3B. Interview Mode Variant (Phase 2 Specialized Modes) */}
+          <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-5 space-y-3">
+            <div className="text-xs font-bold text-white flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <Zap className="h-3.5 w-3.5 text-yellow-400" />
+                <span>Specialized Interview Variant</span>
+              </div>
+              <span className="text-[11px] text-gray-400 font-normal">Select the specific format to rehearse</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {modeVariants.map(mv => {
+                const isSelected = interviewModeVariant === mv.id;
+                return (
+                  <button
+                    key={mv.id}
+                    type="button"
+                    onClick={() => {
+                      setInterviewModeVariant(mv.id);
+                      if (mv.id === "pressure_interview") setDurationMinutes(25);
+                    }}
+                    className={`text-left rounded-lg border p-3 transition-all ${
+                      isSelected
+                        ? "border-yellow-500/80 bg-yellow-500/10 ring-1 ring-yellow-500/30"
+                        : "border-gray-800 bg-gray-950/60 hover:border-gray-700"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between font-semibold text-xs text-white">
+                      <span>{mv.label}</span>
+                      {isSelected && <CheckCircle2 className="h-3.5 w-3.5 text-yellow-400" />}
+                    </div>
+                    <p className="mt-1 text-[10px] text-gray-400 leading-normal">{mv.desc}</p>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -317,22 +419,90 @@ function InterviewSetupContent() {
             </div>
           </div>
 
-          {/* 6. Optional Resume / Project Description */}
-          <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-5 space-y-3">
-            <label className="text-xs font-bold text-white flex items-center gap-1.5">
-              <FileText className="h-3.5 w-3.5 text-purple-400" />
-              <span>Resume Summary / Key Projects (Optional)</span>
-            </label>
-            <textarea
-              rows={3}
-              value={resumeText}
-              onChange={e => setResumeText(e.target.value)}
-              placeholder="Paste your key project summaries or tech stack (e.g. 'Built an e-commerce backend using Spring Boot, PostgreSQL, and Redis caching. Handled 1000 orders/min with optimistic locking.')."
-              className="w-full rounded-lg border border-gray-800 bg-gray-950 p-3 text-xs text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
-            />
-            <p className="text-[11px] text-gray-400">
-              When provided, Round 2 dynamically interrogates your real project architecture and technical trade-offs.
-            </p>
+          {/* 6. Resume & Job Description Intelligence */}
+          <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-white flex items-center gap-1.5">
+                <FileText className="h-3.5 w-3.5 text-purple-400" />
+                <span>Resume & Job Description Intelligence (Optional)</span>
+              </label>
+              {extractedInfo && (
+                <button
+                  type="button"
+                  onClick={handleClearResume}
+                  className="inline-flex items-center gap-1 text-[11px] text-red-400 hover:text-red-300 transition"
+                >
+                  <Trash2 className="h-3 w-3" />
+                  <span>Clear & Delete Document</span>
+                </button>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* PDF or Text file upload */}
+              <div className="rounded-lg border border-dashed border-gray-800 bg-gray-950/60 p-4 text-center">
+                <Upload className="mx-auto h-5 w-5 text-gray-500 mb-1.5" />
+                <p className="text-xs font-medium text-gray-300 mb-1">Upload Resume (PDF or TXT)</p>
+                <p className="text-[10px] text-gray-500 mb-3">Extracted skills & projects will be probed strictly without fabrication.</p>
+                <input
+                  type="file"
+                  accept=".pdf,.txt"
+                  onChange={handleFileUpload}
+                  disabled={parsingResume}
+                  className="text-[11px] text-gray-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[11px] file:font-medium file:bg-purple-600/30 file:text-purple-300 hover:file:bg-purple-600/50 cursor-pointer"
+                />
+                {parsingResume && <p className="mt-2 text-[11px] text-purple-400 animate-pulse">Extracting skills & architecture...</p>}
+              </div>
+
+              {/* Pasted text option */}
+              <div className="space-y-2">
+                <textarea
+                  rows={4}
+                  value={resumeText}
+                  onChange={e => setResumeText(e.target.value)}
+                  placeholder="Or paste resume summary / key project descriptions here..."
+                  className="w-full rounded-lg border border-gray-800 bg-gray-950 p-2.5 text-xs text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Pasted Job Description */}
+            <div>
+              <label className="text-[11px] font-semibold text-gray-300 mb-1 block">
+                Target Job Description (Optional)
+              </label>
+              <textarea
+                rows={2}
+                value={jobDescription}
+                onChange={e => setJobDescription(e.target.value)}
+                placeholder="Paste the target job description to emphasize required company competencies and stack requirements..."
+                className="w-full rounded-lg border border-gray-800 bg-gray-950 p-2.5 text-xs text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+
+            {/* Extracted Intelligence Badge Card */}
+            {extractedInfo && (
+              <div className="rounded-lg border border-purple-500/30 bg-purple-500/10 p-3.5 space-y-2">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-purple-300">
+                  <CheckCircle className="h-3.5 w-3.5 text-purple-400" />
+                  <span>Verified Resume Intelligence Extracted (Zero-Fabrication Guarantee)</span>
+                </div>
+                {extractedInfo.skills.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5">
+                    {extractedInfo.skills.map(s => (
+                      <span key={s} className="rounded-md bg-purple-900/40 border border-purple-700/50 px-2 py-0.5 text-[10px] text-purple-200">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {extractedInfo.projects.length > 0 && (
+                  <p className="text-[11px] text-gray-300">
+                    <strong className="text-white">Detected Projects:</strong> {extractedInfo.projects.map(p => p.name).join(", ")}. Round 2 will progressively interrogate their architecture and trade-offs.
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Submit Action */}

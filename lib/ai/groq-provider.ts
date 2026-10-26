@@ -20,7 +20,7 @@ const RubricItemSchema = z.union([
 ]);
 
 const EvaluationSchema = z.object({
-  score: z.number().min(0).max(100),
+  score: z.number().min(0).max(100).transform(s => Math.round(s)),
   strengths: z.array(z.string()).default([]),
   weaknesses: z.array(z.string()).default([]),
   feedback: z.string(),

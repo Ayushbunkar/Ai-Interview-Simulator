@@ -168,3 +168,27 @@ export function evaluateCandidateCommunication(candidateTranscripts: string[]): 
       "Communication assessment is performed strictly on submitted text transcripts. Accents, voice pitch, regional dialects, and speech pace are not measured or penalized. Certain technical acronyms or proper nouns may reflect speech recognition approximations rather than candidate intent.",
   };
 }
+
+/**
+ * Evaluates a single answer transcript for immediate formative coaching in Practice Mode.
+ * Returns null if no major issues were identified to keep conversation fluid.
+ */
+export function evaluateSingleTurnCommunication(transcript: string): CommunicationIssue | null {
+  if (!transcript || transcript.trim().length < 15) return null;
+
+  for (const rule of GRAMMAR_RULES) {
+    const match = transcript.match(rule.pattern);
+    if (match) {
+      const { corrected, interviewReady } = rule.correctionBuilder(match, transcript);
+      return {
+        submittedSentence: transcript,
+        identifiedIssue: rule.identifiedIssue,
+        correctedSentence: corrected,
+        reason: rule.reason,
+        improvedInterviewVersion: interviewReady,
+      };
+    }
+  }
+  return null;
+}
+

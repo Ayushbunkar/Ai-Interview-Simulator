@@ -8,6 +8,17 @@ export type InterviewRoundName =
 
 export type InterviewMode = "strict" | "practice";
 
+export type InterviewModeVariant =
+  | "full_mock"
+  | "technical_fundamentals"
+  | "advanced_technical"
+  | "coding_interview"
+  | "behavioral_hr"
+  | "voice_practice"
+  | "communication_practice"
+  | "pressure_interview"
+  | "revision_interview";
+
 export type CompanyProfile =
   | "TCS"
   | "Capgemini"
@@ -228,4 +239,115 @@ export interface FinalReportSummary {
   }[];
   finalReadinessAssessment: "Strong Hire" | "Hire" | "Needs Practice" | "Major Revisions Needed";
   readinessSummary: string;
+}
+
+// ---------------------------------------------------------------------------
+// Phase 2 Intelligence & Analytics Types
+// ---------------------------------------------------------------------------
+export interface ExtractedProject {
+  name: string;
+  technologies: string[];
+  responsibilities: string[];
+  architecture?: string;
+  tradeOffs?: string;
+  claimedImpact?: string;
+}
+
+export interface ResumeProfileData {
+  id: string;
+  candidateName?: string;
+  targetRole?: string;
+  experienceLevel?: string;
+  rawResumeText?: string;
+  rawJobDescription?: string;
+  extractedSkills: string[];
+  extractedProjects: ExtractedProject[];
+  extractedTechnologies: string[];
+  extractedTopics: string[];
+  jobRequirements: string[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CandidateSkillRecord {
+  id: string;
+  skillCategory: string;
+  label: string;
+  status: "not_assessed" | "weak" | "proficient" | "mastered";
+  score: number | null;
+  timesAssessed: number;
+  timesCorrect: number;
+  evidenceNotes: string[];
+  lastAssessedAt?: string | null;
+}
+
+export interface RevisionItem {
+  id: string;
+  itemType: "question" | "problem" | "weakness_topic";
+  questionId?: string;
+  problemId?: string;
+  title: string;
+  topic: string;
+  skillCategory: string;
+  reason: "previously_incorrect" | "low_confidence" | "repeated_mistake" | "due_for_revision";
+  evidenceContext: string;
+  referenceNotes: string;
+  repetitionCount: number;
+  intervalDays: number;
+  easeFactor: number;
+  nextReviewDue: string;
+  status: "pending" | "reviewed" | "mastered";
+  createdAt: string;
+  updatedAt: string;
+}
+
+export type CodingStepType =
+  | "approach_explained"
+  | "brute_force_proposed"
+  | "optimized_chosen"
+  | "complexity_stated"
+  | "code_revision"
+  | "compiler_run"
+  | "debugging_step"
+  | "ai_probe";
+
+export interface CodingStepEntry {
+  id: string;
+  sessionId: string;
+  problemId: string;
+  stepType: CodingStepType;
+  content: string;
+  metadata?: any;
+  createdAt: string;
+}
+
+export interface APIUsageSummary {
+  totalAiRequests: number;
+  totalCompilerRequests: number;
+  totalErrors: number;
+  totalTimeouts: number;
+  totalRetries: number;
+  estimatedTokens: number;
+  isEstimated: boolean;
+  recentLogs: {
+    service: string;
+    endpoint: string;
+    status: string;
+    responseTimeMs: number;
+    createdAt: string;
+  }[];
+}
+
+export interface HistoricalAnalyticsSummary {
+  totalInterviews: number;
+  completedInterviews: number;
+  averageScore: number;
+  scoreTrend: { date: string; score: number; title: string }[];
+  roundAverages: { round: string; averageScore: number }[];
+  topicMastery: { topic: string; score: number; status: string }[];
+  codingAcceptanceRate: number;
+  repeatedMistakes: string[];
+  englishProficiencyTrend: { date: string; grammarScore: number; clarityScore: number }[];
+  revisionCompletionRate: number;
+  hasSufficientData: boolean;
 }

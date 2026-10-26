@@ -4,6 +4,8 @@ import { db, ensureDbInitialized } from "@/lib/db";
 import { codingProblems, testCases, codeSubmissions, executionResults } from "@/lib/db/schema";
 import { eq, asc } from "drizzle-orm";
 import { evaluateCodeAgainstTestCases, getCompilerProvider } from "@/lib/compiler";
+import { logAPIUsage } from "@/lib/ai/usage-tracker";
+import { logCodingStep } from "@/lib/coding/coding-tracker";
 
 const SubmitCodeSchema = z.object({
   problemSlug: z.string().min(1, "Problem slug is required"),
@@ -90,6 +92,31 @@ export async function POST(request: NextRequest) {
         executionTimeMs: tr.executionTimeMs || null,
         memoryKb: tr.memoryKb || null,
         error: tr.error || null,
+      });
+    }
+
+    // Log API usage and coding step
+    await logAPIUsage({
+      service: "onlinecompiler",
+      endpoint: "/api/coding/submit",
+      modelOrLang: validated.language,
+      status: evalResult.status === "accepted" ? "success" : "error",
+      responseTimeMs: Math.round(Number(evalResult.runtimeMs || 250)),
+      errorMessage: evalResult.errorMessage || evalResult.compileOutput || undefined,
+    });
+
+    if (validated.sessionId) {
+      await logCodingStep({
+        sessionId: validated.sessionId,
+        problemId: problem.id,
+        stepType: "compiler_run",
+        content: `Candidate executed compiler submission in ${validated.language}. Status: ${evalResult.status} (${evalResult.passedCount}/${evalResult.totalCount} passed).`,
+        metadata: {
+          submissionId,
+          status: evalResult.status,
+          passedCount: evalResult.passedCount,
+          totalCount: evalResult.totalCount,
+        },
       });
     }
 

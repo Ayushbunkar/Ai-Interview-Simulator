@@ -21,6 +21,20 @@ const CreateInterviewSchema = z.object({
   ]),
   difficulty: z.enum(["fresher", "entry_level", "intermediate", "experienced"]),
   mode: z.enum(["strict", "practice"]),
+  interviewModeVariant: z
+    .enum([
+      "full_mock",
+      "technical_fundamentals",
+      "advanced_technical",
+      "coding_interview",
+      "behavioral_hr",
+      "voice_practice",
+      "communication_practice",
+      "pressure_interview",
+      "revision_interview",
+    ])
+    .optional(),
+  resumeProfileId: z.string().optional(),
   primaryLanguage: z.enum(["java", "python", "cpp"]).default("java"),
   durationMinutes: z.number().min(15).max(180).default(60),
   topicsEmphasized: z.array(z.string()).optional(),
