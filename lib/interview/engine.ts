@@ -1,4 +1,4 @@
-import { db, ensureDbInitialized, sqliteClient } from "../db";
+import { db, ensureDbInitialized } from "../db";
 import {
   interviewSessions,
   interviewRounds,

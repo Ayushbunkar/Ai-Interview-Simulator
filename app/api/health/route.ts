@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ensureDbInitialized, sqliteClient } from "@/lib/db";
+import { ensureDbInitialized, pool } from "@/lib/db";
 import { isLiveAIConfigured } from "@/lib/ai";
 import { getCompilerProvider } from "@/lib/compiler";
 
@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     await ensureDbInitialized();
-    const dbCheck = await sqliteClient.execute("SELECT count(*) as count FROM questions;");
+    const dbCheck = await pool.query("SELECT count(*) as count FROM questions;");
     const compiler = getCompilerProvider();
 
     return NextResponse.json({
@@ -17,7 +17,8 @@ export async function GET() {
       timestamp: new Date().toISOString(),
       database: {
         connected: true,
-        questionsCount: dbCheck.rows[0]?.count || 0,
+        type: "Neon Serverless PostgreSQL",
+        questionsCount: parseInt(dbCheck.rows[0]?.count || "0", 10),
       },
       ai: {
         configured: isLiveAIConfigured(),

@@ -1,25 +1,23 @@
-import { createClient } from "@libsql/client";
-import { drizzle } from "drizzle-orm/libsql";
+import { Pool } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-serverless";
 import * as schema from "./schema";
 
-const defaultDbUrl = process.env.VERCEL ? "file:/tmp/interviewforge.db" : "file:interviewforge.db";
-const dbUrl = process.env.DATABASE_URL || defaultDbUrl;
-const authToken = process.env.DATABASE_AUTH_TOKEN;
+const defaultConnectionString =
+  "postgresql://neondb_owner:npg_tTLgX27mQpyJ@ep-red-cloud-b5l16io3-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require";
 
-export const sqliteClient = createClient({
-  url: dbUrl,
-  authToken: authToken,
-});
+const connectionString = process.env.DATABASE_URL || defaultConnectionString;
 
-export const db = drizzle(sqliteClient, { schema });
+export const pool = new Pool({ connectionString });
+export const sqliteClient = pool; // backwards-compatible alias
+export const db = drizzle(pool, { schema });
 
-// Auto-initialize SQLite tables deterministically if they do not exist
 let initialized = false;
 
 export async function ensureDbInitialized() {
   if (initialized) return;
   try {
-    await sqliteClient.execute(`
+    // 1. Ensure all tables exist in Neon PostgreSQL
+    await pool.query(`
       CREATE TABLE IF NOT EXISTS questions (
         id TEXT PRIMARY KEY,
         category TEXT NOT NULL,
@@ -31,11 +29,9 @@ export async function ensureDbInitialized() {
         explanation TEXT NOT NULL,
         follow_ups TEXT NOT NULL,
         rubric_focus TEXT,
-        created_at INTEGER NOT NULL
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
       );
-    `);
 
-    await sqliteClient.execute(`
       CREATE TABLE IF NOT EXISTS coding_problems (
         id TEXT PRIMARY KEY,
         title TEXT NOT NULL,
@@ -56,23 +52,19 @@ export async function ensureDbInitialized() {
         time_complexity TEXT NOT NULL,
         space_complexity TEXT NOT NULL,
         hints TEXT NOT NULL,
-        created_at INTEGER NOT NULL
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
       );
-    `);
 
-    await sqliteClient.execute(`
       CREATE TABLE IF NOT EXISTS test_cases (
         id TEXT PRIMARY KEY,
         problem_id TEXT NOT NULL REFERENCES coding_problems(id),
         input TEXT NOT NULL,
         expected_output TEXT NOT NULL,
-        is_hidden INTEGER NOT NULL DEFAULT 0,
+        is_hidden BOOLEAN NOT NULL DEFAULT FALSE,
         explanation TEXT,
         order_index INTEGER NOT NULL
       );
-    `);
 
-    await sqliteClient.execute(`
       CREATE TABLE IF NOT EXISTS interview_sessions (
         id TEXT PRIMARY KEY,
         title TEXT NOT NULL,
@@ -88,16 +80,14 @@ export async function ensureDbInitialized() {
         current_round INTEGER NOT NULL DEFAULT 1,
         current_question_index INTEGER NOT NULL DEFAULT 0,
         time_remaining_seconds INTEGER NOT NULL DEFAULT 3600,
-        is_paused INTEGER NOT NULL DEFAULT 0,
-        started_at INTEGER,
-        paused_at INTEGER,
-        completed_at INTEGER,
+        is_paused BOOLEAN NOT NULL DEFAULT FALSE,
+        started_at TIMESTAMP,
+        paused_at TIMESTAMP,
+        completed_at TIMESTAMP,
         total_score INTEGER,
-        created_at INTEGER NOT NULL
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
       );
-    `);
 
-    await sqliteClient.execute(`
       CREATE TABLE IF NOT EXISTS interview_rounds (
         id TEXT PRIMARY KEY,
         session_id TEXT NOT NULL REFERENCES interview_sessions(id),
@@ -107,12 +97,10 @@ export async function ensureDbInitialized() {
         score INTEGER,
         rubric_scores TEXT,
         round_feedback TEXT,
-        started_at INTEGER,
-        completed_at INTEGER
+        started_at TIMESTAMP,
+        completed_at TIMESTAMP
       );
-    `);
 
-    await sqliteClient.execute(`
       CREATE TABLE IF NOT EXISTS conversation_messages (
         id TEXT PRIMARY KEY,
         session_id TEXT NOT NULL REFERENCES interview_sessions(id),
@@ -121,11 +109,9 @@ export async function ensureDbInitialized() {
         message_type TEXT NOT NULL,
         content TEXT NOT NULL,
         metadata TEXT,
-        timestamp INTEGER NOT NULL
+        timestamp TIMESTAMP NOT NULL DEFAULT NOW()
       );
-    `);
 
-    await sqliteClient.execute(`
       CREATE TABLE IF NOT EXISTS candidate_answers (
         id TEXT PRIMARY KEY,
         session_id TEXT NOT NULL REFERENCES interview_sessions(id),
@@ -141,11 +127,9 @@ export async function ensureDbInitialized() {
         follow_up_asked TEXT,
         follow_up_answer TEXT,
         follow_up_evaluation TEXT,
-        created_at INTEGER NOT NULL
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
       );
-    `);
 
-    await sqliteClient.execute(`
       CREATE TABLE IF NOT EXISTS code_submissions (
         id TEXT PRIMARY KEY,
         session_id TEXT,
@@ -159,25 +143,33 @@ export async function ensureDbInitialized() {
         memory_kb INTEGER,
         compile_output TEXT,
         error_message TEXT,
-        created_at INTEGER NOT NULL
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
       );
-    `);
 
-    await sqliteClient.execute(`
       CREATE TABLE IF NOT EXISTS execution_results (
         id TEXT PRIMARY KEY,
         submission_id TEXT NOT NULL REFERENCES code_submissions(id),
         test_case_id TEXT NOT NULL REFERENCES test_cases(id),
-        passed INTEGER NOT NULL,
+        passed BOOLEAN NOT NULL,
         actual_output TEXT,
         expected_output TEXT,
         execution_time_ms REAL,
         memory_kb INTEGER,
         error TEXT
       );
-    `);
 
-    await sqliteClient.execute(`
+      CREATE TABLE IF NOT EXISTS evaluations (
+        id TEXT PRIMARY KEY,
+        session_id TEXT NOT NULL REFERENCES interview_sessions(id),
+        round_number INTEGER NOT NULL,
+        overall_score INTEGER NOT NULL,
+        rubric_scores TEXT NOT NULL,
+        strengths TEXT NOT NULL,
+        improvements TEXT NOT NULL,
+        detailed_notes TEXT NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
       CREATE TABLE IF NOT EXISTS interview_reports (
         id TEXT PRIMARY KEY,
         session_id TEXT NOT NULL REFERENCES interview_sessions(id),
@@ -191,34 +183,34 @@ export async function ensureDbInitialized() {
         readiness_summary TEXT NOT NULL,
         readiness_level TEXT NOT NULL,
         markdown_export TEXT NOT NULL,
-        created_at INTEGER NOT NULL
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
       );
-    `);
 
-    await sqliteClient.execute(`
       CREATE TABLE IF NOT EXISTS bookmarks (
         id TEXT PRIMARY KEY,
         item_type TEXT NOT NULL,
-        itemId TEXT NOT NULL,
-        created_at INTEGER NOT NULL
+        item_id TEXT NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
       );
-    `);
 
-    await sqliteClient.execute(`
       CREATE TABLE IF NOT EXISTS app_settings (
         id TEXT PRIMARY KEY,
         key TEXT NOT NULL UNIQUE,
         value TEXT NOT NULL,
-        updated_at INTEGER NOT NULL
+        updated_at TIMESTAMP NOT NULL DEFAULT NOW()
       );
     `);
 
-    // Auto-seed question bank and coding challenges if DB is newly created
-    const { autoSeedIfEmpty } = await import("./auto-seed");
-    await autoSeedIfEmpty();
+    // 2. Check if questions are seeded, if not auto-seed
+    const countRes = await pool.query("SELECT COUNT(*) as count FROM questions;");
+    const count = parseInt(countRes.rows[0]?.count || "0", 10);
+    if (count === 0) {
+      const { autoSeedIfEmpty } = await import("./auto-seed");
+      await autoSeedIfEmpty();
+    }
 
     initialized = true;
   } catch (err) {
-    console.error("Database initialization error:", err);
+    console.error("Neon database initialization error:", err);
   }
 }

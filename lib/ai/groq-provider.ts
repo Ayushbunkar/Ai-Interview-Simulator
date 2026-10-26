@@ -4,20 +4,28 @@ import { InterviewAIProvider, AIContext, EvaluateAnswerParams, CandidateQuestion
 import { AnswerEvaluation, ClarificationResponse, RubricScoreItem } from "../types";
 import { TECHNICAL_ROUND_RUBRIC, BEHAVIORAL_ROUND_RUBRIC, calculateWeightedScore } from "../rubric";
 
+const RubricItemSchema = z.union([
+  z.object({
+    name: z.string(),
+    weight: z.number().optional().default(20),
+    score: z.number().min(0).max(100),
+    notes: z.string().optional().default(""),
+  }),
+  z.string().transform((str) => ({
+    name: str.slice(0, 30),
+    weight: 20,
+    score: 75,
+    notes: str,
+  })),
+]);
+
 const EvaluationSchema = z.object({
   score: z.number().min(0).max(100),
-  strengths: z.array(z.string()),
-  weaknesses: z.array(z.string()),
+  strengths: z.array(z.string()).default([]),
+  weaknesses: z.array(z.string()).default([]),
   feedback: z.string(),
-  rubricScores: z.array(
-    z.object({
-      name: z.string(),
-      weight: z.number(),
-      score: z.number().min(0).max(100),
-      notes: z.string(),
-    })
-  ),
-  isSatisfactory: z.boolean(),
+  rubricScores: z.array(RubricItemSchema).default([]),
+  isSatisfactory: z.boolean().default(true),
 });
 
 const ClarificationSchema = z.object({

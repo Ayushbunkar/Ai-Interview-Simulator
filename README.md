@@ -30,7 +30,7 @@ InterviewForge AI is a complete, production-quality personal AI interview simula
 
 - **Frontend**: Next.js 14 App Router, React 18, TypeScript (Strict Mode), Tailwind CSS, Monaco Editor (`@monaco-editor/react`), Lucide React icons.
 - **Backend**: Next.js Server-Side Route Handlers, Zod Request Validation, TypeScript Service Layer.
-- **Persistence**: SQLite with `@libsql/client` (LibSQL / Turso compatible, runs natively on Windows, Linux, and Vercel without native C++ compilation toolchains).
+- **Persistence**: Serverless PostgreSQL via [Neon](https://neon.tech) (`@neondatabase/serverless` & Drizzle ORM `drizzle-orm/neon-serverless`), with zero local toolchain dependencies and persistent cloud storage across all Vercel serverless cold-starts.
 - **AI Providers**: Groq SDK (`groq-sdk`) + Local Development Rule Engine fallback.
 - **Compiler Execution**: OnlineCompiler.io / Judge0 REST API adapter.
 
@@ -73,7 +73,7 @@ GROQ_MODEL=llama-3.3-70b-versatile
 ONLINECOMPILER_API_KEY=e319212d90f392d0adf5c2a73d4e735d
 ONLINECOMPILER_API_URL=https://api.onlinecompiler.io/api/judge0
 
-# Database Configuration (Local SQLite file or Turso URL)
+# Database Configuration (Local SQLite file or Neon URL)
 DATABASE_URL=file:interviewforge.db
 DATABASE_AUTH_TOKEN=
 ```
@@ -118,7 +118,7 @@ npm test
    - `ONLINECOMPILER_API_URL`: `https://api.onlinecompiler.io/api/judge0`
    - `GROQ_API_KEY`: `<your_groq_api_key>` (optional, Local Dev Engine active if empty)
    - `GROQ_MODEL`: `llama-3.3-70b-versatile`
-   - For permanent remote database on serverless Vercel, create a free database at [Turso](https://turso.tech) and set:
-     - `DATABASE_URL`: `libsql://your-db-name.turso.io`
+   - For permanent remote database on serverless Vercel, create a free database at [Neon](https://turso.tech) and set:
+     - `DATABASE_URL`: `postgresql://neondb_owner:npg_tTLgX27mQpyJ@ep-red-cloud-b5l16io3-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require`
      - `DATABASE_AUTH_TOKEN`: `<your-turso-auth-token>`
 4. Deploy! Vercel will run `npm run build` and launch the application globally.

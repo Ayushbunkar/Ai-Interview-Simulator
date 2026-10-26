@@ -1,6 +1,6 @@
-import { sqliteTable, text, integer, real } from "drizzle-orm/sqlite-core";
+import { pgTable, text, integer, boolean, timestamp, real } from "drizzle-orm/pg-core";
 
-export const questions = sqliteTable("questions", {
+export const questions = pgTable("questions", {
   id: text("id").primaryKey(),
   category: text("category").notNull(), // 'java_oop', 'dbms_sql', 'os', 'networks', 'dsa_concepts', 'backend_api', 'system_design', 'behavioral'
   topic: text("topic").notNull(),
@@ -11,10 +11,10 @@ export const questions = sqliteTable("questions", {
   explanation: text("explanation").notNull(),
   followUps: text("follow_ups").notNull(), // JSON array of possible follow-up questions
   rubricFocus: text("rubric_focus"),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
 });
 
-export const codingProblems = sqliteTable("coding_problems", {
+export const codingProblems = pgTable("coding_problems", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
   slug: text("slug").notNull().unique(),
@@ -34,20 +34,20 @@ export const codingProblems = sqliteTable("coding_problems", {
   timeComplexity: text("time_complexity").notNull(),
   spaceComplexity: text("space_complexity").notNull(),
   hints: text("hints").notNull(), // JSON array of progressive hints
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
 });
 
-export const testCases = sqliteTable("test_cases", {
+export const testCases = pgTable("test_cases", {
   id: text("id").primaryKey(),
   problemId: text("problem_id").notNull().references(() => codingProblems.id),
   input: text("input").notNull(),
   expectedOutput: text("expected_output").notNull(),
-  isHidden: integer("is_hidden", { mode: "boolean" }).notNull().default(false),
+  isHidden: boolean("is_hidden").notNull().default(false),
   explanation: text("explanation"),
   orderIndex: integer("order_index").notNull(),
 });
 
-export const interviewSessions = sqliteTable("interview_sessions", {
+export const interviewSessions = pgTable("interview_sessions", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
   targetRole: text("target_role").notNull(),
@@ -62,15 +62,15 @@ export const interviewSessions = sqliteTable("interview_sessions", {
   currentRound: integer("current_round").notNull().default(1), // 1 to 4
   currentQuestionIndex: integer("current_question_index").notNull().default(0),
   timeRemainingSeconds: integer("time_remaining_seconds").notNull().default(3600),
-  isPaused: integer("is_paused", { mode: "boolean" }).notNull().default(false),
-  startedAt: integer("started_at", { mode: "timestamp" }),
-  pausedAt: integer("paused_at", { mode: "timestamp" }),
-  completedAt: integer("completed_at", { mode: "timestamp" }),
+  isPaused: boolean("is_paused").notNull().default(false),
+  startedAt: timestamp("started_at", { mode: "date" }),
+  pausedAt: timestamp("paused_at", { mode: "date" }),
+  completedAt: timestamp("completed_at", { mode: "date" }),
   totalScore: integer("total_score"),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
 });
 
-export const interviewRounds = sqliteTable("interview_rounds", {
+export const interviewRounds = pgTable("interview_rounds", {
   id: text("id").primaryKey(),
   sessionId: text("session_id").notNull().references(() => interviewSessions.id),
   roundNumber: integer("round_number").notNull(), // 1, 2, 3, 4
@@ -79,11 +79,11 @@ export const interviewRounds = sqliteTable("interview_rounds", {
   score: integer("score"),
   rubricScores: text("rubric_scores"), // JSON array
   roundFeedback: text("round_feedback"),
-  startedAt: integer("started_at", { mode: "timestamp" }),
-  completedAt: integer("completed_at", { mode: "timestamp" }),
+  startedAt: timestamp("started_at", { mode: "date" }),
+  completedAt: timestamp("completed_at", { mode: "date" }),
 });
 
-export const conversationMessages = sqliteTable("conversation_messages", {
+export const conversationMessages = pgTable("conversation_messages", {
   id: text("id").primaryKey(),
   sessionId: text("session_id").notNull().references(() => interviewSessions.id),
   roundNumber: integer("round_number").notNull(),
@@ -91,10 +91,10 @@ export const conversationMessages = sqliteTable("conversation_messages", {
   messageType: text("message_type").notNull(), // 'question', 'answer', 'clarification_question', 'clarification_answer', 'followup', 'feedback', 'instruction'
   content: text("content").notNull(),
   metadata: text("metadata"), // JSON string
-  timestamp: integer("timestamp", { mode: "timestamp" }).notNull(),
+  timestamp: timestamp("timestamp", { mode: "date" }).notNull().defaultNow(),
 });
 
-export const candidateAnswers = sqliteTable("candidate_answers", {
+export const candidateAnswers = pgTable("candidate_answers", {
   id: text("id").primaryKey(),
   sessionId: text("session_id").notNull().references(() => interviewSessions.id),
   roundNumber: integer("round_number").notNull(),
@@ -109,10 +109,10 @@ export const candidateAnswers = sqliteTable("candidate_answers", {
   followUpAsked: text("follow_up_asked"),
   followUpAnswer: text("follow_up_answer"),
   followUpEvaluation: text("follow_up_evaluation"),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
 });
 
-export const codeSubmissions = sqliteTable("code_submissions", {
+export const codeSubmissions = pgTable("code_submissions", {
   id: text("id").primaryKey(),
   sessionId: text("session_id"),
   problemId: text("problem_id").notNull().references(() => codingProblems.id),
@@ -125,14 +125,14 @@ export const codeSubmissions = sqliteTable("code_submissions", {
   memoryKb: integer("memory_kb"),
   compileOutput: text("compile_output"),
   errorMessage: text("error_message"),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
 });
 
-export const executionResults = sqliteTable("execution_results", {
+export const executionResults = pgTable("execution_results", {
   id: text("id").primaryKey(),
   submissionId: text("submission_id").notNull().references(() => codeSubmissions.id),
   testCaseId: text("test_case_id").notNull().references(() => testCases.id),
-  passed: integer("passed", { mode: "boolean" }).notNull(),
+  passed: boolean("passed").notNull(),
   actualOutput: text("actual_output"),
   expectedOutput: text("expected_output"),
   executionTimeMs: real("execution_time_ms"),
@@ -140,7 +140,7 @@ export const executionResults = sqliteTable("execution_results", {
   error: text("error"),
 });
 
-export const evaluations = sqliteTable("evaluations", {
+export const evaluations = pgTable("evaluations", {
   id: text("id").primaryKey(),
   sessionId: text("session_id").notNull().references(() => interviewSessions.id),
   roundNumber: integer("round_number").notNull(),
@@ -149,10 +149,10 @@ export const evaluations = sqliteTable("evaluations", {
   strengths: text("strengths").notNull(), // JSON
   improvements: text("improvements").notNull(), // JSON
   detailedNotes: text("detailed_notes").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
 });
 
-export const interviewReports = sqliteTable("interview_reports", {
+export const interviewReports = pgTable("interview_reports", {
   id: text("id").primaryKey(),
   sessionId: text("session_id").notNull().references(() => interviewSessions.id),
   overallScore: integer("overall_score").notNull(),
@@ -165,19 +165,19 @@ export const interviewReports = sqliteTable("interview_reports", {
   readinessSummary: text("readiness_summary").notNull(),
   readinessLevel: text("readiness_level").notNull(), // 'Strong Hire', 'Hire', 'Needs Practice', 'Major Revisions'
   markdownExport: text("markdown_export").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
 });
 
-export const bookmarks = sqliteTable("bookmarks", {
+export const bookmarks = pgTable("bookmarks", {
   id: text("id").primaryKey(),
   itemType: text("item_type").notNull(), // 'question' | 'problem'
-  itemId: text("itemId").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+  itemId: text("item_id").notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
 });
 
-export const appSettings = sqliteTable("app_settings", {
+export const appSettings = pgTable("app_settings", {
   id: text("id").primaryKey(),
   key: text("key").notNull().unique(),
   value: text("value").notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).notNull().defaultNow(),
 });
