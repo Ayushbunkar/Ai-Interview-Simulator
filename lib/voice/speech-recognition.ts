@@ -19,6 +19,7 @@ export interface SpeechRecognitionOptions {
   onFinalTranscript?: (text: string) => void;
   onStatusChange?: (status: SpeechRecognitionStatus) => void;
   onError?: (errorMessage: string) => void;
+  onNetworkFallback?: () => void;
 }
 
 export class BrowserSpeechRecognizer {
@@ -116,11 +117,17 @@ export class BrowserSpeechRecognizer {
           }
         }
       } else if (error === "network") {
+        this.isListening = false;
         this.setStatus("error");
-        this.options.onError?.("Network error occurred during speech recognition. You can switch to manual keyboard input.");
+        if (this.options.onNetworkFallback) {
+          this.options.onNetworkFallback();
+        } else {
+          this.options.onError?.("Browser speech recognition service is unavailable. Switching to Whisper AI Audio Recording...");
+        }
       } else {
+        this.isListening = false;
         this.setStatus("error");
-        this.options.onError?.(`Speech recognition error (${error}). You can continue using text input.`);
+        this.options.onError?.(`Speech recognition error (${error}). You can continue using Whisper audio input or text.`);
       }
     };
 

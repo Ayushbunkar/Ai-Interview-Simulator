@@ -24,8 +24,7 @@ import {
   Check,
   Flame,
 } from "lucide-react";
-import { ROUND_NAMES } from "@/lib/interview/engine";
-import { CommunicationReport, SkillRadarAnalysis, DetailedProblemCodingReport } from "@/lib/types";
+import { CommunicationReport, SkillRadarAnalysis, DetailedProblemCodingReport, ROUND_NAMES } from "@/lib/types";
 
 interface ReportDetail {
   report: {

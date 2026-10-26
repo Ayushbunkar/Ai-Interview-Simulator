@@ -1,5 +1,6 @@
 import { BrowserSpeechRecognizer } from "./speech-recognition";
 import { BrowserSpeechSynthesizer } from "./speech-synthesis";
+import { MediaAudioRecorder } from "./media-audio-recorder";
 import { VoiceState } from "../types";
 
 export interface VoiceControllerCallbacks {
@@ -12,8 +13,10 @@ export interface VoiceControllerCallbacks {
 export class VoiceSessionController {
   private recognizer: BrowserSpeechRecognizer;
   private synthesizer: BrowserSpeechSynthesizer;
+  private audioRecorder: MediaAudioRecorder;
   private state: VoiceState = "idle";
   private isVoiceModeEnabled: boolean = true;
+  private isWhisperMode: boolean = false;
   private callbacks: VoiceControllerCallbacks;
   private lastSpokenMessageId: string | null = null;
 
@@ -42,6 +45,34 @@ export class VoiceSessionController {
       onError: (err) => {
         this.callbacks.onError(err);
       },
+      onNetworkFallback: () => {
+        // Automatically switch to Whisper Audio Recorder when Chrome's speech server fails
+        this.isWhisperMode = true;
+        this.setState("ready_to_listen");
+        this.callbacks.onError(
+          "Browser speech service is unavailable on your network. Switched to Whisper AI Audio Recording. Click 'Record Answer (Whisper)' to speak."
+        );
+      },
+    });
+
+    this.audioRecorder = new MediaAudioRecorder({
+      onRecordingStart: () => {
+        this.setState("user_speaking");
+      },
+      onRecordingStop: () => {
+        // Stop recording event
+      },
+      onTranscribing: () => {
+        this.callbacks.onInterimTranscript("Transcribing audio with Whisper AI...");
+      },
+      onTranscript: (text) => {
+        this.callbacks.onFinalTranscript(text);
+        this.setState("ready_to_listen");
+      },
+      onError: (msg) => {
+        this.callbacks.onError(msg);
+        this.setState("error");
+      },
     });
 
     this.synthesizer = new BrowserSpeechSynthesizer();
@@ -60,6 +91,9 @@ export class VoiceSessionController {
     this.isVoiceModeEnabled = enabled;
     if (!enabled) {
       this.recognizer.stop();
+      if (this.audioRecorder.isRecording()) {
+        this.audioRecorder.stop();
+      }
       this.synthesizer.stop();
       this.setState("idle");
     }
@@ -67,6 +101,18 @@ export class VoiceSessionController {
 
   public isVoiceMode(): boolean {
     return this.isVoiceModeEnabled;
+  }
+
+  public isUsingWhisperMode(): boolean {
+    return this.isWhisperMode;
+  }
+
+  public setWhisperMode(enabled: boolean) {
+    this.isWhisperMode = enabled;
+  }
+
+  public isAudioRecording(): boolean {
+    return this.audioRecorder.isRecording();
   }
 
   /**
@@ -85,6 +131,9 @@ export class VoiceSessionController {
 
     this.lastSpokenMessageId = messageId;
     this.recognizer.stop();
+    if (this.audioRecorder.isRecording()) {
+      this.audioRecorder.stop();
+    }
     this.setState("interviewer_speaking");
 
     this.synthesizer.speak(text, messageId, {
@@ -109,14 +158,19 @@ export class VoiceSessionController {
   }
 
   /**
-   * Starts listening for candidate's voice answer
+   * Starts listening for candidate's voice answer.
+   * If in Whisper mode, starts direct MediaRecorder; otherwise starts BrowserSpeechRecognizer.
    */
   public startListening() {
     this.synthesizer.stop();
-    this.recognizer.resetTranscript();
-    const started = this.recognizer.start();
-    if (started) {
-      this.setState("ready_to_listen");
+    if (this.isWhisperMode) {
+      this.startWhisperRecording();
+    } else {
+      this.recognizer.resetTranscript();
+      const started = this.recognizer.start();
+      if (started) {
+        this.setState("ready_to_listen");
+      }
     }
   }
 
@@ -125,9 +179,37 @@ export class VoiceSessionController {
    */
   public stopListening() {
     this.recognizer.stop();
+    if (this.audioRecorder.isRecording()) {
+      this.audioRecorder.stop();
+    }
     if (this.state === "ready_to_listen" || this.state === "user_speaking") {
       this.setState("idle");
     }
+  }
+
+  /**
+   * Starts Whisper microphone recording via MediaRecorder
+   */
+  public async startWhisperRecording(): Promise<boolean> {
+    this.synthesizer.stop();
+    this.recognizer.stop();
+    this.isWhisperMode = true;
+    const started = await this.audioRecorder.start();
+    if (started) {
+      this.setState("user_speaking");
+    }
+    return started;
+  }
+
+  /**
+   * Stops Whisper recording and sends audio to Whisper STT endpoint
+   */
+  public async stopAndTranscribeWhisper(): Promise<string | null> {
+    const text = await this.audioRecorder.stopAndTranscribe();
+    if (this.state === "user_speaking") {
+      this.setState("ready_to_listen");
+    }
+    return text;
   }
 
   /**
@@ -137,6 +219,9 @@ export class VoiceSessionController {
   public interruptInterviewer() {
     this.synthesizer.stop();
     this.recognizer.stop();
+    if (this.audioRecorder.isRecording()) {
+      this.audioRecorder.stop();
+    }
     this.recognizer.resetTranscript();
     this.setState("ready_to_listen");
     this.startListening();
@@ -152,6 +237,9 @@ export class VoiceSessionController {
   public replayCurrentQuestion(text: string) {
     this.synthesizer.stop();
     this.recognizer.stop();
+    if (this.audioRecorder.isRecording()) {
+      this.audioRecorder.stop();
+    }
     this.setState("interviewer_speaking");
     this.synthesizer.speak(text, "replay-" + Date.now(), {
       onEnd: () => {
@@ -166,6 +254,9 @@ export class VoiceSessionController {
 
   public notifySubmissionStarted() {
     this.recognizer.stop();
+    if (this.audioRecorder.isRecording()) {
+      this.audioRecorder.stop();
+    }
     this.setState("processing_answer");
   }
 
@@ -179,5 +270,9 @@ export class VoiceSessionController {
 
   public getSpeechRecognizer(): BrowserSpeechRecognizer {
     return this.recognizer;
+  }
+
+  public getAudioRecorder(): MediaAudioRecorder {
+    return this.audioRecorder;
   }
 }

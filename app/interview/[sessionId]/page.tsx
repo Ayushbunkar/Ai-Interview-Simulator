@@ -87,6 +87,8 @@ export default function InterviewRoomPage() {
   const [voiceError, setVoiceError] = useState<string | null>(null);
   const [manualText, setManualText] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [isWhisperRecording, setIsWhisperRecording] = useState(false);
+  const [isTranscribingAudio, setIsTranscribingAudio] = useState(false);
 
   // Clarification / Interruption Modal State
   const [isClarifyOpen, setIsClarifyOpen] = useState(false);
@@ -317,6 +319,34 @@ export default function InterviewRoomPage() {
       setError(err.message);
     } finally {
       setClarifying(false);
+    }
+  };
+
+  // Whisper Audio Recording Handlers (Reliable Cloud Speech-to-Text Fallback)
+  const handleStartWhisperRecording = async () => {
+    if (!voiceControllerRef.current) return;
+    setVoiceError(null);
+    const started = await voiceControllerRef.current.startWhisperRecording();
+    if (started) {
+      setIsWhisperRecording(true);
+    }
+  };
+
+  const handleStopWhisperRecording = async () => {
+    if (!voiceControllerRef.current) return;
+    setIsWhisperRecording(false);
+    setIsTranscribingAudio(true);
+    try {
+      const text = await voiceControllerRef.current.stopAndTranscribeWhisper();
+      if (text) {
+        setFinalTranscript((prev) => (prev ? prev + " " + text : text));
+        setManualText((prev) => (prev ? prev + " " + text : text));
+        setVoiceError(null);
+      }
+    } catch (err: any) {
+      setVoiceError(err.message || "Failed to transcribe audio.");
+    } finally {
+      setIsTranscribingAudio(false);
     }
   };
 
@@ -597,6 +627,10 @@ export default function InterviewRoomPage() {
                   voiceControllerRef.current?.interruptInterviewer();
                   setIsClarifyOpen(true);
                 }}
+                onStartWhisperRecording={handleStartWhisperRecording}
+                onStopWhisperRecording={handleStopWhisperRecording}
+                isWhisperRecording={isWhisperRecording}
+                isTranscribingAudio={isTranscribingAudio}
                 synthesizer={voiceControllerRef.current.getSpeechSynthesizer()}
                 errorMessage={voiceError}
               />

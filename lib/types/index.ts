@@ -1,5 +1,12 @@
 export type RoundNumber = 1 | 2 | 3 | 4;
 
+export const ROUND_NAMES: Record<RoundNumber, string> = {
+  1: "Technical Fundamentals",
+  2: "Advanced CS & Projects",
+  3: "Coding Interview",
+  4: "Behavioral & HR",
+};
+
 export type InterviewRoundName =
   | "Technical Fundamentals"
   | "Advanced CS & Projects"

@@ -25,6 +25,10 @@ interface VoiceControlsProps {
   onStopSpeaking: () => void;
   onReplayQuestion: () => void;
   onInterrupt: () => void;
+  onStartWhisperRecording?: () => void;
+  onStopWhisperRecording?: () => void;
+  isWhisperRecording?: boolean;
+  isTranscribingAudio?: boolean;
   synthesizer: BrowserSpeechSynthesizer;
   errorMessage: string | null;
 }
@@ -38,6 +42,10 @@ export function VoiceControls({
   onStopSpeaking,
   onReplayQuestion,
   onInterrupt,
+  onStartWhisperRecording,
+  onStopWhisperRecording,
+  isWhisperRecording = false,
+  isTranscribingAudio = false,
   synthesizer,
   errorMessage,
 }: VoiceControlsProps) {
@@ -45,6 +53,23 @@ export function VoiceControls({
   const [selectedVoice, setSelectedVoice] = useState<string>("");
   const [speechRate, setSpeechRate] = useState<number>(1.0);
   const [showSettings, setShowSettings] = useState(false);
+  const [recordSeconds, setRecordSeconds] = useState(0);
+
+  // Timer while recording audio with Whisper
+  useEffect(() => {
+    let timer: NodeJS.Timeout | null = null;
+    if (isWhisperRecording) {
+      setRecordSeconds(0);
+      timer = setInterval(() => {
+        setRecordSeconds((s) => s + 1);
+      }, 1000);
+    } else {
+      setRecordSeconds(0);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [isWhisperRecording]);
 
   useEffect(() => {
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
@@ -131,8 +156,22 @@ export function VoiceControls({
 
       {/* Primary Voice Action Bar */}
       <div className="flex flex-wrap items-center gap-2">
-        {/* Mic Listen Toggle */}
-        {isListening ? (
+        {/* Whisper Audio Recording State */}
+        {isWhisperRecording ? (
+          <button
+            type="button"
+            onClick={onStopWhisperRecording}
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-semibold shadow-md transition-all animate-pulse"
+          >
+            <Square className="h-3.5 w-3.5 fill-white" />
+            Recording ({recordSeconds}s) — Click to Transcribe
+          </button>
+        ) : isTranscribingAudio ? (
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-600/20 border border-indigo-500/40 text-indigo-300 text-xs font-medium">
+            <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-indigo-400 border-t-transparent" />
+            Transcribing audio with Whisper AI...
+          </div>
+        ) : isListening ? (
           <button
             type="button"
             onClick={onStopListening}
@@ -142,15 +181,30 @@ export function VoiceControls({
             Listening... (Click to Pause)
           </button>
         ) : (
-          <button
-            type="button"
-            onClick={onStartListening}
-            disabled={!isVoiceMode}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-medium shadow-sm transition-all disabled:opacity-50"
-          >
-            <Mic className="h-4 w-4" />
-            Speak Answer (Mic)
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={onStartListening}
+              disabled={!isVoiceMode}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-medium shadow-sm transition-all disabled:opacity-50"
+            >
+              <Mic className="h-4 w-4" />
+              Live Mic (Browser)
+            </button>
+
+            {onStartWhisperRecording && (
+              <button
+                type="button"
+                onClick={onStartWhisperRecording}
+                disabled={!isVoiceMode}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
+                title="Records audio via microphone and transcribes with Groq Whisper AI (bypasses browser network errors)"
+              >
+                <Mic className="h-4 w-4 text-indigo-200" />
+                Record Voice (Whisper AI)
+              </button>
+            )}
+          </>
         )}
 
         {/* Interrupt Button: Stop interviewer speaking and ask question */}
@@ -236,11 +290,28 @@ export function VoiceControls({
         </div>
       )}
 
-      {/* Error / Permission Banner */}
+      {/* Error / Permission Banner with Actionable Fallback */}
       {errorMessage && (
-        <div className="flex items-center gap-2 rounded-lg bg-red-500/10 border border-red-500/20 p-2 text-xs text-red-500">
-          <AlertCircle className="h-4 w-4 shrink-0" />
-          <span>{errorMessage}</span>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 rounded-lg bg-amber-500/10 border border-amber-500/30 p-2.5 text-xs text-amber-300">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 shrink-0 text-amber-400" />
+            <span>
+              {errorMessage.toLowerCase().includes("network")
+                ? "Browser Google speech service is unreachable on your network. Use Whisper AI Voice Recording."
+                : errorMessage}
+            </span>
+          </div>
+
+          {onStartWhisperRecording && !isWhisperRecording && (
+            <button
+              type="button"
+              onClick={onStartWhisperRecording}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-amber-500 hover:bg-amber-600 text-black font-semibold text-xs shadow-sm transition shrink-0"
+            >
+              <Mic className="h-3.5 w-3.5" />
+              Record Voice with Whisper AI
+            </button>
+          )}
         </div>
       )}
     </div>

@@ -1,28 +1,32 @@
-import fs from "fs";
 import { Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import * as schema from "./schema";
 
 function loadLocalEnvIfMissing() {
+  if (typeof window !== "undefined") return;
   if (typeof process === "undefined" || !process.cwd) return;
   if (process.env.DATABASE_URL) return;
 
-  const envFiles = [".env.local", ".env"];
-  for (const file of envFiles) {
-    if (fs.existsSync(file)) {
-      try {
-        const content = fs.readFileSync(file, "utf-8");
-        for (const line of content.split("\n")) {
-          const trimmed = line.trim();
-          if (!trimmed || trimmed.startsWith("#")) continue;
-          const [key, ...vals] = trimmed.split("=");
-          if (key && vals.length && !process.env[key.trim()]) {
-            process.env[key.trim()] = vals.join("=").trim();
+  try {
+    // Dynamic import/require to prevent client-side bundler from choking on 'fs'
+    const fs = eval("require")("fs");
+    const envFiles = [".env.local", ".env"];
+    for (const file of envFiles) {
+      if (fs.existsSync(file)) {
+        try {
+          const content = fs.readFileSync(file, "utf-8");
+          for (const line of content.split("\n")) {
+            const trimmed = line.trim();
+            if (!trimmed || trimmed.startsWith("#")) continue;
+            const [key, ...vals] = trimmed.split("=");
+            if (key && vals.length && !process.env[key.trim()]) {
+              process.env[key.trim()] = vals.join("=").trim();
+            }
           }
-        }
-      } catch {}
+        } catch {}
+      }
     }
-  }
+  } catch {}
 }
 loadLocalEnvIfMissing();
 
