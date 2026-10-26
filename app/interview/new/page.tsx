@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Sparkles,
@@ -21,6 +21,9 @@ import {
   Award,
   Target,
   AlertTriangle,
+  AlertCircle,
+  Loader2,
+  RefreshCw,
   TrendingUp,
   Layers,
   ChevronDown,
@@ -55,6 +58,11 @@ function InterviewSetupContent() {
   const [showFullDetails, setShowFullDetails] = useState<boolean>(true);
   const [savedResume, setSavedResume] = useState<{ id: string; candidateName?: string; extractedSkills: string[]; rawResumeText: string } | null>(null);
   const [parsingResume, setParsingResume] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const atsCardRef = useRef<HTMLDivElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [resumeError, setResumeError] = useState<string | null>(null);
+  const [resumeSuccessMessage, setResumeSuccessMessage] = useState<string | null>(null);
 
   // Check for existing saved resume on mount
   useEffect(() => {
@@ -123,13 +131,23 @@ function InterviewSetupContent() {
     );
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const processUploadedFile = async (file: File) => {
     setParsingResume(true);
+    setResumeError(null);
+    setResumeSuccessMessage(null);
     setError(null);
+
     try {
+      // If plain text file, populate resumeText immediately
+      if (file.name.endsWith(".txt")) {
+        try {
+          const text = await file.text();
+          if (text) setResumeText(text);
+        } catch {
+          // ignore
+        }
+      }
+
       const formData = new FormData();
       formData.append("file", file);
       formData.append("targetRole", targetRole);
@@ -142,7 +160,9 @@ function InterviewSetupContent() {
       });
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed to parse resume document");
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to parse resume document");
+      }
 
       setResumeProfileId(data.profileId);
       setExtractedInfo({
@@ -152,12 +172,26 @@ function InterviewSetupContent() {
       });
       setExtractedProfile(data.profile);
       setAtsAnalysis(data.atsAnalysis);
-      setResumeText(data.rawResumeText);
+      if (data.rawResumeText) {
+        setResumeText(data.rawResumeText);
+      }
+      setResumeSuccessMessage(`Extracted from "${file.name}" — ATS Score: ${data.atsAnalysis?.overallScore ?? "Ready"}/100`);
+
+      setTimeout(() => {
+        atsCardRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }, 150);
     } catch (err: any) {
-      setError(err.message || "Failed to upload and parse resume.");
+      setResumeError(err.message || "Failed to upload and parse resume.");
     } finally {
       setParsingResume(false);
     }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setSelectedFile(file);
+    await processUploadedFile(file);
   };
 
   const handleAnalyzeResumeText = async (textToAnalyze?: string) => {
@@ -165,6 +199,8 @@ function InterviewSetupContent() {
     if (!text || parsingResume) return;
 
     setParsingResume(true);
+    setResumeError(null);
+    setResumeSuccessMessage(null);
     setError(null);
     try {
       const res = await fetch("/api/resume/parse", {
@@ -189,11 +225,27 @@ function InterviewSetupContent() {
       });
       setExtractedProfile(data.profile);
       setAtsAnalysis(data.atsAnalysis);
-      setResumeText(data.rawResumeText);
+      if (data.rawResumeText) {
+        setResumeText(data.rawResumeText);
+      }
+      setResumeSuccessMessage(`Analyzed text — ATS Score: ${data.atsAnalysis?.overallScore ?? "Ready"}/100`);
+
+      setTimeout(() => {
+        atsCardRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }, 150);
     } catch (err: any) {
-      setError(err.message || "Failed to analyze resume text.");
+      setResumeError(err.message || "Failed to analyze resume text.");
     } finally {
       setParsingResume(false);
+    }
+  };
+
+  const handleTriggerAnalysis = async () => {
+    if (parsingResume) return;
+    if (resumeText.trim()) {
+      await handleAnalyzeResumeText(resumeText);
+    } else if (selectedFile) {
+      await processUploadedFile(selectedFile);
     }
   };
 
@@ -210,7 +262,12 @@ function InterviewSetupContent() {
     setExtractedProfile(null);
     setAtsAnalysis(null);
     setResumeText("");
-    setJobDescription("");
+    setSelectedFile(null);
+    setResumeError(null);
+    setResumeSuccessMessage(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   const handleStart = async (e: React.FormEvent) => {
@@ -599,20 +656,60 @@ function InterviewSetupContent() {
               <strong className="text-gray-200">The Resume Determines the Interview:</strong> Your skills, frameworks, and projects are automatically extracted. You do not need to manually select technologies that exist in your resume.
             </div>
 
+            {resumeError && (
+              <div className="rounded-lg border border-red-500/40 bg-red-950/40 p-3 text-xs text-red-300 flex items-start gap-2.5">
+                <AlertCircle className="h-4 w-4 text-red-400 mt-0.5 shrink-0" />
+                <div className="space-y-1">
+                  <p className="font-semibold text-red-200">Resume Extraction Notice</p>
+                  <p className="text-[11px] text-red-200/90 leading-relaxed">{resumeError}</p>
+                  <p className="text-[10px] text-gray-400">
+                    Tip: If your PDF is an image scan, you can paste your resume bullet points or project summaries in the text box below.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {resumeSuccessMessage && (
+              <div className="rounded-lg border border-emerald-500/40 bg-emerald-950/30 p-2.5 text-xs text-emerald-300 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-emerald-400 shrink-0" />
+                  <span className="font-medium text-[11px]">{resumeSuccessMessage}</span>
+                </div>
+              </div>
+            )}
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* PDF or DOCX or Text file upload */}
-              <div className="rounded-lg border border-dashed border-gray-800 bg-gray-950/60 p-4 text-center">
-                <Upload className="mx-auto h-5 w-5 text-gray-500 mb-1.5" />
-                <p className="text-xs font-medium text-gray-300 mb-1">Upload Resume (PDF, DOCX, or TXT)</p>
-                <p className="text-[10px] text-gray-500 mb-3">Server-side extraction with scanned PDF detection.</p>
-                <input
-                  type="file"
-                  accept=".pdf,.docx,.txt"
-                  onChange={handleFileUpload}
-                  disabled={parsingResume}
-                  className="text-[11px] text-gray-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[11px] file:font-medium file:bg-purple-600/30 file:text-purple-300 hover:file:bg-purple-600/50 cursor-pointer"
-                />
-                {parsingResume && <p className="mt-2 text-[11px] text-purple-400 animate-pulse">Extracting skills, projects & architecture...</p>}
+              <div className="rounded-lg border border-dashed border-gray-800 bg-gray-950/60 p-4 text-center flex flex-col justify-between">
+                <div>
+                  <Upload className="mx-auto h-5 w-5 text-gray-500 mb-1.5" />
+                  <p className="text-xs font-medium text-gray-300 mb-1">Upload Resume (PDF, DOCX, or TXT)</p>
+                  <p className="text-[10px] text-gray-500 mb-3">Auto-extracts text, skills, projects, and calculates ATS score.</p>
+                  
+                  {selectedFile && (
+                    <div className="mb-3 inline-flex items-center gap-1.5 rounded-md border border-purple-500/30 bg-purple-950/50 px-2.5 py-1 text-[11px] text-purple-300">
+                      <FileText className="h-3.5 w-3.5 text-purple-400" />
+                      <span className="max-w-[180px] truncate font-medium">{selectedFile.name}</span>
+                      <span className="text-[10px] text-gray-400">({(selectedFile.size / 1024).toFixed(0)} KB)</span>
+                    </div>
+                  )}
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".pdf,.docx,.txt"
+                    onChange={handleFileUpload}
+                    disabled={parsingResume}
+                    className="text-[11px] text-gray-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[11px] file:font-medium file:bg-purple-600/30 file:text-purple-300 hover:file:bg-purple-600/50 cursor-pointer block mx-auto"
+                  />
+                </div>
+
+                {parsingResume && (
+                  <div className="mt-3 flex items-center justify-center gap-2 text-[11px] text-purple-300 animate-pulse">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin text-purple-400" />
+                    <span>Extracting text & calculating ATS score...</span>
+                  </div>
+                )}
               </div>
 
               {/* Pasted text option */}
@@ -627,15 +724,30 @@ function InterviewSetupContent() {
                 <div className="flex items-center justify-between">
                   <button
                     type="button"
-                    onClick={() => handleAnalyzeResumeText()}
-                    disabled={parsingResume || !resumeText.trim()}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition disabled:opacity-50"
+                    onClick={handleTriggerAnalysis}
+                    disabled={parsingResume || (!resumeText.trim() && !selectedFile)}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Sparkles className="h-3.5 w-3.5 text-purple-200" />
-                    <span>{parsingResume ? "Analyzing & Scoring..." : "Analyze & Calculate ATS Score"}</span>
+                    {parsingResume ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin text-purple-200" />
+                        <span>Analyzing & Scoring...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-3.5 w-3.5 text-purple-200" />
+                        <span>Analyze & Calculate ATS Score</span>
+                      </>
+                    )}
                   </button>
                   <span className="text-[10px] text-gray-500">
-                    {resumeText ? `${resumeText.trim().split(/\s+/).length} words` : "No text pasted"}
+                    {parsingResume
+                      ? "Processing..."
+                      : resumeText.trim()
+                      ? `${resumeText.trim().split(/\s+/).length} words extracted`
+                      : selectedFile
+                      ? "File attached"
+                      : "No text pasted"}
                   </span>
                 </div>
               </div>
@@ -657,7 +769,7 @@ function InterviewSetupContent() {
 
             {/* ATS Score & Compatibility Card */}
             {atsAnalysis && (
-              <div className="rounded-xl border border-purple-500/40 bg-gradient-to-br from-purple-950/40 via-gray-900/60 to-purple-900/20 p-5 space-y-4 shadow-lg">
+              <div ref={atsCardRef} className="rounded-xl border border-purple-500/40 bg-gradient-to-br from-purple-950/40 via-gray-900/60 to-purple-900/20 p-5 space-y-4 shadow-lg">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-800 pb-3">
                   <div className="flex items-center gap-2.5">
                     <div className="h-9 w-9 rounded-lg bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
