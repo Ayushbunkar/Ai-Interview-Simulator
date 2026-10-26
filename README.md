@@ -66,16 +66,15 @@ Create a `.env.local` file in the project root:
 ```env
 # AI Provider (Groq API) - Optional for initial local dev mode
 # Free API key available at: https://console.groq.com
-GROQ_API_KEY=
-GROQ_MODEL=llama-3.3-70b-versatile
+GROQ_API_KEY=your_groq_api_key_here
+GROQ_MODEL=openai/gpt-oss-120b
 
 # Online Compiler API (Judge0 / OnlineCompiler.io compatible)
-ONLINECOMPILER_API_KEY=e319212d90f392d0adf5c2a73d4e735d
+ONLINECOMPILER_API_KEY=your_onlinecompiler_api_key_here
 ONLINECOMPILER_API_URL=https://api.onlinecompiler.io/api/judge0
 
-# Database Configuration (Local SQLite file or Neon URL)
-DATABASE_URL=file:interviewforge.db
-DATABASE_AUTH_TOKEN=
+# Database Configuration (Neon Serverless PostgreSQL or local PostgreSQL)
+DATABASE_URL=your_postgresql_database_url_here
 ```
 
 ---
@@ -114,11 +113,9 @@ npm test
    ```
 2. Import the project into [Vercel](https://vercel.com/new).
 3. In the Vercel Dashboard under **Environment Variables**, add:
-   - `ONLINECOMPILER_API_KEY`: `e319212d90f392d0adf5c2a73d4e735d`
+   - `ONLINECOMPILER_API_KEY`: `<your_onlinecompiler_api_key>`
    - `ONLINECOMPILER_API_URL`: `https://api.onlinecompiler.io/api/judge0`
    - `GROQ_API_KEY`: `<your_groq_api_key>` (optional, Local Dev Engine active if empty)
-   - `GROQ_MODEL`: `llama-3.3-70b-versatile`
-   - For permanent remote database on serverless Vercel, create a free database at [Neon](https://turso.tech) and set:
-     - `DATABASE_URL`: `postgresql://neondb_owner:npg_tTLgX27mQpyJ@ep-red-cloud-b5l16io3-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require`
-     - `DATABASE_AUTH_TOKEN`: `<your-turso-auth-token>`
+   - `GROQ_MODEL`: `openai/gpt-oss-120b`
+   - `DATABASE_URL`: `<your_neon_or_postgresql_database_url>`
 4. Deploy! Vercel will run `npm run build` and launch the application globally.

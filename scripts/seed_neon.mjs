@@ -1,7 +1,25 @@
 import fs from "fs";
 import { Pool } from "@neondatabase/serverless";
 
-const connectionString = "postgresql://neondb_owner:npg_tTLgX27mQpyJ@ep-red-cloud-b5l16io3-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require";
+function loadEnv() {
+  const envPath = fs.existsSync(".env.local") ? ".env.local" : (fs.existsSync(".env") ? ".env" : null);
+  if (envPath) {
+    const lines = fs.readFileSync(envPath, "utf-8").split("\n");
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const [k, ...v] = trimmed.split("=");
+      if (k && v.length) process.env[k.trim()] = v.join("=").trim();
+    }
+  }
+}
+loadEnv();
+
+const connectionString = process.env.DATABASE_URL;
+if (!connectionString) {
+  console.error("Error: DATABASE_URL is not configured in .env.local or environment.");
+  process.exit(1);
+}
 const pool = new Pool({ connectionString });
 
 async function seedNeon() {

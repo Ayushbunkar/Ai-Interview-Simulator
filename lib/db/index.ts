@@ -1,11 +1,32 @@
+import fs from "fs";
 import { Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import * as schema from "./schema";
 
-const defaultConnectionString =
-  "postgresql://neondb_owner:npg_tTLgX27mQpyJ@ep-red-cloud-b5l16io3-pooler.c-7.us-east-2.aws.neon.tech/neondb?sslmode=require";
+function loadLocalEnvIfMissing() {
+  if (typeof process === "undefined" || !process.cwd) return;
+  if (process.env.DATABASE_URL) return;
 
-const connectionString = process.env.DATABASE_URL || defaultConnectionString;
+  const envFiles = [".env.local", ".env"];
+  for (const file of envFiles) {
+    if (fs.existsSync(file)) {
+      try {
+        const content = fs.readFileSync(file, "utf-8");
+        for (const line of content.split("\n")) {
+          const trimmed = line.trim();
+          if (!trimmed || trimmed.startsWith("#")) continue;
+          const [key, ...vals] = trimmed.split("=");
+          if (key && vals.length && !process.env[key.trim()]) {
+            process.env[key.trim()] = vals.join("=").trim();
+          }
+        }
+      } catch {}
+    }
+  }
+}
+loadLocalEnvIfMissing();
+
+const connectionString = process.env.DATABASE_URL || "";
 
 export const pool = new Pool({ connectionString });
 export const sqliteClient = pool; // backwards-compatible alias
