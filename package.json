@@ -9,7 +9,7 @@
     "lint": "next lint",
     "db:push": "drizzle-kit push",
     "db:seed": "node scripts/seed_neon.mjs",
-    "test": "node --test tests/interviewforge.test.mjs && npx tsx --test tests/e2e.test.mjs && npx tsx --test tests/voice_acceptance.test.mjs && npx tsx --test tests/phase2_acceptance.test.mjs"
+    "test": "node --test tests/interviewforge.test.mjs && npx tsx --test tests/e2e.test.mjs && npx tsx --test tests/voice_acceptance.test.mjs && npx tsx --test tests/phase2_acceptance.test.mjs && npx tsx --test tests/resume_engine_acceptance.test.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -21,6 +21,7 @@
     "drizzle-orm": "^0.35.3",
     "groq-sdk": "^0.7.0",
     "lucide-react": "^0.453.0",
+    "mammoth": "^1.13.0",
     "next": "14.2.15",
     "pdf-parse": "^2.4.5",
     "react": "^18.3.1",

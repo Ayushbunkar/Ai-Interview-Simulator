@@ -284,6 +284,24 @@ export async function ensureDbInitialized() {
         metadata TEXT,
         created_at TIMESTAMP NOT NULL DEFAULT NOW()
       );
+
+      ALTER TABLE interview_reports ADD COLUMN IF NOT EXISTS resume_assessment_report TEXT;
+
+      CREATE TABLE IF NOT EXISTS interview_blueprints (
+        id TEXT PRIMARY KEY,
+        session_id TEXT NOT NULL REFERENCES interview_sessions(id),
+        resume_profile_id TEXT,
+        primary_stack TEXT NOT NULL DEFAULT '[]',
+        secondary_skills TEXT NOT NULL DEFAULT '[]',
+        high_priority_topics TEXT NOT NULL DEFAULT '[]',
+        medium_priority_topics TEXT NOT NULL DEFAULT '[]',
+        supporting_fundamentals TEXT NOT NULL DEFAULT '[]',
+        resume_claims TEXT NOT NULL DEFAULT '[]',
+        primary_language TEXT NOT NULL DEFAULT 'java',
+        planned_distribution TEXT NOT NULL DEFAULT '{}',
+        raw_blueprint_json TEXT NOT NULL DEFAULT '{}',
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
     `);
 
     // 2. Check if questions are seeded, if not auto-seed

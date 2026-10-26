@@ -167,6 +167,7 @@ export const interviewReports = pgTable("interview_reports", {
   readinessSummary: text("readiness_summary").notNull(),
   readinessLevel: text("readiness_level").notNull(), // 'Strong Hire', 'Hire', 'Needs Practice', 'Major Revisions'
   markdownExport: text("markdown_export").notNull(),
+  resumeAssessmentReport: text("resume_assessment_report"), // JSON representation of 12-point resume dossier
   createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
 });
 
@@ -263,5 +264,21 @@ export const codingStepsLog = pgTable("coding_steps_log", {
   stepType: text("step_type").notNull(), // 'approach_explained', 'brute_force_proposed', 'optimized_chosen', 'complexity_stated', 'code_revision', 'compiler_run', 'debugging_step', 'ai_probe'
   content: text("content").notNull(),
   metadata: text("metadata"), // JSON string
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+});
+
+export const interviewBlueprints = pgTable("interview_blueprints", {
+  id: text("id").primaryKey(),
+  sessionId: text("session_id").notNull().references(() => interviewSessions.id),
+  resumeProfileId: text("resume_profile_id"),
+  primaryStack: text("primary_stack").notNull().default("[]"), // JSON string array
+  secondarySkills: text("secondary_skills").notNull().default("[]"), // JSON string array
+  highPriorityTopics: text("high_priority_topics").notNull().default("[]"), // JSON string array
+  mediumPriorityTopics: text("medium_priority_topics").notNull().default("[]"), // JSON string array
+  supportingFundamentals: text("supporting_fundamentals").notNull().default("[]"), // JSON string array
+  resumeClaims: text("resume_claims").notNull().default("[]"), // JSON string array of claim objects
+  primaryLanguage: text("primary_language").notNull().default("java"),
+  plannedDistribution: text("planned_distribution").notNull().default("{}"), // JSON string object
+  rawBlueprintJson: text("raw_blueprint_json").notNull().default("{}"),
   createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
 });

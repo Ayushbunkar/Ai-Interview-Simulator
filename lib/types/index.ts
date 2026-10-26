@@ -351,3 +351,109 @@ export interface HistoricalAnalyticsSummary {
   revisionCompletionRate: number;
   hasSufficientData: boolean;
 }
+
+// ---------------------------------------------------------------------------
+// Resume-Aware Intelligent Interview Engine Types
+// ---------------------------------------------------------------------------
+export interface CandidateEducation {
+  institution: string;
+  degree?: string;
+  fieldOfStudy?: string;
+  year?: string;
+}
+
+export interface CandidateWorkExperience {
+  company: string;
+  role: string;
+  duration?: string;
+  responsibilities: string[];
+  technologiesUsed: string[];
+}
+
+export interface CandidateProjectRecord {
+  name: string;
+  description: string;
+  technologies: string[];
+  personalContribution?: string;
+  architecture?: string;
+  tradeOffs?: string;
+  sourceText: string;
+}
+
+export interface StructuredResumeSkills {
+  programmingLanguages: string[];
+  frontend: string[];
+  backend: string[];
+  databases: string[];
+  aiMl: string[];
+  devops: string[];
+  testing: string[];
+  tools: string[];
+  other: string[];
+}
+
+export interface ResumeClaimItem {
+  claim: string;
+  sourceSection: string;
+  supportingText: string;
+  priority: "high" | "medium" | "low";
+  verified?: boolean;
+  assessmentNotes?: string;
+}
+
+export interface CandidateProfileStructured {
+  name?: string;
+  education: CandidateEducation[];
+  experience: CandidateWorkExperience[];
+  internships: CandidateWorkExperience[];
+  projects: CandidateProjectRecord[];
+  skills: StructuredResumeSkills;
+  certifications: string[];
+  resumeClaims: ResumeClaimItem[];
+}
+
+export interface SkillSourceClassification {
+  name: string;
+  category: string;
+  explicitlyListed: boolean;
+  demonstratedThroughProjects: boolean;
+  usedProfessionally: boolean;
+  mentionedBriefly: boolean;
+  inferred: boolean;
+}
+
+export interface InterviewBlueprint {
+  id: string;
+  sessionId: string;
+  resumeProfileId?: string;
+  primaryStack: string[];
+  secondarySkills: string[];
+  highPriorityTopics: string[];
+  mediumPriorityTopics: string[];
+  supportingFundamentals: string[];
+  resumeClaims: ResumeClaimItem[];
+  primaryLanguage: "java" | "python" | "cpp" | "javascript";
+  plannedDistribution: Record<number, { topic: string; focus: string; questionsCount: number }>;
+  technologyInterviewTrees: Record<string, string[]>;
+  rawBlueprintJson?: any;
+}
+
+export interface ResumeAssessmentDossier {
+  technologiesFound: string[];
+  technologiesDeeplyAssessed: string[];
+  skillsDemonstratedConvincingly: string[];
+  skillsListedNotDemonstrated: string[];
+  projectClaimsExplainedWithDepth: string[];
+  topicsRequiringImprovement: string[];
+  codingPatternsCausingDifficulty: string[];
+  technicalAnswersIncompleteOrIncorrect: string[];
+  englishCommunicationErrors: string[];
+  prioritizedStudyPlan: Array<{
+    priority: number;
+    skill: string;
+    reason: string;
+    studyTopics: string[];
+  }>;
+  resumeTopicsRemainingUnassessed: string[];
+  recommendedFollowUpInterview: string;
+}

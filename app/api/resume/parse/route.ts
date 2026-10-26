@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ensureDbInitialized, db } from "@/lib/db";
 import { resumeProfiles } from "@/lib/db/schema";
-import { extractResumeIntelligence } from "@/lib/intelligence/resume-job-extractor";
-import { eq } from "drizzle-orm";
+import { extractTextFromDocument, parseResumeStructured } from "@/lib/intelligence/resume-parser";
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,6 +14,7 @@ export async function POST(req: NextRequest) {
     let targetRole = "Software Engineer";
     let experienceLevel = "fresher";
     let candidateName = "Candidate";
+    let isScanned = false;
 
     if (contentType.includes("multipart/form-data")) {
       const formData = await req.formData();
@@ -26,16 +26,24 @@ export async function POST(req: NextRequest) {
 
       if (file) {
         const buffer = Buffer.from(await file.arrayBuffer());
-        if (file.type === "application/pdf" || file.name.endsWith(".pdf")) {
-          // Parse PDF via pdf-parse
-          const pdfParseModule = (await import("pdf-parse")) as any;
-          const pdfParse = pdfParseModule.default || pdfParseModule;
-          const parsed = await pdfParse(buffer);
-          rawResumeText = parsed.text || "";
-        } else {
-          // Plain text file
-          rawResumeText = buffer.toString("utf-8");
+        const extracted = await extractTextFromDocument({
+          buffer,
+          fileName: file.name,
+          mimeType: file.type,
+        });
+
+        if (extracted.isScannedPdf) {
+          return NextResponse.json(
+            {
+              error:
+                "The uploaded document appears to be a scanned image or empty file without selectable text. Please upload a digital PDF, a DOCX file, or paste your resume text.",
+              isScannedPdf: true,
+            },
+            { status: 400 }
+          );
         }
+
+        rawResumeText = extracted.text;
       } else {
         rawResumeText = (formData.get("rawResumeText") as string) || "";
       }
@@ -48,36 +56,51 @@ export async function POST(req: NextRequest) {
       candidateName = body.candidateName || candidateName;
     }
 
-    if (!rawResumeText.trim()) {
+    if (!rawResumeText || rawResumeText.trim().length < 15) {
       return NextResponse.json(
-        { error: "Resume text or document content is required." },
+        {
+          error:
+            "Resume content contains insufficient text. Please upload a valid document or paste your resume summary.",
+        },
         { status: 400 }
       );
     }
 
-    // Extract intelligence with strict non-fabrication guarantees
-    const extracted = extractResumeIntelligence({
-      rawResumeText,
-      rawJobDescription,
-      targetRole,
-      experienceLevel,
-    });
+    // Parse into validated structured schema with zero fabrication
+    const parseResult = parseResumeStructured(rawResumeText);
+
+    if (!parseResult.success) {
+      return NextResponse.json(
+        { error: parseResult.error || "Failed to extract candidate entities from resume." },
+        { status: 400 }
+      );
+    }
 
     const profileId = "prof-" + Math.random().toString(36).substring(2, 10);
     const now = new Date();
 
+    const flattenedSkills = [
+      ...parseResult.profile.skills.programmingLanguages,
+      ...parseResult.profile.skills.frontend,
+      ...parseResult.profile.skills.backend,
+      ...parseResult.profile.skills.databases,
+      ...parseResult.profile.skills.aiMl,
+      ...parseResult.profile.skills.devops,
+      ...parseResult.profile.skills.testing,
+    ];
+
     await db.insert(resumeProfiles).values({
       id: profileId,
-      candidateName,
+      candidateName: parseResult.profile.name || candidateName,
       targetRole,
       experienceLevel,
       rawResumeText,
       rawJobDescription,
-      extractedSkills: JSON.stringify(extracted.skills),
-      extractedProjects: JSON.stringify(extracted.projects),
-      extractedTechnologies: JSON.stringify(extracted.technologies),
-      extractedTopics: JSON.stringify(extracted.topics),
-      jobRequirements: JSON.stringify(extracted.jobRequirements),
+      extractedSkills: JSON.stringify(flattenedSkills),
+      extractedProjects: JSON.stringify(parseResult.profile.projects),
+      extractedTechnologies: JSON.stringify(flattenedSkills),
+      extractedTopics: JSON.stringify(flattenedSkills.slice(0, 8)),
+      jobRequirements: JSON.stringify([]),
       createdAt: now,
       updatedAt: now,
     });
@@ -85,8 +108,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       profileId,
-      extracted,
+      profile: parseResult.profile,
+      skillClassifications: parseResult.skillClassifications,
       rawResumeText,
+      detectedStack: flattenedSkills.slice(0, 6),
     });
   } catch (error: any) {
     console.error("Resume parse error:", error);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Sparkles,
@@ -38,7 +38,35 @@ function InterviewSetupContent() {
   const [jobDescription, setJobDescription] = useState("");
   const [resumeProfileId, setResumeProfileId] = useState<string | null>(null);
   const [extractedInfo, setExtractedInfo] = useState<{ skills: string[]; projects: ExtractedProject[]; technologies: string[] } | null>(null);
+  const [savedResume, setSavedResume] = useState<{ id: string; candidateName?: string; extractedSkills: string[]; rawResumeText: string } | null>(null);
   const [parsingResume, setParsingResume] = useState(false);
+
+  // Check for existing saved resume on mount
+  useEffect(() => {
+    fetch("/api/resume/recent")
+      .then(res => res.json())
+      .then(data => {
+        if (data?.profile) {
+          setSavedResume(data.profile);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleUseSavedResume = () => {
+    if (savedResume) {
+      setResumeProfileId(savedResume.id);
+      setResumeText(savedResume.rawResumeText);
+      setExtractedInfo({
+        skills: savedResume.extractedSkills,
+        projects: (savedResume as any).extractedProjects || [],
+        technologies: savedResume.extractedSkills,
+      });
+      if (savedResume.candidateName) {
+        // Can prefill role if desired
+      }
+    }
+  };
   const [selectedTopics, setSelectedTopics] = useState<string[]>([
     "Java Fundamentals & OOP",
     "SQL & DBMS",
@@ -438,20 +466,45 @@ function InterviewSetupContent() {
               )}
             </div>
 
+            {savedResume && !resumeProfileId && (
+              <div className="rounded-lg border border-purple-500/40 bg-purple-500/10 p-3 flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <div className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5 text-purple-400" />
+                    <span>Saved Resume Available: {savedResume.candidateName || "Candidate"}</span>
+                  </div>
+                  <p className="text-[11px] text-gray-300">
+                    Detected Stack: {savedResume.extractedSkills.slice(0, 5).join(", ")}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleUseSavedResume}
+                  className="rounded-lg bg-purple-600 hover:bg-purple-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition"
+                >
+                  Use Saved Resume
+                </button>
+              </div>
+            )}
+
+            <div className="rounded-lg bg-gray-950/40 border border-gray-800 p-2.5 text-[11px] text-gray-400">
+              <strong className="text-gray-200">The Resume Determines the Interview:</strong> Your skills, frameworks, and projects are automatically extracted. You do not need to manually select technologies that exist in your resume.
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* PDF or Text file upload */}
+              {/* PDF or DOCX or Text file upload */}
               <div className="rounded-lg border border-dashed border-gray-800 bg-gray-950/60 p-4 text-center">
                 <Upload className="mx-auto h-5 w-5 text-gray-500 mb-1.5" />
-                <p className="text-xs font-medium text-gray-300 mb-1">Upload Resume (PDF or TXT)</p>
-                <p className="text-[10px] text-gray-500 mb-3">Extracted skills & projects will be probed strictly without fabrication.</p>
+                <p className="text-xs font-medium text-gray-300 mb-1">Upload Resume (PDF, DOCX, or TXT)</p>
+                <p className="text-[10px] text-gray-500 mb-3">Server-side extraction with scanned PDF detection.</p>
                 <input
                   type="file"
-                  accept=".pdf,.txt"
+                  accept=".pdf,.docx,.txt"
                   onChange={handleFileUpload}
                   disabled={parsingResume}
                   className="text-[11px] text-gray-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[11px] file:font-medium file:bg-purple-600/30 file:text-purple-300 hover:file:bg-purple-600/50 cursor-pointer"
                 />
-                {parsingResume && <p className="mt-2 text-[11px] text-purple-400 animate-pulse">Extracting skills & architecture...</p>}
+                {parsingResume && <p className="mt-2 text-[11px] text-purple-400 animate-pulse">Extracting skills, projects & architecture...</p>}
               </div>
 
               {/* Pasted text option */}

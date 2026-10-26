@@ -10,6 +10,7 @@ import {
   interviewReports,
   resumeProfiles,
   revisionQueue,
+  interviewBlueprints,
 } from "../db/schema";
 import { eq, and, sql, desc } from "drizzle-orm";
 import { getAIProvider, isLiveAIConfigured } from "../ai";
@@ -34,6 +35,9 @@ import { updateSkillsProfileFromSession, syncRevisionQueueFromSession } from "..
 import { evaluateAdaptiveTurn, isNearDuplicateQuestion, calculateAdaptiveDifficulty } from "./adaptive-engine";
 import { generateProgressiveProjectQuestions } from "../intelligence/resume-job-extractor";
 import { logAPIUsage } from "../ai/usage-tracker";
+import { parseResumeStructured } from "../intelligence/resume-parser";
+import { generateInterviewBlueprint, getBlueprintForSession, TECH_INTERVIEW_TREES } from "../intelligence/blueprint-generator";
+import { compileResumeAssessmentDossier } from "../intelligence/resume-report-generator";
 
 export interface CreateInterviewInput {
   title?: string;
@@ -80,7 +84,51 @@ export async function createSession(input: CreateInterviewInput) {
   else if (variant === "coding_interview") startingRound = 3;
   else if (variant === "behavioral_hr") startingRound = 4;
 
-  // Create session
+  // 1. Automatically generate Interview Blueprint if resumeText or resumeProfileId exists
+  let detectedPrimaryLanguage: "java" | "python" | "cpp" = input.primaryLanguage || "java";
+  let activeProfileId = input.resumeProfileId || null;
+  let parsedProfileData: any = null;
+
+  if (input.resumeText && !activeProfileId) {
+    const parseRes = parseResumeStructured(input.resumeText);
+    if (parseRes.success) {
+      activeProfileId = "prof-" + Math.random().toString(36).substring(2, 10);
+      parsedProfileData = parseRes.profile;
+      const flattened = [
+        ...parseRes.profile.skills.programmingLanguages,
+        ...parseRes.profile.skills.frontend,
+        ...parseRes.profile.skills.backend,
+        ...parseRes.profile.skills.databases,
+        ...parseRes.profile.skills.aiMl,
+        ...parseRes.profile.skills.devops,
+        ...parseRes.profile.skills.testing,
+      ];
+      await db.insert(resumeProfiles).values({
+        id: activeProfileId,
+        candidateName: parseRes.profile.name || "Candidate",
+        targetRole: input.targetRole,
+        experienceLevel: input.difficulty,
+        rawResumeText: input.resumeText,
+        extractedSkills: JSON.stringify(flattened),
+        extractedProjects: JSON.stringify(parseRes.profile.projects),
+        extractedTechnologies: JSON.stringify(flattened),
+        extractedTopics: JSON.stringify(flattened.slice(0, 8)),
+        jobRequirements: JSON.stringify([]),
+        createdAt: now,
+        updatedAt: now,
+      });
+    }
+  } else if (activeProfileId) {
+    const [pRecord] = await db.select().from(resumeProfiles).where(eq(resumeProfiles.id, activeProfileId));
+    if (pRecord && pRecord.rawResumeText) {
+      const parseRes = parseResumeStructured(pRecord.rawResumeText);
+      if (parseRes.success) {
+        parsedProfileData = parseRes.profile;
+      }
+    }
+  }
+
+  // Create session first so foreign key constraints on sessionId are satisfied
   await db.insert(interviewSessions).values({
     id: sessionId,
     title,
@@ -89,8 +137,8 @@ export async function createSession(input: CreateInterviewInput) {
     difficulty: input.difficulty,
     mode: input.mode,
     interviewModeVariant: variant,
-    resumeProfileId: input.resumeProfileId || null,
-    primaryLanguage: input.primaryLanguage || "java",
+    resumeProfileId: activeProfileId,
+    primaryLanguage: detectedPrimaryLanguage,
     durationMinutes,
     topicsEmphasized: JSON.stringify(input.topicsEmphasized || []),
     resumeText: input.resumeText || null,
@@ -102,6 +150,23 @@ export async function createSession(input: CreateInterviewInput) {
     startedAt: now,
     createdAt: now,
   });
+
+  // Generate and insert interview blueprint now that interview_sessions record exists
+  if (parsedProfileData && activeProfileId) {
+    const bp = await generateInterviewBlueprint({
+      sessionId,
+      resumeProfileId: activeProfileId,
+      profile: parsedProfileData,
+      targetRole: input.targetRole,
+      companyProfile: input.companyProfile,
+    });
+    if (bp.primaryLanguage && !input.primaryLanguage) {
+      detectedPrimaryLanguage = (bp.primaryLanguage === "javascript" ? "python" : bp.primaryLanguage) as any;
+      await db.update(interviewSessions)
+        .set({ primaryLanguage: detectedPrimaryLanguage })
+        .where(eq(interviewSessions.id, sessionId));
+    }
+  }
 
   // Create 4 rounds
   for (let r = 1; r <= 4; r++) {
@@ -116,7 +181,10 @@ export async function createSession(input: CreateInterviewInput) {
   }
 
   // Pick first question for starting round
-  const firstQuestion = await getNextQuestionForRound(sessionId, startingRound, 0, input);
+  const firstQuestion = await getNextQuestionForRound(sessionId, startingRound, 0, {
+    ...input,
+    resumeProfileId: activeProfileId || undefined,
+  });
 
   // Add welcome and initial question message
   const welcomeText = `Welcome to your ${input.companyProfile} Technical Interview for the ${input.targetRole} position.
@@ -146,12 +214,48 @@ export async function getNextQuestionForRound(
   questionIndex: number,
   sessionInput?: { companyProfile?: string; targetRole?: string; resumeText?: string; resumeProfileId?: string; interviewModeVariant?: string }
 ) {
-  // 1. If in Round 2 and candidate has an attached resume profile with projects, ask progressively deeper questions about verified projects
-  if (roundNumber === 2 && sessionInput?.resumeProfileId) {
+  // Check for persistent Interview Blueprint
+  const blueprint = await getBlueprintForSession(sessionId);
+
+  // 1. ROUND 1: Technical Fundamentals based on candidate's actual extracted stack
+  if (roundNumber === 1 && blueprint && blueprint.primaryStack.length > 0) {
+    const techCount = blueprint.primaryStack.length;
+    const targetTech = blueprint.primaryStack[questionIndex % techCount];
+
+    // Find questions in technology progression tree
+    const tree = TECH_INTERVIEW_TREES[targetTech] ||
+      (targetTech.toLowerCase().includes("react") ? TECH_INTERVIEW_TREES["React"] :
+       targetTech.toLowerCase().includes("node") ? TECH_INTERVIEW_TREES["Node.js"] :
+       targetTech.toLowerCase().includes("mongo") ? TECH_INTERVIEW_TREES["MongoDB"] :
+       targetTech.toLowerCase().includes("python") || targetTech.toLowerCase().includes("ai") ? TECH_INTERVIEW_TREES["Python"] :
+       targetTech.toLowerCase().includes("java") || targetTech.toLowerCase().includes("spring") ? TECH_INTERVIEW_TREES["Java"] :
+       targetTech.toLowerCase().includes("postgres") ? TECH_INTERVIEW_TREES["PostgreSQL"] : null);
+
+    if (tree && tree.length > 0) {
+      const qText = tree[Math.floor(questionIndex / techCount) % tree.length] || tree[0];
+      return {
+        id: `resume-bp-r1-${targetTech.toLowerCase().replace(/[^a-z0-9]/g, "")}-${questionIndex}`,
+        category: "frontend",
+        topic: `${targetTech} Fundamentals`,
+        difficulty: "medium",
+        companyTags: JSON.stringify(["Resume Evaluation", targetTech]),
+        questionText: qText,
+        expectedAnswer: `Accurate explanation of ${targetTech} core mechanics, lifecycle, trade-offs, and practical execution.`,
+        explanation: `Evaluates fundamental knowledge of candidate's verified resume skill: ${targetTech}.`,
+        followUps: JSON.stringify(["What edge cases or bottlenecks could arise?"]),
+        rubricFocus: `${targetTech} Core Knowledge`,
+        createdAt: new Date(),
+      };
+    }
+  }
+
+  // 2. ROUND 2: Advanced CS & Project Deep Dive (Architecture, personal contribution, trade-offs, failures)
+  if (roundNumber === 2 && (sessionInput?.resumeProfileId || blueprint?.resumeProfileId)) {
+    const profileId = sessionInput?.resumeProfileId || blueprint?.resumeProfileId;
     const [prof] = await db
       .select()
       .from(resumeProfiles)
-      .where(eq(resumeProfiles.id, sessionInput.resumeProfileId));
+      .where(eq(resumeProfiles.id, profileId!));
 
     if (prof && prof.extractedProjects) {
       try {
@@ -159,11 +263,22 @@ export async function getNextQuestionForRound(
         if (projects.length > 0) {
           const proj = projects[questionIndex % projects.length];
           const progressive = generateProgressiveProjectQuestions(proj);
-          const qText = questionIndex === 0
-            ? progressive.architectureQuestion
-            : questionIndex === 1
-            ? progressive.tradeOffQuestion
-            : progressive.reliabilityAndFailureQuestion;
+
+          let qText = "";
+          if (questionIndex === 0) {
+            qText = progressive.architectureQuestion;
+          } else if (questionIndex === 1) {
+            qText = progressive.tradeOffQuestion;
+          } else if (questionIndex === 2) {
+            qText = progressive.reliabilityAndFailureQuestion;
+          } else {
+            // Verify specific claims
+            const claims = blueprint?.resumeClaims || [];
+            const claimItem = claims.find(c => c.sourceSection === "Projects" || c.priority === "high");
+            qText = claimItem
+              ? `You claimed "${claimItem.claim}" in your project description. How did you specifically measure or validate this achievement, and what was your personal implementation role?`
+              : `In ${proj.name}, what would you re-architect today if user traffic increased by 100x?`;
+          }
 
           return {
             id: `proj-${proj.name.replace(/[^a-zA-Z0-9]/g, "-").slice(0, 15)}-${questionIndex}`,
@@ -185,7 +300,41 @@ export async function getNextQuestionForRound(
     }
   }
 
-  // 2. If Revision Interview mode, query priority items from revision queue
+  // 3. ROUND 4: Behavioral & HR (Grounded in candidate's real projects and internships)
+  if (roundNumber === 4 && blueprint && blueprint.resumeClaims.length > 0) {
+    const claims = blueprint.resumeClaims;
+    if (questionIndex === 0) {
+      return {
+        id: `resume-hr-collab-${questionIndex}`,
+        category: "behavioral",
+        topic: "Team Collaboration & Conflict",
+        difficulty: "medium",
+        companyTags: JSON.stringify(["HR Round"]),
+        questionText: `Tell me about a time in your projects or internships when you encountered an architectural disagreement or conflicting technical priority with a teammate or mentor. How did you handle it?`,
+        expectedAnswer: "Candidate uses STAR structure (Situation, Task, Action, Result) demonstrating professional communication, empathy, and data-driven compromise.",
+        explanation: "Assesses teamwork and interpersonal conflict resolution.",
+        followUps: JSON.stringify(["What would you do differently today?"]),
+        rubricFocus: "Collaboration & STAR Structure",
+        createdAt: new Date(),
+      };
+    } else if (questionIndex === 1) {
+      return {
+        id: `resume-hr-failure-${questionIndex}`,
+        category: "behavioral",
+        topic: "Failure & Learning",
+        difficulty: "medium",
+        companyTags: JSON.stringify(["HR Round"]),
+        questionText: `Can you describe a significant technical mistake, broken deployment, or edge-case failure you personally experienced in your code, and what systemic changes you implemented afterwards?`,
+        expectedAnswer: "Demonstrates genuine ownership, root-cause reflection, resilience, and actionable preventive measures.",
+        explanation: "Assesses accountability and continuous learning.",
+        followUps: JSON.stringify(["How did you communicate the issue to stakeholders?"]),
+        rubricFocus: "Ownership & Accountability",
+        createdAt: new Date(),
+      };
+    }
+  }
+
+  // 4. If Revision Interview mode, query priority items from revision queue
   if (sessionInput?.interviewModeVariant === "revision_interview") {
     const revItems = await db.select().from(revisionQueue).limit(5);
     if (revItems.length > 0) {
@@ -745,7 +894,23 @@ export async function finishSession(sessionId: string) {
     };
   });
 
-  // Generate comprehensive 7-section markdown export
+  // Load Blueprint and generate Resume-Specific Dossier
+  const blueprint = await getBlueprintForSession(sessionId);
+  let parsedProfile = null;
+  if (session.resumeText) {
+    const parseRes = parseResumeStructured(session.resumeText);
+    if (parseRes.success) parsedProfile = parseRes.profile;
+  }
+
+  const resumeDossier = compileResumeAssessmentDossier({
+    blueprint,
+    profile: parsedProfile,
+    answers,
+    codeSubmissions: submissions,
+    communicationIssues: communicationReport.issues,
+  });
+
+  // Generate comprehensive 8-section markdown export
   const markdownExport = `# InterviewForge AI — Candidate Evaluation Report (Comprehensive Dossier)
 
 **Candidate Target Role:** ${session.targetRole}  
@@ -882,6 +1047,22 @@ ${p.tasks.map(t => `- ${t}`).join("\n")}`
   .join("\n\n")}
 
 ---
+
+## Section H: Resume-Specific Technical Verification & Study Plan
+1. **Technologies Extracted from Resume:** ${resumeDossier.technologiesFound.join(", ") || "None"}
+2. **Technologies Deeply Assessed:** ${resumeDossier.technologiesDeeplyAssessed.join(", ") || "None"}
+3. **Skills Demonstrated Convincingly:** ${resumeDossier.skillsDemonstratedConvincingly.join(", ") || "None"}
+4. **Skills Listed but Not Demonstrated:** ${resumeDossier.skillsListedNotDemonstrated.join(", ") || "None"}
+5. **Project Claims Explained with Depth:**
+${resumeDossier.projectClaimsExplainedWithDepth.map(c => `- ${c}`).join("\n") || "- None"}
+6. **Topics Requiring Immediate Revision:**
+${resumeDossier.topicsRequiringImprovement.map(t => `- ${t}`).join("\n") || "- None"}
+7. **Coding Patterns Causing Difficulty:**
+${resumeDossier.codingPatternsCausingDifficulty.map(cp => `- ${cp}`).join("\n")}
+8. **Unassessed Resume Topics:** ${resumeDossier.resumeTopicsRemainingUnassessed.join(", ") || "All claimed topics were assessed."}
+9. **Recommended Follow-Up Interview:** ${resumeDossier.recommendedFollowUpInterview}
+
+---
 *InterviewForge AI — Evidence-Based Engineering Hiring Evaluation*
 `;
 
@@ -905,6 +1086,7 @@ ${p.tasks.map(t => `- ${t}`).join("\n")}`
     readinessSummary: reportData.readinessSummary,
     readinessLevel: reportData.readinessLevel,
     markdownExport,
+    resumeAssessmentReport: JSON.stringify(resumeDossier),
     createdAt: now,
   });
 

@@ -22,6 +22,7 @@ import { getCompilerProvider } from "../lib/compiler/index.ts";
 describe("InterviewForge AI — End-to-End Simulation Tests", () => {
 
   let testSessionId = "";
+  let firstQuestionText = "";
 
   test("1. Successfully configure and create a full 4-round interview session", async () => {
     const session = await createSession({
@@ -40,6 +41,7 @@ describe("InterviewForge AI — End-to-End Simulation Tests", () => {
     assert.ok(session.firstQuestion, "First question should be selected");
     assert.ok(session.firstQuestion.questionText.length > 10);
     testSessionId = session.sessionId;
+    firstQuestionText = session.firstQuestion.questionText;
   });
 
   test("2. Candidate asks clarification interruption — preserves question without scoring penalty", async () => {
@@ -56,9 +58,16 @@ describe("InterviewForge AI — End-to-End Simulation Tests", () => {
 
   test("3. Candidate submits answer — gets evaluated against rubric", async () => {
     assert.ok(testSessionId);
+    let answerText = "In Java, JDK is the Java Development Kit containing compiler javac and tools. JRE is runtime environment with libraries. JVM executes the bytecode.";
+    if (firstQuestionText.toLowerCase().includes("overload") || firstQuestionText.toLowerCase().includes("overrid")) {
+      answerText = "Method overloading occurs at compile time when methods have the same name but different parameter lists in the same class. Method overriding occurs at runtime when a subclass provides its own specific implementation of an inherited method with identical name and parameter types. The JVM resolves overridden methods through dynamic method dispatch using the virtual method table (vtable) based on the actual runtime object instance.";
+    } else if (firstQuestionText.toLowerCase().includes("connection pool") || firstQuestionText.toLowerCase().includes("jdbc")) {
+      answerText = "Connection pooling maintains a reusable cache of active database connections (such as HikariCP) to avoid the expensive TCP and SSL handshake overhead of creating new connections per request.";
+    }
+
     const result = await submitCandidateAnswer({
       sessionId: testSessionId,
-      answerText: "In Java, JDK is the Java Development Kit containing compiler javac and tools. JRE is runtime environment with libraries. JVM executes the bytecode.",
+      answerText,
     });
 
     assert.ok(result.evaluation, "Evaluation must exist");
