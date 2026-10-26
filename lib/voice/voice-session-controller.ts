@@ -63,13 +63,15 @@ export class VoiceSessionController {
         // Stop recording event
       },
       onTranscribing: () => {
-        this.callbacks.onInterimTranscript("Transcribing audio with Whisper AI...");
+        this.callbacks.onInterimTranscript("");
       },
       onTranscript: (text) => {
+        this.callbacks.onInterimTranscript("");
         this.callbacks.onFinalTranscript(text);
         this.setState("ready_to_listen");
       },
       onError: (msg) => {
+        this.callbacks.onInterimTranscript("");
         this.callbacks.onError(msg);
         this.setState("error");
       },

@@ -825,6 +825,7 @@ export default function InterviewRoomPage() {
                 setManualText={setManualText}
                 errorMessage={error}
                 onCancelSubmission={handleCancelSubmission}
+                isTranscribingAudio={isTranscribingAudio}
               />
             </div>
           </div>

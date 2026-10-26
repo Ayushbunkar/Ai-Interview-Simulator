@@ -354,22 +354,35 @@ export function VoiceControls({
           <div className="flex items-center gap-2">
             <AlertCircle className="h-4 w-4 shrink-0 text-amber-400" />
             <span>
-              {errorMessage.toLowerCase().includes("network")
-                ? "Browser Google speech service is unreachable on your network. Use Whisper AI Voice Recording."
+              {errorMessage.toLowerCase().includes("whisper") || errorMessage.toLowerCase().includes("groq")
+                ? "Whisper speech service had an issue. Click 'Start Live Mic (Browser)' below to speak directly."
+                : errorMessage.toLowerCase().includes("network")
+                ? "Browser speech service is unreachable on your network. Use Whisper AI Voice Recording."
                 : errorMessage}
             </span>
           </div>
 
-          {onStartWhisperRecording && !isWhisperRecording && (
-            <button
-              type="button"
-              onClick={onStartWhisperRecording}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-amber-500 hover:bg-amber-600 text-black font-semibold text-xs shadow-sm transition shrink-0"
-            >
-              <Mic className="h-3.5 w-3.5" />
-              Record Voice with Whisper AI
-            </button>
-          )}
+          <div className="flex items-center gap-2 shrink-0">
+            {errorMessage.toLowerCase().includes("whisper") || errorMessage.toLowerCase().includes("groq") ? (
+              <button
+                type="button"
+                onClick={onStartListening}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-sm transition"
+              >
+                <Mic className="h-3.5 w-3.5" />
+                Start Live Mic (Browser)
+              </button>
+            ) : onStartWhisperRecording && !isWhisperRecording ? (
+              <button
+                type="button"
+                onClick={onStartWhisperRecording}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-amber-500 hover:bg-amber-600 text-black font-semibold text-xs shadow-sm transition"
+              >
+                <Mic className="h-3.5 w-3.5" />
+                Record Voice with Whisper AI
+              </button>
+            ) : null}
+          </div>
         </div>
       )}
     </div>

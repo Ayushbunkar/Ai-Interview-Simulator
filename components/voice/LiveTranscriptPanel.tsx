@@ -14,6 +14,7 @@ interface LiveTranscriptPanelProps {
   setManualText: (text: string) => void;
   errorMessage?: string | null;
   onCancelSubmission?: () => void;
+  isTranscribingAudio?: boolean;
 }
 
 export function LiveTranscriptPanel({
@@ -26,6 +27,7 @@ export function LiveTranscriptPanel({
   setManualText,
   errorMessage,
   onCancelSubmission,
+  isTranscribingAudio = false,
 }: LiveTranscriptPanelProps) {
   const [editableText, setEditableText] = useState(manualText || "");
   const [elapsedWaitSeconds, setElapsedWaitSeconds] = useState(0);
@@ -162,6 +164,14 @@ export function LiveTranscriptPanel({
               Cancel Wait
             </button>
           )}
+        </div>
+      )}
+
+      {/* Whisper Audio Transcribing Banner */}
+      {isTranscribingAudio && (
+        <div className="flex items-center gap-2 p-2.5 rounded-lg bg-indigo-500/10 border border-indigo-500/30 text-xs text-indigo-300 animate-pulse">
+          <Sparkles className="h-4 w-4 animate-spin text-indigo-400 shrink-0" />
+          <span>Whisper AI is transcribing your spoken answer...</span>
         </div>
       )}
 

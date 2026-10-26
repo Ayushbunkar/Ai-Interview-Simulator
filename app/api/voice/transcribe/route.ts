@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import Groq from "groq-sdk";
+import { getActiveGroqKey } from "@/lib/config/cloud-fallback";
 
 export async function POST(request: NextRequest) {
   try {
-    const apiKey = process.env.GROQ_API_KEY;
+    const apiKey = getActiveGroqKey();
     if (!apiKey) {
       return NextResponse.json(
         {
           success: false,
-          error: "GROQ_API_KEY is not configured for Whisper speech-to-text.",
+          error: "Speech-to-text API is not configured. Please use 'Live Mic (Browser)' or type your answer.",
         },
         { status: 400 }
       );
