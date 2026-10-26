@@ -67,7 +67,10 @@ export async function autoSeedIfEmpty() {
           reference_solution_java, reference_solution_python, reference_solution_cpp,
           time_complexity, space_complexity, hints, created_at
         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, NOW())
-        ON CONFLICT (id) DO NOTHING`,
+        ON CONFLICT (id) DO UPDATE SET 
+          starter_code_java = EXCLUDED.starter_code_java,
+          starter_code_python = EXCLUDED.starter_code_python,
+          starter_code_cpp = EXCLUDED.starter_code_cpp`,
         values: [
           p.id,
           p.title,

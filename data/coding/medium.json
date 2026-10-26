@@ -33,9 +33,9 @@
         "explanation": "The answer is 'wke', with the length of 3."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.hasNextLine() ? sc.nextLine() : \"\";\n        System.out.println(lengthOfLongestSubstring(s));\n    }\n    \n    public static int lengthOfLongestSubstring(String s) {\n        // Implement sliding window\n        return 0;\n    }\n}",
-    "starterCodePython": "import sys\n\ndef length_of_longest_substring(s: str) -> int:\n    # Implement sliding window\n    return 0\n\nif __name__ == '__main__':\n    s = sys.stdin.readline().rstrip('\\r\\n')\n    print(length_of_longest_substring(s))\n",
-    "starterCodeCpp": "#include <iostream>\n#include <string>\n#include <unordered_map>\nusing namespace std;\n\nint lengthOfLongestSubstring(string s) {\n    // Implement sliding window\n    return 0;\n}\n\nint main() {\n    string s;\n    getline(cin, s);\n    cout << lengthOfLongestSubstring(s) << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public int lengthOfLongestSubstring(String s) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def lengthOfLongestSubstring(self, s: str) -> int:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    int lengthOfLongestSubstring(string s) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.hasNextLine() ? sc.nextLine() : \"\";\n        System.out.println(lengthOfLongestSubstring(s));\n    }\n    \n    public static int lengthOfLongestSubstring(String s) {\n        Map<Character, Integer> map = new HashMap<>();\n        int maxLen = 0, left = 0;\n        for (int right = 0; right < s.length(); right++) {\n            char c = s.charAt(right);\n            if (map.containsKey(c)) {\n                left = Math.max(left, map.get(c) + 1);\n            }\n            map.put(c, right);\n            maxLen = Math.max(maxLen, right - left + 1);\n        }\n        return maxLen;\n    }\n}",
     "referenceSolutionPython": "import sys\n\ndef length_of_longest_substring(s: str) -> int:\n    seen = {}\n    max_len = 0\n    left = 0\n    for right, char in enumerate(s):\n        if char in seen and seen[char] >= left:\n            left = seen[char] + 1\n        seen[char] = right\n        max_len = max(max_len, right - left + 1)\n    return max_len\n\nif __name__ == '__main__':\n    s = sys.stdin.readline().rstrip('\\r\\n')\n    print(length_of_longest_substring(s))\n",
     "referenceSolutionCpp": "#include <iostream>\n#include <string>\n#include <unordered_map>\n#include <algorithm>\nusing namespace std;\n\nint lengthOfLongestSubstring(string s) {\n    unordered_map<char, int> seen;\n    int maxLen = 0, left = 0;\n    for (int right = 0; right < s.length(); right++) {\n        if (seen.count(s[right])) {\n            left = max(left, seen[s[right]] + 1);\n        }\n        seen[s[right]] = right;\n        maxLen = max(maxLen, right - left + 1);\n    }\n    return maxLen;\n}\n\nint main() {\n    string s;\n    getline(cin, s);\n    cout << lengthOfLongestSubstring(s) << endl;\n    return 0;\n}",
@@ -100,9 +100,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public List<List<Integer>> threeSum(int[] nums) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def threeSum(self, nums: list[int]) -> list[list[int]]:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    vector<vector<int>> threeSum(vector<int>& nums) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -149,9 +149,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public int maxArea(int[] height) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def maxArea(self, height: list[int]) -> int:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    int maxArea(vector<int>& height) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -198,9 +198,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public String longestPalindrome(String s) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def longestPalindrome(self, s: str) -> str:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    string longestPalindrome(string s) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -247,9 +247,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public List<List<String>> groupAnagrams(String[] strs) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def groupAnagrams(self, strs: list[str]) -> list[list[str]]:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    vector<vector<string>> groupAnagrams(vector<string>& strs) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -296,9 +296,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public int[] topKFrequent(int[] nums, int k) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def topKFrequent(self, nums: list[int], k: int) -> list[int]:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    vector<int> topKFrequent(vector<int>& nums, int k) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -345,9 +345,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public int[] productExceptSelf(int[] nums) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def productExceptSelf(self, nums: list[int]) -> list[int]:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    vector<int> productExceptSelf(vector<int>& nums) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -394,9 +394,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public int search(int[] nums, int target) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def search(self, nums: list[int], target: int) -> int:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    int search(vector<int>& nums, int target) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -443,9 +443,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public int findMin(int[] nums) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def findMin(self, nums: list[int]) -> int:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    int findMin(vector<int>& nums) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -492,9 +492,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public int findKthLargest(int[] nums, int k) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def findKthLargest(self, nums: list[int], k: int) -> int:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    int findKthLargest(vector<int>& nums, int k) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -541,9 +541,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public int coinChange(int[] coins, int amount) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def coinChange(self, coins: list[int], amount: int) -> int:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    int coinChange(vector<int>& coins, int amount) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -590,9 +590,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public int lengthOfLIS(int[] nums) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def lengthOfLIS(self, nums: list[int]) -> int:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    int lengthOfLIS(vector<int>& nums) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -639,9 +639,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public boolean wordBreak(String s, List<String> wordDict) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def wordBreak(self, s: str, wordDict: list[str]) -> bool:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    bool wordBreak(string s, vector<string>& wordDict) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -688,9 +688,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public List<List<Integer>> combinationSum(int[] candidates, int target) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def combinationSum(self, candidates: list[int], target: int) -> list[list[int]]:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    vector<vector<int>> combinationSum(vector<int>& candidates, int target) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -737,9 +737,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public List<List<Integer>> subsets(int[] nums) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def subsets(self, nums: list[int]) -> list[list[int]]:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    vector<vector<int>> subsets(vector<int>& nums) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -786,9 +786,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public List<List<Integer>> permute(int[] nums) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def permute(self, nums: list[int]) -> list[list[int]]:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    vector<vector<int>> permute(vector<int>& nums) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -835,9 +835,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public int numIslands(char[][] grid) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def numIslands(self, grid: list[list[str]]) -> int:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    int numIslands(vector<vector<char>>& grid) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -884,9 +884,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public boolean canFinish(int numCourses, int[][] prerequisites) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def canFinish(self, numCourses: int, prerequisites: list[list[int]]) -> bool:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    bool canFinish(int numCourses, vector<vector<int>>& prerequisites) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -933,9 +933,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public Node cloneGraph(Node node) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def cloneGraph(self, node):\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    Node* cloneGraph(Node* node) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -982,9 +982,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public List<List<Integer>> pacificAtlantic(int[][] heights) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def pacificAtlantic(self, heights: list[list[int]]) -> list[list[int]]:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    vector<vector<int>> pacificAtlantic(vector<vector<int>>& heights) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -1031,9 +1031,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public boolean isValidBST(TreeNode root) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def isValidBST(self, root) -> bool:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    bool isValidBST(TreeNode* root) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -1080,9 +1080,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public int kthSmallest(TreeNode root, int k) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def kthSmallest(self, root, k: int) -> int:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    int kthSmallest(TreeNode* root, int k) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -1129,9 +1129,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def lowestCommonAncestor(self, root, p, q):\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    TreeNode* lowestCommonAncestor(TreeNode* root, TreeNode* p, TreeNode* q) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -1178,9 +1178,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public List<List<Integer>> levelOrder(TreeNode root) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def levelOrder(self, root) -> list[list[int]]:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    vector<vector<int>> levelOrder(TreeNode* root) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -1227,9 +1227,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class LRUCache {\n    // Start writing your solution below\n    public LRUCache(int capacity) {\n        // Write your code here...\n        \n    }\n    \n    public int get(int key) {\n        // Write your code here...\n        \n    }\n    \n    public void put(int key, int value) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class LRUCache:\n    # Start writing your solution below\n    def __init__(self, capacity: int):\n        # Write your code here...\n        pass\n\n    def get(self, key: int) -> int:\n        # Write your code here...\n        pass\n\n    def put(self, key: int, value: int) -> None:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class LRUCache {\npublic:\n    // Start writing your solution below\n    LRUCache(int capacity) {\n        // Write your code here...\n        \n    }\n    \n    int get(int key) {\n        // Write your code here...\n        \n    }\n    \n    void put(int key, int value) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -1276,9 +1276,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public int[][] merge(int[][] intervals) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def merge(self, intervals: list[list[int]]) -> list[list[int]]:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    vector<vector<int>> merge(vector<vector<int>>& intervals) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -1325,9 +1325,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public int eraseOverlapIntervals(int[][] intervals) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def eraseOverlapIntervals(self, intervals: list[list[int]]) -> int:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    int eraseOverlapIntervals(vector<vector<int>>& intervals) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -1374,9 +1374,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public void rotate(int[][] matrix) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def rotate(self, matrix: list[list[int]]) -> None:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    void rotate(vector<vector<int>>& matrix) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -1423,9 +1423,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public List<Integer> spiralOrder(int[][] matrix) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def spiralOrder(self, matrix: list[list[int]]) -> list[int]:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    vector<int> spiralOrder(vector<vector<int>>& matrix) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
@@ -1472,9 +1472,9 @@
         "explanation": "Calculated optimal result."
       }
     ],
-    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
-    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
-    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "starterCodeJava": "class Solution {\n    // Start writing your solution below\n    public void setZeroes(int[][] matrix) {\n        // Write your code here...\n        \n    }\n}",
+    "starterCodePython": "class Solution:\n    # Start writing your solution below\n    def setZeroes(self, matrix: list[list[int]]) -> None:\n        # Write your code here...\n        pass\n",
+    "starterCodeCpp": "class Solution {\npublic:\n    // Start writing your solution below\n    void setZeroes(vector<vector<int>>& matrix) {\n        // Write your code here...\n        \n    }\n};",
     "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
     "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
     "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
