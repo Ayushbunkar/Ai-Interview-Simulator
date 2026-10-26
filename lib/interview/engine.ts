@@ -576,9 +576,55 @@ export async function submitCandidateAnswer(params: {
     interviewerReply += `[Pacing Note: Keep responses crisp and direct]\n\n`;
   }
 
-  // Detect vague or incomplete answers and request clarification
-  if (evaluation.isVagueOrIncomplete && !isRoundFinished && evaluation.clarificationPrompt) {
-    interviewerReply += `Note: ${evaluation.clarificationPrompt}\n\n`;
+  // Check if candidate was already asked to clarify/elaborate on this current question
+  const [lastInterviewerMsg] = await db
+    .select()
+    .from(conversationMessages)
+    .where(
+      and(
+        eq(conversationMessages.sessionId, sessionId),
+        eq(conversationMessages.roundNumber, currentRound),
+        eq(conversationMessages.sender, "interviewer")
+      )
+    )
+    .orderBy(desc(conversationMessages.timestamp))
+    .limit(1);
+
+  let wasAlreadyAskedToElaborate = false;
+  if (lastInterviewerMsg?.metadata) {
+    try {
+      const meta = typeof lastInterviewerMsg.metadata === "string" ? JSON.parse(lastInterviewerMsg.metadata) : lastInterviewerMsg.metadata;
+      wasAlreadyAskedToElaborate = Boolean(meta?.isClarificationProbe);
+    } catch {}
+  }
+
+  // If answer is vague or incomplete AND candidate has not yet been probed on this question:
+  // DO NOT advance to the next question! Stop, stay on current question index, and listen to the candidate's elaboration.
+  if (evaluation.isVagueOrIncomplete && !isRoundFinished && evaluation.clarificationPrompt && !wasAlreadyAskedToElaborate) {
+    const probeReply = `${evaluation.clarificationPrompt}\n\nPlease elaborate on your specific technical implementation before we proceed to the next question.`;
+
+    await db.insert(conversationMessages).values({
+      id: "msg-" + Math.random().toString(36).substring(2, 10),
+      sessionId,
+      roundNumber: currentRound,
+      sender: "interviewer",
+      messageType: "question",
+      content: probeReply,
+      metadata: JSON.stringify({
+        questionId: questionId || null,
+        questionIndex: currentIdx,
+        isClarificationProbe: true,
+      }),
+      timestamp: new Date(),
+    });
+
+    return {
+      evaluation,
+      interviewerReply: probeReply,
+      roundCompleted: false,
+      nextRound: currentRound,
+      isInterviewComplete: false,
+    };
   }
 
   // Audit API usage

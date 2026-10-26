@@ -216,6 +216,38 @@ Key responsibilities include building high-scale Python async microservices.
     assert.equal(evaluation.confidenceLevel, "low_insufficient_evidence");
   });
 
+  test("6b. Vague answer halts progression and requests elaboration before advancing", async () => {
+    const sId = "sess-vague-" + Math.random().toString(36).substring(2, 8);
+    await db.insert(interviewSessions).values({
+      id: sId,
+      title: "Vague Test",
+      targetRole: "Java Developer",
+      companyProfile: "Java / Backend Specialist",
+      difficulty: "entry_level",
+      mode: "practice",
+      primaryLanguage: "java",
+      durationMinutes: 45,
+      topicsEmphasized: "[]",
+      status: "in_progress",
+      currentRound: 1,
+      currentQuestionIndex: 1,
+      timeRemainingSeconds: 2700,
+      createdAt: new Date(),
+    });
+
+    const res = await submitCandidateAnswer({
+      sessionId: sId,
+      answerText: "It deletes memory.",
+    });
+
+    assert.equal(res.roundCompleted, false);
+    assert.ok(res.interviewerReply.includes("elaborate") || res.interviewerReply.includes("brief"), "Must request elaboration");
+    assert.ok(!res.interviewerReply.includes("Let's move to Question"), "Must not skip to next question without listening to elaboration");
+
+    const [sess] = await db.select().from(interviewSessions).where(eq(interviewSessions.id, sId));
+    assert.equal(sess.currentQuestionIndex, 1, "Question index must remain at 1 while waiting for elaboration");
+  });
+
   // 7. Coding Timeline & Approach Logging Before Writing Code
   test("7. Candidate can explain algorithmic approach before coding and it is logged to timeline", async () => {
     const [problem] = await db.select().from(codingProblems).limit(1);
