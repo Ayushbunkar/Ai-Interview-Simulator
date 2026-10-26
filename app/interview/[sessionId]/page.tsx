@@ -27,6 +27,7 @@ import {
   XCircle,
   ArrowRight,
   Lightbulb,
+  MessageSquare,
 } from "lucide-react";
 import { ROUND_NAMES } from "@/lib/interview/engine";
 import { RoundNumber, VoiceState } from "@/lib/types";
@@ -98,6 +99,7 @@ export default function InterviewRoomPage() {
   // Timer State
   const [secondsRemaining, setSecondsRemaining] = useState(3600);
   const [isPaused, setIsPaused] = useState(false);
+  const [showHistory, setShowHistory] = useState(true);
 
   // Round 3 Monaco Coding Workspace State
   const [codingProblem, setCodingProblem] = useState<any | null>(null);
@@ -529,11 +531,11 @@ export default function InterviewRoomPage() {
 
   return (
     <ErrorBoundary fallbackTitle="Interview Room Interface Recovery">
-      <div className="flex flex-col h-[calc(100vh-4rem)] max-w-7xl mx-auto p-4 gap-4">
+      <div className="flex flex-col min-h-[calc(100vh-4rem)] max-w-7xl mx-auto p-3 sm:p-5 gap-4 pb-12">
       {/* Top Header Bar: Round status, timer, pause, end */}
       <header className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-xl border border-border bg-card shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold text-sm">
+          <div className="h-9 w-9 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold text-sm border border-blue-500/20">
             R{session?.currentRound || 1}
           </div>
           <div>
@@ -541,7 +543,7 @@ export default function InterviewRoomPage() {
               <h1 className="font-semibold text-sm text-foreground">
                 Round {session?.currentRound}: {ROUND_NAMES[session?.currentRound || 1]}
               </h1>
-              <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-muted text-muted-foreground">
+              <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-muted text-muted-foreground border border-border">
                 {session?.mode}
               </span>
             </div>
@@ -556,18 +558,18 @@ export default function InterviewRoomPage() {
           {rounds.map((r) => (
             <div
               key={r.roundNumber}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium ${
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium border transition-colors ${
                 r.roundNumber === session?.currentRound
-                  ? "bg-blue-600 text-white"
+                  ? "bg-blue-600 text-white border-blue-500 shadow-sm"
                   : r.status === "completed"
-                  ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
-                  : "bg-muted text-muted-foreground"
+                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                  : "bg-muted text-muted-foreground border-border"
               }`}
             >
               {r.status === "completed" ? (
-                <CheckCircle2 className="h-3.5 w-3.5" />
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
               ) : (
-                <span>{r.roundNumber}</span>
+                <span className="font-semibold">{r.roundNumber}</span>
               )}
               <span className="hidden lg:inline">{r.roundName.split(" ")[0]}</span>
             </div>
@@ -576,7 +578,13 @@ export default function InterviewRoomPage() {
 
         {/* Controls: Timer, Pause, End */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-background text-xs font-mono font-semibold">
+          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono font-semibold ${
+            isPaused
+              ? "border-amber-500/40 bg-amber-500/10 text-amber-300"
+              : secondsRemaining <= 300
+              ? "border-red-500/40 bg-red-500/10 text-red-400 animate-pulse"
+              : "border-border bg-card text-foreground"
+          }`}>
             <Clock className="h-3.5 w-3.5 text-muted-foreground" />
             <span>{formatTimer(secondsRemaining)}</span>
           </div>
@@ -584,16 +592,20 @@ export default function InterviewRoomPage() {
           <button
             type="button"
             onClick={handleTogglePause}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted text-xs font-medium text-foreground transition-all"
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+              isPaused
+                ? "border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 font-semibold"
+                : "border-border bg-card hover:bg-muted text-foreground"
+            }`}
           >
-            {isPaused ? <Play className="h-3.5 w-3.5 text-emerald-500" /> : <Pause className="h-3.5 w-3.5" />}
+            {isPaused ? <Play className="h-3.5 w-3.5 text-emerald-400 fill-emerald-400" /> : <Pause className="h-3.5 w-3.5" />}
             {isPaused ? "Resume" : "Pause"}
           </button>
 
           <button
             type="button"
             onClick={handleEndInterview}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-500 text-xs font-medium transition-all"
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-medium transition-all"
           >
             <Square className="h-3.5 w-3.5" />
             End Interview
@@ -601,92 +613,210 @@ export default function InterviewRoomPage() {
         </div>
       </header>
 
+      {/* Paused Notification Banner (Prominent & Clear) */}
+      {isPaused && (
+        <div className="rounded-xl border border-amber-500/40 bg-amber-950/25 p-4 flex flex-wrap items-center justify-between gap-3 text-amber-200 shadow-sm animate-in fade-in">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center shrink-0">
+              <Pause className="h-5 w-5" />
+            </div>
+            <div>
+              <h4 className="font-semibold text-sm text-amber-100">Interview Currently Paused</h4>
+              <p className="text-xs text-amber-300/80">The countdown timer and active microphone capture are suspended. Click Resume whenever you are ready to continue.</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={handleTogglePause}
+            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs shadow-md transition"
+          >
+            <Play className="h-4 w-4 fill-white" />
+            Resume Interview
+          </button>
+        </div>
+      )}
+
       {/* Main Interview Body: Split Layout if Round 3 (Coding), Single Column otherwise */}
-      <div className={`grid gap-4 flex-1 overflow-hidden ${isCodingRound ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"}`}>
-        {/* Left Column: Voice Interview Conversation & Transcript */}
-        <div className="flex flex-col h-full rounded-xl border border-border bg-card overflow-hidden shadow-sm">
-          {/* Voice Action & Status Bar */}
-          <div className="p-3 border-b border-border bg-muted/30">
-            {voiceControllerRef.current && (
-              <VoiceControls
-                voiceState={voiceState}
-                isVoiceMode={isVoiceMode}
-                onToggleVoiceMode={() => {
-                  const next = !isVoiceMode;
-                  setIsVoiceMode(next);
-                  voiceControllerRef.current?.setVoiceMode(next);
-                }}
-                onStartListening={() => voiceControllerRef.current?.startListening()}
-                onStopListening={() => voiceControllerRef.current?.stopListening()}
-                onStopSpeaking={() => voiceControllerRef.current?.stopSpeaking()}
-                onReplayQuestion={() => {
-                  const lastQ = [...messages].reverse().find(m => m.sender === "interviewer");
-                  if (lastQ) voiceControllerRef.current?.replayCurrentQuestion(lastQ.content);
-                }}
-                onInterrupt={() => {
-                  voiceControllerRef.current?.interruptInterviewer();
-                  setIsClarifyOpen(true);
-                }}
-                onStartWhisperRecording={handleStartWhisperRecording}
-                onStopWhisperRecording={handleStopWhisperRecording}
-                isWhisperRecording={isWhisperRecording}
-                isTranscribingAudio={isTranscribingAudio}
-                synthesizer={voiceControllerRef.current.getSpeechSynthesizer()}
-                errorMessage={voiceError}
-              />
-            )}
-          </div>
-
-          {/* Messages History Feed */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`flex gap-3 max-w-[85%] ${
-                  msg.sender === "candidate" ? "ml-auto flex-row-reverse" : "mr-auto"
-                }`}
-              >
-                <div
-                  className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
-                    msg.sender === "candidate"
-                      ? "bg-blue-600 text-white"
-                      : "bg-gradient-to-br from-indigo-500 to-purple-600 text-white"
-                  }`}
-                >
-                  {msg.sender === "candidate" ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
-                </div>
-
-                <div
-                  className={`rounded-xl p-3.5 text-xs sm:text-sm leading-relaxed shadow-sm ${
-                    msg.sender === "candidate"
-                      ? "bg-blue-600 text-white rounded-tr-none"
-                      : "bg-muted/60 border border-border text-foreground rounded-tl-none"
-                  }`}
-                >
-                  <div className="flex items-center justify-between gap-4 mb-1 text-[10px] opacity-75 font-medium">
-                    <span>{msg.sender === "candidate" ? "Candidate (You)" : "AI Interviewer"}</span>
-                    <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
-                  </div>
-                  <div className="whitespace-pre-wrap">{msg.content}</div>
-                </div>
+      <div className={`grid gap-5 ${isCodingRound ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"}`}>
+        {/* Left Column: Stage, Question, Controls & History */}
+        <div className="flex flex-col gap-4">
+          {/* Active Question Spotlight Card (Pinned prominently at the top of the interview stage) */}
+          <div className="rounded-xl border border-blue-500/40 bg-card p-4 sm:p-5 shadow-sm space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/80 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="flex h-2.5 w-2.5 rounded-full bg-blue-500 animate-pulse" />
+                <span className="text-xs font-bold uppercase tracking-wider text-blue-400">
+                  Round {session?.currentRound}: {ROUND_NAMES[session?.currentRound || 1]}
+                </span>
+                <span className="rounded bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground border border-border">
+                  Question {(session?.currentQuestionIndex || 0) + 1}
+                </span>
               </div>
-            ))}
-            <div ref={messagesEndRef} />
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const lastQ = [...messages].reverse().find(m => m.sender === "interviewer" && (m.messageType === "question" || m.messageType === "clarification"));
+                    if (lastQ) voiceControllerRef.current?.replayCurrentQuestion(lastQ.content);
+                  }}
+                  className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 hover:bg-muted px-2.5 py-1 text-xs font-medium text-foreground transition"
+                  title="Listen to interviewer speak this question aloud"
+                >
+                  <Volume2 className="h-3.5 w-3.5 text-blue-400" />
+                  <span>Replay Audio</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    voiceControllerRef.current?.interruptInterviewer();
+                    setIsClarifyOpen(true);
+                  }}
+                  className="flex items-center gap-1.5 rounded-lg border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 px-2.5 py-1 text-xs font-medium text-amber-300 transition"
+                  title="Ask interviewer for hints, constraints, or clarifications"
+                >
+                  <HelpCircle className="h-3.5 w-3.5 text-amber-400" />
+                  <span>Ask / Clarify</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Question Text */}
+            <div className="text-sm sm:text-base font-medium text-foreground leading-relaxed whitespace-pre-wrap py-1">
+              {(() => {
+                const qMsg = [...messages].reverse().find(m => m.sender === "interviewer" && m.messageType === "question");
+                return qMsg?.content || "Waiting for question from the interviewer...";
+              })()}
+            </div>
+
+            {/* Active Clarification Callout (if candidate recently asked a clarification) */}
+            {(() => {
+              const clarifyMsg = [...messages].reverse().find(m => m.sender === "interviewer" && m.messageType === "clarification");
+              if (!clarifyMsg) return null;
+              return (
+                <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200 space-y-1 mt-2">
+                  <div className="font-semibold text-amber-300 flex items-center gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+                    Interviewer Clarification / Guidance:
+                  </div>
+                  <div className="whitespace-pre-wrap">{clarifyMsg.content}</div>
+                </div>
+              );
+            })()}
           </div>
 
-          {/* Live Transcript / Candidate Input Box */}
-          <div className="p-3 border-t border-border bg-card">
-            <LiveTranscriptPanel
-              voiceState={voiceState}
-              interimTranscript={interimTranscript}
-              finalTranscript={finalTranscript}
-              onSubmit={handleSubmitAnswer}
-              submitting={submitting}
-              manualText={manualText}
-              setManualText={setManualText}
-              errorMessage={error}
-              onCancelSubmission={handleCancelSubmission}
-            />
+          {/* Voice Controls & Candidate Answer Input Card */}
+          <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+            {/* Voice Status & Controls Bar */}
+            <div className="p-3 sm:p-4 border-b border-border bg-muted/20">
+              {voiceControllerRef.current && (
+                <VoiceControls
+                  voiceState={voiceState}
+                  isVoiceMode={isVoiceMode}
+                  onToggleVoiceMode={() => {
+                    const next = !isVoiceMode;
+                    setIsVoiceMode(next);
+                    voiceControllerRef.current?.setVoiceMode(next);
+                  }}
+                  onStartListening={() => voiceControllerRef.current?.startListening()}
+                  onStopListening={() => voiceControllerRef.current?.stopListening()}
+                  onStopSpeaking={() => voiceControllerRef.current?.stopSpeaking()}
+                  onReplayQuestion={() => {
+                    const lastQ = [...messages].reverse().find(m => m.sender === "interviewer");
+                    if (lastQ) voiceControllerRef.current?.replayCurrentQuestion(lastQ.content);
+                  }}
+                  onInterrupt={() => {
+                    voiceControllerRef.current?.interruptInterviewer();
+                    setIsClarifyOpen(true);
+                  }}
+                  onStartWhisperRecording={handleStartWhisperRecording}
+                  onStopWhisperRecording={handleStopWhisperRecording}
+                  isWhisperRecording={isWhisperRecording}
+                  isTranscribingAudio={isTranscribingAudio}
+                  synthesizer={voiceControllerRef.current.getSpeechSynthesizer()}
+                  errorMessage={voiceError}
+                />
+              )}
+            </div>
+
+            {/* Input Form Panel */}
+            <div className="p-3 sm:p-4">
+              <LiveTranscriptPanel
+                voiceState={voiceState}
+                interimTranscript={interimTranscript}
+                finalTranscript={finalTranscript}
+                onSubmit={handleSubmitAnswer}
+                submitting={submitting}
+                manualText={manualText}
+                setManualText={setManualText}
+                errorMessage={error}
+                onCancelSubmission={handleCancelSubmission}
+              />
+            </div>
+          </div>
+
+          {/* Interview Conversation & Turn History (Collapsible, spacious scroll) */}
+          <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+            <button
+              type="button"
+              onClick={() => setShowHistory(!showHistory)}
+              className="w-full flex items-center justify-between p-3.5 bg-muted/30 hover:bg-muted/50 text-xs font-semibold text-foreground transition"
+            >
+              <div className="flex items-center gap-2">
+                <MessageSquare className="h-4 w-4 text-blue-500" />
+                <span>Conversation History & Discussion Log ({messages.length} messages)</span>
+              </div>
+              <span className="text-[11px] text-muted-foreground">{showHistory ? "Hide Log ▲" : "Show Log ▼"}</span>
+            </button>
+
+            {showHistory && (
+              <div className="max-h-[380px] overflow-y-auto p-4 space-y-4 border-t border-border">
+                {messages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`flex gap-3 max-w-[88%] ${
+                      msg.sender === "candidate" ? "ml-auto flex-row-reverse" : "mr-auto"
+                    }`}
+                  >
+                    <div
+                      className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold shadow-sm ${
+                        msg.sender === "candidate"
+                          ? "bg-blue-600 text-white"
+                          : msg.sender === "system"
+                          ? "bg-amber-600 text-white"
+                          : "bg-gradient-to-br from-indigo-500 to-purple-600 text-white"
+                      }`}
+                    >
+                      {msg.sender === "candidate" ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
+                    </div>
+
+                    <div
+                      className={`rounded-xl p-3.5 text-xs sm:text-sm leading-relaxed shadow-sm ${
+                        msg.sender === "candidate"
+                          ? "bg-blue-600 text-white rounded-tr-none"
+                          : msg.sender === "system"
+                          ? "bg-amber-500/10 border border-amber-500/30 text-amber-200 rounded-tl-none"
+                          : "bg-muted/70 border border-border text-foreground rounded-tl-none"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-4 mb-1 text-[10px] opacity-75 font-medium">
+                        <span>
+                          {msg.sender === "candidate"
+                            ? "Candidate (You)"
+                            : msg.sender === "system"
+                            ? "System Notice"
+                            : "AI Interviewer"}
+                        </span>
+                        <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                      </div>
+                      <div className="whitespace-pre-wrap">{msg.content}</div>
+                    </div>
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
+              </div>
+            )}
           </div>
         </div>
 

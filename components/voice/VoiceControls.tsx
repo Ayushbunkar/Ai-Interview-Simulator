@@ -97,7 +97,7 @@ export function VoiceControls({
   const isListening = voiceState === "ready_to_listen" || voiceState === "user_speaking";
 
   return (
-    <div className="rounded-xl border border-border bg-card p-4 shadow-sm space-y-3">
+    <div className="space-y-3">
       {/* Top Header & Toggles */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">

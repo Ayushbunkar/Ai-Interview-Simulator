@@ -80,7 +80,7 @@ export function LiveTranscriptPanel({
   const isTakingLong = submitting && elapsedWaitSeconds >= 8;
 
   return (
-    <div className="rounded-xl border border-border bg-card p-4 shadow-sm space-y-3">
+    <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Edit3 className="h-4 w-4 text-blue-500" />
@@ -153,11 +153,11 @@ export function LiveTranscriptPanel({
             placeholder={
               isListening
                 ? "Listening... Speak naturally. Your transcribed words will appear here in real-time."
-                : "Type your answer or click 'Speak Answer' to speak through your microphone..."
+                : "Type your answer or click 'Record Voice (Whisper AI)' / 'Live Mic' to speak through your microphone..."
             }
             rows={4}
             disabled={submitting}
-            className="w-full rounded-lg border border-input bg-background p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none disabled:opacity-60 placeholder:text-muted-foreground/60 leading-relaxed font-sans"
+            className="w-full rounded-lg border border-input bg-background/80 p-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none disabled:opacity-60 placeholder:text-muted-foreground/70 leading-relaxed font-sans text-foreground shadow-inner"
           />
 
           {isListening && interimTranscript && (
