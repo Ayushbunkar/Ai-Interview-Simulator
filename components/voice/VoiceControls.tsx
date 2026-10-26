@@ -12,6 +12,7 @@ import {
   HelpCircle,
   Settings,
   Flame,
+  Sparkles,
 } from "lucide-react";
 import { VoiceState } from "@/lib/types";
 import { BrowserSpeechSynthesizer } from "@/lib/voice/speech-synthesis";
@@ -79,14 +80,12 @@ export function VoiceControls({
         const list = englishVoices.length > 0 ? englishVoices : vList;
         setVoices(list);
 
-        // Check if there is a saved voice from localStorage or synthesizer
         try {
           const savedVoice = localStorage.getItem("interviewforge_voice_uri") || synthesizer.getSelectedVoiceURI();
           if (savedVoice) {
             setSelectedVoice(savedVoice);
             synthesizer.setVoice(savedVoice);
           } else if (list.length > 0 && !selectedVoice) {
-            // Pick a good default English voice
             const pref = list.find(v => v.name.includes("Google") || v.name.includes("Natural") || v.name.includes("David") || v.name.includes("Ravi")) || list[0];
             if (pref) {
               const val = pref.voiceURI || pref.name;
@@ -120,7 +119,6 @@ export function VoiceControls({
       localStorage.setItem("interviewforge_voice_uri", uri);
     } catch {}
 
-    // If interviewer is actively speaking, restart speech immediately with newly selected voice!
     if (voiceState === "interviewer_speaking" && synthesizer.getCurrentText()) {
       synthesizer.speak(synthesizer.getCurrentText(), synthesizer.getCurrentUtteranceId() || "curr-" + Date.now(), {
         onEnd: () => {
@@ -128,7 +126,6 @@ export function VoiceControls({
         },
       });
     } else {
-      // Provide an immediate sample so candidate hears the selected voice
       synthesizer.speak("Interviewer voice updated.", "sample-" + Date.now());
     }
   };
@@ -140,7 +137,6 @@ export function VoiceControls({
       localStorage.setItem("interviewforge_voice_rate", String(rate));
     } catch {}
 
-    // If interviewer is actively speaking, restart with new speed
     if (voiceState === "interviewer_speaking" && synthesizer.getCurrentText()) {
       synthesizer.speak(synthesizer.getCurrentText(), synthesizer.getCurrentUtteranceId() || "curr-" + Date.now(), {
         onEnd: () => {
@@ -173,13 +169,23 @@ export function VoiceControls({
               <span className="relative inline-flex rounded-full h-3 w-3 bg-gray-400"></span>
             )}
           </div>
-          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            {voiceState === "interviewer_speaking" && "Interviewer Speaking..."}
-            {voiceState === "ready_to_listen" && "Listening for your answer..."}
-            {voiceState === "user_speaking" && "Transcribing your voice..."}
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            {voiceState === "interviewer_speaking" && (
+              <span className="text-blue-400 font-bold">Interviewer Speaking...</span>
+            )}
+            {voiceState === "ready_to_listen" && (
+              <span className="text-emerald-400 font-bold flex items-center gap-1">
+                <span>Listening for your answer... Speak naturally</span>
+              </span>
+            )}
+            {voiceState === "user_speaking" && (
+              <span className="text-emerald-400 font-bold flex items-center gap-1 animate-pulse">
+                <span>Transcribing your speech in real-time...</span>
+              </span>
+            )}
             {voiceState === "processing_answer" && "Evaluating your response..."}
             {voiceState === "interviewer_thinking" && "Interviewer thinking..."}
-            {voiceState === "idle" && (isVoiceMode ? "Voice Ready" : "Text-Only Mode")}
+            {voiceState === "idle" && (isVoiceMode ? "Voice Ready (Mic Paused)" : "Text-Only Mode")}
             {voiceState === "error" && "Voice Error"}
           </span>
         </div>
@@ -201,7 +207,7 @@ export function VoiceControls({
             onClick={onToggleVoiceMode}
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
               isVoiceMode
-                ? "bg-blue-600/10 text-blue-500 border border-blue-500/30"
+                ? "bg-blue-600/10 text-blue-500 border border-blue-500/30 font-semibold"
                 : "bg-muted text-muted-foreground border border-border"
             }`}
           >
@@ -221,47 +227,57 @@ export function VoiceControls({
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-semibold shadow-md shadow-red-600/30 transition-all animate-pulse cursor-pointer"
           >
             <Square className="h-3.5 w-3.5 fill-white" />
-            <span>Recording ({recordSeconds}s) — Click to Transcribe</span>
+            <span>Recording ({recordSeconds}s) — Click to Transcribe to Answer</span>
           </button>
         ) : isTranscribingAudio ? (
           <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600/20 border border-indigo-500/40 text-indigo-300 text-xs font-medium animate-pulse">
             <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-indigo-400 border-t-transparent" />
-            <span>Transcribing with Whisper AI...</span>
+            <span>Transcribing with Whisper AI into answer input...</span>
           </div>
         ) : isListening ? (
           <button
             type="button"
             onClick={onStopListening}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium shadow-md shadow-emerald-600/25 transition-all animate-pulse cursor-pointer"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-lg shadow-emerald-600/30 transition-all cursor-pointer ring-2 ring-emerald-400/40"
+            title="Microphone is actively transcribing your voice directly into the answer box. Click to pause."
           >
+            <span className="flex items-center gap-0.5 h-3">
+              <span className="w-0.5 bg-white rounded-full wave-bar-1 animate-pulse" />
+              <span className="w-0.5 bg-white rounded-full wave-bar-2 animate-pulse" />
+              <span className="w-0.5 bg-white rounded-full wave-bar-3 animate-pulse" />
+              <span className="w-0.5 bg-white rounded-full wave-bar-4 animate-pulse" />
+              <span className="w-0.5 bg-white rounded-full wave-bar-5 animate-pulse" />
+            </span>
             <Mic className="h-4 w-4" />
-            <span>Listening... (Click to Pause)</span>
+            <span>Listening Live (Click to Pause)</span>
           </button>
         ) : (
           <>
+            {/* Primary Live Microphone Action */}
+            <button
+              type="button"
+              onClick={onStartListening}
+              disabled={!isVoiceMode}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-semibold shadow-md shadow-emerald-600/25 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+              title="Speak naturally through your microphone and auto-transcribe directly into the answer box"
+            >
+              <Mic className="h-4 w-4" />
+              <span>Start Speaking (Auto-Transcribe)</span>
+            </button>
+
+            {/* Whisper AI Audio Recording Mode */}
             {onStartWhisperRecording && (
               <button
                 type="button"
                 onClick={onStartWhisperRecording}
                 disabled={!isVoiceMode}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 cursor-pointer"
-                title="Records your microphone audio and transcribes accurately with Groq Whisper AI"
+                className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-indigo-500/30 bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-300 text-xs font-medium transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+                title="Records audio clip and transcribes via Whisper AI"
               >
-                <Mic className="h-4 w-4 text-indigo-200" />
-                <span>Record Voice (Whisper AI)</span>
+                <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
+                <span>Whisper AI Mode</span>
               </button>
             )}
-
-            <button
-              type="button"
-              onClick={onStartListening}
-              disabled={!isVoiceMode}
-              className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border bg-background hover:bg-muted text-foreground text-xs font-medium shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 cursor-pointer"
-              title="Real-time Web Speech transcription"
-            >
-              <Mic className="h-3.5 w-3.5 text-muted-foreground" />
-              <span>Live Mic (Browser)</span>
-            </button>
           </>
         )}
 
@@ -320,11 +336,10 @@ export function VoiceControls({
             <select
               value={selectedVoice}
               onChange={(e) => handleVoiceChange(e.target.value)}
-              className="w-full rounded-md border border-input bg-background px-2 py-1 text-xs"
+              className="w-full rounded-lg border border-input bg-background p-2 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 text-foreground"
             >
-              <option value="">Default Browser Voice</option>
               {voices.map((v) => (
-                <option key={v.voiceURI} value={v.voiceURI}>
+                <option key={v.voiceURI || v.name} value={v.voiceURI || v.name}>
                   {v.name} ({v.lang})
                 </option>
               ))}
@@ -332,56 +347,16 @@ export function VoiceControls({
           </div>
 
           <div>
-            <label className="block text-muted-foreground mb-1 font-medium">
-              Speech Speed: <span className="text-foreground font-semibold">{speechRate}x</span>
-            </label>
+            <label className="block text-muted-foreground mb-1 font-medium">Speech Rate: {speechRate}x</label>
             <input
               type="range"
               min="0.75"
               max="1.5"
-              step="0.1"
+              step="0.05"
               value={speechRate}
               onChange={(e) => handleRateChange(parseFloat(e.target.value))}
-              className="w-full cursor-pointer accent-blue-600"
+              className="w-full accent-blue-500"
             />
-          </div>
-        </div>
-      )}
-
-      {/* Error / Permission Banner with Actionable Fallback */}
-      {errorMessage && (
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 rounded-lg bg-amber-500/10 border border-amber-500/30 p-2.5 text-xs text-amber-300">
-          <div className="flex items-center gap-2">
-            <AlertCircle className="h-4 w-4 shrink-0 text-amber-400" />
-            <span>
-              {errorMessage.toLowerCase().includes("whisper") || errorMessage.toLowerCase().includes("groq")
-                ? "Whisper speech service had an issue. Click 'Start Live Mic (Browser)' below to speak directly."
-                : errorMessage.toLowerCase().includes("network")
-                ? "Browser speech service is unreachable on your network. Use Whisper AI Voice Recording."
-                : errorMessage}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2 shrink-0">
-            {errorMessage.toLowerCase().includes("whisper") || errorMessage.toLowerCase().includes("groq") ? (
-              <button
-                type="button"
-                onClick={onStartListening}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs shadow-sm transition"
-              >
-                <Mic className="h-3.5 w-3.5" />
-                Start Live Mic (Browser)
-              </button>
-            ) : onStartWhisperRecording && !isWhisperRecording ? (
-              <button
-                type="button"
-                onClick={onStartWhisperRecording}
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-md bg-amber-500 hover:bg-amber-600 text-black font-semibold text-xs shadow-sm transition"
-              >
-                <Mic className="h-3.5 w-3.5" />
-                Record Voice with Whisper AI
-              </button>
-            ) : null}
           </div>
         </div>
       )}

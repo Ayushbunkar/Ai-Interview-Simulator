@@ -223,6 +223,21 @@ export default function InterviewRoomPage() {
     }
   }, [messages, loading, isVoiceMode]);
 
+  // Automatically activate live microphone listening when it's candidate's turn to answer
+  useEffect(() => {
+    if (loading || isPaused || submitting || !isVoiceMode || !voiceControllerRef.current) return;
+    if (messages.length === 0) return;
+
+    const lastMsg = messages[messages.length - 1];
+    if (lastMsg.sender === "interviewer") {
+      const controller = voiceControllerRef.current;
+      // If controller is idle and synthesizer is not speaking, automatically turn on live mic!
+      if (controller.getState() === "idle" && !controller.isInterviewerSpeaking()) {
+        controller.startListening(true);
+      }
+    }
+  }, [messages, loading, isPaused, submitting, isVoiceMode, voiceState]);
+
   // Live countdown timer
   useEffect(() => {
     if (isPaused || loading || !session || session.status === "completed") return;
@@ -241,6 +256,7 @@ export default function InterviewRoomPage() {
     setSubmitting(true);
     setVoiceError(null);
     setError(null);
+    voiceControllerRef.current?.stopListening();
     voiceControllerRef.current?.notifySubmissionStarted();
 
     // Optimistic candidate message
@@ -885,8 +901,13 @@ export default function InterviewRoomPage() {
                         const next = !isVoiceMode;
                         setIsVoiceMode(next);
                         voiceControllerRef.current?.setVoiceMode(next);
+                        if (next) {
+                          voiceControllerRef.current?.startListening(true);
+                        } else {
+                          voiceControllerRef.current?.stopListening();
+                        }
                       }}
-                      onStartListening={() => voiceControllerRef.current?.startListening()}
+                      onStartListening={() => voiceControllerRef.current?.startListening(true)}
                       onStopListening={() => voiceControllerRef.current?.stopListening()}
                       onStopSpeaking={() => voiceControllerRef.current?.stopSpeaking()}
                       onReplayQuestion={() => {
@@ -1308,8 +1329,13 @@ export default function InterviewRoomPage() {
                     const next = !isVoiceMode;
                     setIsVoiceMode(next);
                     voiceControllerRef.current?.setVoiceMode(next);
+                    if (next) {
+                      voiceControllerRef.current?.startListening(true);
+                    } else {
+                      voiceControllerRef.current?.stopListening();
+                    }
                   }}
-                  onStartListening={() => voiceControllerRef.current?.startListening()}
+                  onStartListening={() => voiceControllerRef.current?.startListening(true)}
                   onStopListening={() => voiceControllerRef.current?.stopListening()}
                   onStopSpeaking={() => voiceControllerRef.current?.stopSpeaking()}
                   onReplayQuestion={() => {

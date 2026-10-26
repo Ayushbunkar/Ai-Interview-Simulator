@@ -30,6 +30,7 @@ export class BrowserSpeechRecognizer {
   private interimTranscript: string = "";
   private options: SpeechRecognitionOptions;
   private isSupportedBrowser: boolean = false;
+  private restartTimer: any = null;
 
   constructor(options: SpeechRecognitionOptions = {}) {
     this.options = {
@@ -73,6 +74,10 @@ export class BrowserSpeechRecognizer {
     return this.status;
   }
 
+  public getIsListening(): boolean {
+    return this.isListening;
+  }
+
   private setStatus(status: SpeechRecognitionStatus) {
     this.status = status;
     this.options.onStatusChange?.(status);
@@ -105,41 +110,44 @@ export class BrowserSpeechRecognizer {
     this.recognition.onerror = (event: any) => {
       const error = event.error || "unknown";
       if (error === "not-allowed") {
-        this.setStatus("permission_denied");
-        this.options.onError?.("Microphone permission was denied. Please allow microphone access in your browser bar.");
-      } else if (error === "no-speech") {
-        // Normal silence timeout - keep listening if continuous
-        if (this.isListening) {
-          try {
-            this.recognition.start();
-          } catch {
-            // Already active or restarting
-          }
-        }
-      } else if (error === "network") {
         this.isListening = false;
-        this.setStatus("error");
+        this.setStatus("permission_denied");
+        this.options.onError?.("Microphone permission was denied. Please allow microphone access in your browser address bar.");
+      } else if (error === "no-speech") {
+        // Normal silence event in Chrome - onend will fire and restart safely
+      } else if (error === "network") {
+        console.warn("Browser Web Speech API network event encountered.");
         if (this.options.onNetworkFallback) {
           this.options.onNetworkFallback();
-        } else {
-          this.options.onError?.("Browser speech recognition service is unavailable. Switching to Whisper AI Audio Recording...");
         }
-      } else {
-        this.isListening = false;
-        this.setStatus("error");
-        this.options.onError?.(`Speech recognition error (${error}). You can continue using Whisper audio input or text.`);
+      } else if (error !== "aborted") {
+        console.warn(`Speech recognition event (${error}).`);
       }
     };
 
     this.recognition.onend = () => {
       if (this.isListening) {
-        // Auto-restart if continuous mode is expected and not explicitly stopped
-        try {
-          this.recognition.start();
-        } catch {
-          this.isListening = false;
-          this.setStatus("idle");
-        }
+        // Debounce restart after small delay to let browser release audio stream
+        if (this.restartTimer) clearTimeout(this.restartTimer);
+        this.restartTimer = setTimeout(() => {
+          if (this.isListening && this.recognition) {
+            try {
+              this.recognition.start();
+              this.setStatus("listening");
+            } catch (err: any) {
+              if (err.name !== "InvalidStateError") {
+                setTimeout(() => {
+                  if (this.isListening && this.recognition) {
+                    try {
+                      this.recognition.start();
+                      this.setStatus("listening");
+                    } catch {}
+                  }
+                }, 300);
+              }
+            }
+          }
+        }, 150);
       } else {
         this.setStatus("idle");
       }
@@ -149,7 +157,7 @@ export class BrowserSpeechRecognizer {
   public start(): boolean {
     if (!this.isSupportedBrowser || !this.recognition) {
       this.setStatus("unsupported");
-      this.options.onError?.("Web Speech API is not supported in this browser. Please use Google Chrome, Edge, or enter answers manually.");
+      this.options.onError?.("Web Speech API is not supported in this browser. Please use Google Chrome, Edge, or click Record Voice (Whisper AI).");
       return false;
     }
 
@@ -161,23 +169,28 @@ export class BrowserSpeechRecognizer {
       this.setStatus("listening");
       return true;
     } catch (err: any) {
-      // If already started, ignore error
-      if (err.name !== "InvalidStateError") {
-        this.setStatus("error");
-        this.options.onError?.("Failed to start microphone: " + (err.message || String(err)));
+      if (err.name === "InvalidStateError") {
+        // Already listening
+        this.isListening = true;
+        this.setStatus("listening");
+        return true;
       }
+      this.setStatus("error");
+      this.options.onError?.("Failed to start microphone: " + (err.message || String(err)));
       return false;
     }
   }
 
   public stop() {
     this.isListening = false;
+    if (this.restartTimer) {
+      clearTimeout(this.restartTimer);
+      this.restartTimer = null;
+    }
     if (this.recognition) {
       try {
         this.recognition.stop();
-      } catch {
-        // Ignore stop error
-      }
+      } catch {}
     }
     this.setStatus("idle");
   }
@@ -189,5 +202,9 @@ export class BrowserSpeechRecognizer {
 
   public getFinalTranscript(): string {
     return this.finalTranscript;
+  }
+
+  public getInterimTranscript(): string {
+    return this.interimTranscript;
   }
 }

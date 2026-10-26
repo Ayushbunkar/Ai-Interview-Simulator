@@ -117,6 +117,10 @@ export class VoiceSessionController {
     return this.audioRecorder.isRecording();
   }
 
+  public isInterviewerSpeaking(): boolean {
+    return this.state === "interviewer_speaking" || this.synthesizer.getIsSpeaking();
+  }
+
   /**
    * Called when an interviewer message needs to be spoken.
    * Ensures idempotency: will not repeat identical message IDs on React rerenders.
@@ -137,6 +141,14 @@ export class VoiceSessionController {
       this.audioRecorder.stop();
     }
     this.setState("interviewer_speaking");
+
+    // Safety fallback timer in case browser TTS event stalls or fails to fire onEnd
+    const safetyMs = Math.max(3000, Math.min(25000, (text.length / 15) * 1000 + 2000));
+    setTimeout(() => {
+      if (this.isVoiceModeEnabled && this.state === "interviewer_speaking") {
+        this.startListening();
+      }
+    }, safetyMs);
 
     this.synthesizer.speak(text, messageId, {
       onStart: () => {
@@ -161,10 +173,13 @@ export class VoiceSessionController {
 
   /**
    * Starts listening for candidate's voice answer.
-   * If in Whisper mode, starts direct MediaRecorder; otherwise starts BrowserSpeechRecognizer.
+   * If forceLive is true, explicitly uses real-time browser Web Speech recognition.
    */
-  public startListening() {
+  public startListening(forceLive = false) {
     this.synthesizer.stop();
+    if (forceLive) {
+      this.isWhisperMode = false;
+    }
     if (this.isWhisperMode) {
       this.startWhisperRecording();
     } else {
