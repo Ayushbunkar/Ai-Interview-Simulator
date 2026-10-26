@@ -36,6 +36,15 @@ export type MessageType =
   | "feedback"
   | "instruction";
 
+export type VoiceState =
+  | "idle"
+  | "interviewer_speaking"
+  | "ready_to_listen"
+  | "user_speaking"
+  | "processing_answer"
+  | "interviewer_thinking"
+  | "error";
+
 export interface RubricScoreItem {
   name: string;
   weight: number; // e.g. 35 for 35%
@@ -85,6 +94,99 @@ export interface CodingSubmissionResult {
   }[];
 }
 
+// ---------------------------------------------------------------------------
+// Communication & Grammar Assessment Types
+// ---------------------------------------------------------------------------
+export interface CommunicationIssue {
+  submittedSentence: string;
+  identifiedIssue: string;
+  correctedSentence: string;
+  reason: string;
+  improvedInterviewVersion?: string;
+}
+
+export interface CommunicationReport {
+  overallScore: number;
+  grammarScore: number;
+  clarityScore: number;
+  technicalExplanationScore: number;
+  repeatedMistakes: string[];
+  issues: CommunicationIssue[];
+  fillerWordCount: number;
+  disclaimer: string;
+}
+
+// ---------------------------------------------------------------------------
+// Granular Skill Assessment Types (16 Independent Categories)
+// ---------------------------------------------------------------------------
+export type SkillCategory =
+  | "java_fundamentals"
+  | "oop"
+  | "dsa"
+  | "algorithmic_reasoning"
+  | "time_complexity"
+  | "space_complexity"
+  | "edge_case_analysis"
+  | "code_correctness"
+  | "debugging"
+  | "dbms_sql"
+  | "operating_systems"
+  | "computer_networks"
+  | "backend_engineering"
+  | "project_knowledge"
+  | "english_communication"
+  | "behavioral";
+
+export interface SkillScoreItem {
+  skill: SkillCategory;
+  label: string;
+  score: number | null; // null if not assessed
+  assessed: boolean;
+  evidence: string;
+  strengthOrWeakness: string;
+  limitations: string;
+  action: string;
+}
+
+export interface SkillRadarAnalysis {
+  skills: SkillScoreItem[];
+  strongestSkills: string[];
+  weakestSkills: string[];
+  unassessedSkills: string[];
+  gapOrigin: {
+    knowledgeGap: boolean;
+    reasoningGap: boolean;
+    implementationGap: boolean;
+    communicationGap: boolean;
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Multi-Level Detailed Coding Assessment Types
+// ---------------------------------------------------------------------------
+export interface DetailedProblemCodingReport {
+  problemId: string;
+  problemTitle: string;
+  difficulty: string;
+  problemStatement: string;
+  spokenApproach: string;
+  submittedCode: string;
+  language: string;
+  compilerStatus: string;
+  testsPassed: number;
+  totalTests: number;
+  runtimeMs?: number;
+  memoryKb?: number;
+  timeComplexityClaimed: string;
+  spaceComplexityClaimed: string;
+  edgeCasesMissed: string[];
+  codeQualityAssessment: string;
+  correctnessAssessment: string;
+  preferredApproachExplanation: string;
+  optimizedSolutionCode: string;
+  practiceRecommendations: string[];
+}
+
 export interface FinalReportSummary {
   overallScore: number;
   rounds: {
@@ -100,16 +202,29 @@ export interface FinalReportSummary {
   technicalStrengths: string[];
   areasForImprovement: string[];
   communicationFeedback: string;
+  communicationReport?: CommunicationReport;
+  skillRadar?: SkillRadarAnalysis;
+  detailedCodingReports?: DetailedProblemCodingReport[];
   codingAssessment: {
     problemsAttempted: number;
     problemsPassed: number;
     algorithmFeedback: string;
     complexityFeedback: string;
   };
+  behavioralAssessment?: {
+    answerSpecificity: string;
+    ownership: string;
+    structureScore: number;
+    useOfStar: string;
+    missingDetails: string[];
+    improvedOutlines: string[];
+    recommendations: string[];
+  };
   sevenDayPracticePlan: {
     day: number;
     focus: string;
     tasks: string[];
+    linkedEvidence?: string;
   }[];
   finalReadinessAssessment: "Strong Hire" | "Hire" | "Needs Practice" | "Major Revisions Needed";
   readinessSummary: string;

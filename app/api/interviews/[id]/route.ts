@@ -99,3 +99,24 @@ export async function GET(
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    await ensureDbInitialized();
+    const sessionId = params.id;
+
+    // Delete associated records
+    await db.delete(interviewReports).where(eq(interviewReports.sessionId, sessionId));
+    await db.delete(conversationMessages).where(eq(conversationMessages.sessionId, sessionId));
+    await db.delete(candidateAnswers).where(eq(candidateAnswers.sessionId, sessionId));
+    await db.delete(interviewRounds).where(eq(interviewRounds.sessionId, sessionId));
+    await db.delete(interviewSessions).where(eq(interviewSessions.id, sessionId));
+
+    return NextResponse.json({ success: true, deletedSessionId: sessionId });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

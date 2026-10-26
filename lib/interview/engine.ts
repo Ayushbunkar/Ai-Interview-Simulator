@@ -25,6 +25,8 @@ import {
   CODING_ROUND_RUBRIC,
   calculateWeightedScore,
 } from "../rubric";
+import { evaluateCandidateCommunication } from "../assessment/communication-evaluator";
+import { computeSkillRadarAnalysis } from "../assessment/skill-evaluator";
 
 export interface CreateInterviewInput {
   title?: string;
@@ -600,39 +602,190 @@ export async function finishSession(sessionId: string) {
 
   const now = new Date();
 
-  // Generate markdown export
-  const markdownExport = `# InterviewForge AI — Candidate Evaluation Report
+  // 1. Evaluate candidate English communication & grammar
+  const candidateTranscripts = answers.map(a => a.answerText);
+  const communicationReport = evaluateCandidateCommunication(candidateTranscripts);
 
-**Role:** ${session.targetRole}  
+  // 2. Compute 16 independent skill radar analysis
+  const skillRadar = computeSkillRadarAnalysis({
+    candidateAnswers: answers.map(a => ({
+      roundNumber: a.roundNumber,
+      questionText: a.questionText,
+      answerText: a.answerText,
+      evaluationScore: a.evaluationScore,
+      strengths: a.strengths ? JSON.parse(a.strengths) : [],
+      weaknesses: a.weaknesses ? JSON.parse(a.weaknesses) : [],
+    })),
+    codeSubmissions: submissions.map(s => ({
+      language: s.language,
+      status: s.status,
+      passedTests: s.passedTests,
+      totalTests: s.totalTests,
+      code: s.code,
+    })),
+    communicationReport,
+  });
+
+  // 3. Compile detailed coding reports
+  const allProblems = await db.select().from(codingProblems);
+  const detailedCodingReports = submissions.map(s => {
+    const prob = allProblems.find(p => p.id === s.problemId || p.slug === s.problemId);
+    return {
+      problemId: s.problemId,
+      problemTitle: prob?.title || "Coding Challenge",
+      difficulty: prob?.difficulty || "medium",
+      problemStatement: prob?.description || "Implement the requested algorithm.",
+      spokenApproach: answers.find(a => a.roundNumber === 3)?.answerText || "Approach explained during live coding session.",
+      submittedCode: s.code,
+      language: s.language,
+      compilerStatus: s.status,
+      testsPassed: s.passedTests,
+      totalTests: s.totalTests,
+      runtimeMs: s.runtimeMs ?? undefined,
+      memoryKb: s.memoryKb ?? undefined,
+      timeComplexityClaimed: prob?.timeComplexity || "O(N)",
+      spaceComplexityClaimed: prob?.spaceComplexity || "O(1)",
+      edgeCasesMissed: s.passedTests < s.totalTests ? ["Boundary value checking", "Empty input handling"] : [],
+      codeQualityAssessment: s.status === "accepted" ? "Clean structure with verified test completion." : "Encountered compiler or logical test-case issues.",
+      correctnessAssessment: s.status === "accepted" ? "Verified correct on compiler test harness." : `Failed ${s.totalTests - s.passedTests} test cases.`,
+      preferredApproachExplanation: prob?.referenceSolutionJava ? "Optimal solution using optimal data structure and pointer technique." : "Optimized approach.",
+      optimizedSolutionCode: prob?.referenceSolutionJava || s.code,
+      practiceRecommendations: [
+        `Practice similar ${prob?.difficulty || "medium"} difficulty problems on algorithmic patterns.`,
+        "Always write edge case checks before running test runs.",
+      ],
+    };
+  });
+
+  // Generate comprehensive 7-section markdown export
+  const markdownExport = `# InterviewForge AI — Candidate Evaluation Report (Comprehensive Dossier)
+
+**Candidate Target Role:** ${session.targetRole}  
 **Company Profile:** ${session.companyProfile}  
-**Date:** ${now.toLocaleDateString()}  
-**Overall Readiness Score:** ${overallScore}/100 — **${reportData.readinessLevel}**
+**Evaluation Mode:** ${session.mode.toUpperCase()}  
+**Interview Date:** ${now.toLocaleDateString()}  
+**Overall Performance Score:** ${overallScore}/100 — **${reportData.readinessLevel}**
 
 ---
 
-## 1. Executive Summary
-${reportData.readinessSummary}
+## Section A: Interview Summary
+- **Total Duration:** ${session.durationMinutes} minutes scheduled
+- **Status:** Completed
+- **Readiness Verdict:** ${reportData.readinessLevel}
+- **Executive Summary:** ${reportData.readinessSummary}
 
-## 2. Round-by-Round Breakdown
+### Round Breakdown:
 ${rounds
   .map(
-    r => `### Round ${r.roundNumber}: ${r.roundName}
-- **Status:** ${r.status}
-- **Score:** ${r.score !== null ? `${r.score}/100` : "Incomplete"}
-- **Feedback:** ${r.roundFeedback || "N/A"}`
+    r => `- **Round ${r.roundNumber} (${r.roundName}):** ${r.score !== null ? `${r.score}/100` : "Incomplete"} — ${r.status}`
   )
-  .join("\n\n")}
+  .join("\n")}
 
-## 3. Technical Strengths
-${reportData.technicalStrengths.map(s => `- ${s}`).join("\n")}
+---
 
-## 4. Areas for Improvement
-${reportData.areasForImprovement.map(a => `- ${a}`).join("\n")}
+## Section B: Technical Assessment (Question-by-Question)
+${answers
+  .filter(a => a.roundNumber !== 4)
+  .map(
+    (a, idx) => `### Question ${idx + 1} (Round ${a.roundNumber})
+- **Question:** ${a.questionText}
+- **Candidate Answer Transcript:** "${a.answerText}"
+- **Score:** ${a.evaluationScore !== null ? `${a.evaluationScore}/100` : "N/A"}
+- **Feedback:** ${a.feedback || "Good technical attempt."}
+`
+  )
+  .join("\n")}
 
-## 5. Communication & Behavioral Assessment
-${reportData.communicationAssessment}
+---
 
-## 6. 7-Day Targeted Practice Plan
+## Section C: Coding Assessment & Compiler Execution
+${
+  detailedCodingReports.length > 0
+    ? detailedCodingReports
+        .map(
+          c => `### Problem: ${c.problemTitle} (${c.difficulty.toUpperCase()})
+- **Spoken Approach Explained:** ${c.spokenApproach}
+- **Compiler Execution Status:** **${c.compilerStatus.toUpperCase()}**
+- **Test Cases Passed:** ${c.testsPassed} / ${c.totalTests} tests
+- **Time / Space Complexity:** ${c.timeComplexityClaimed} / ${c.spaceComplexityClaimed}
+- **Code Quality Assessment:** ${c.codeQualityAssessment}
+- **Correctness Verdict:** ${c.correctnessAssessment}
+
+\`\`\`${c.language}
+${c.submittedCode}
+\`\`\`
+`
+        )
+        .join("\n")
+    : "No coding problems submitted in this session."
+}
+
+---
+
+## Section D: English Grammar & Communication Report
+- **Overall Communication Score:** ${communicationReport.overallScore}/100
+- **Grammar & Sentence Construction:** ${communicationReport.grammarScore}/100
+- **Clarity & Articulation:** ${communicationReport.clarityScore}/100
+- **Technical Explanation Depth:** ${communicationReport.technicalExplanationScore}/100
+- **Filler Word Count:** ${communicationReport.fillerWordCount} filler words detected
+
+### Grammatical & Phrasing Observations:
+${
+  communicationReport.issues.length > 0
+    ? communicationReport.issues
+        .map(
+          (iss, i) => `#### Issue ${i + 1}: ${iss.identifiedIssue}
+- **Submitted Sentence:** "${iss.submittedSentence}"
+- **Grammatical Correction:** "${iss.correctedSentence}"
+- **Reason:** ${iss.reason}
+- **Interview-Ready Phrasing:** "${iss.improvedInterviewVersion || iss.correctedSentence}"
+`
+        )
+        .join("\n")
+    : "- No significant grammatical issues detected in candidate transcripts."
+}
+
+> *Note on Speech Recognition:* ${communicationReport.disclaimer}
+
+---
+
+## Section E: Behavioral & HR Assessment (STAR Framework)
+${
+  answers.filter(a => a.roundNumber === 4).length > 0
+    ? answers
+        .filter(a => a.roundNumber === 4)
+        .map(
+          a => `### ${a.questionText}
+- **Transcript:** "${a.answerText}"
+- **Evaluation:** ${a.feedback || "Evaluated against behavioral indicators."}
+`
+        )
+        .join("\n")
+    : "- Behavioral round was not attempted in this session."
+}
+
+---
+
+## Section F: Skill Radar & Weakness Analysis (16 Evaluated Categories)
+${skillRadar.skills
+  .map(
+    s => `- **${s.label}:** ${s.assessed ? `${s.score}/100` : "*Not Assessed*"} — ${s.strengthOrWeakness} (${s.action})`
+  )
+  .join("\n")}
+
+- **Primary Weakness Root Cause:** ${
+  skillRadar.gapOrigin.knowledgeGap
+    ? "Knowledge Gap (requires reviewing theory)"
+    : skillRadar.gapOrigin.reasoningGap
+    ? "Reasoning Gap (requires problem-solving practice)"
+    : skillRadar.gapOrigin.implementationGap
+    ? "Implementation Gap (requires compiler coding practice)"
+    : "Communication Gap (requires structured verbal articulation)"
+}
+
+---
+
+## Section G: Personalized 7-Day Targeted Practice Plan
 ${reportData.sevenDayPlan
   .map(
     p => `### Day ${p.day}: ${p.focus}
@@ -641,10 +794,10 @@ ${p.tasks.map(t => `- ${t}`).join("\n")}`
   .join("\n\n")}
 
 ---
-*Generated by InterviewForge AI*
+*InterviewForge AI — Evidence-Based Engineering Hiring Evaluation*
 `;
 
-  // Insert report record
+  // Insert report record with complete structured data
   const reportId = "report-" + Math.random().toString(36).substring(2, 10);
   await db.insert(interviewReports).values({
     id: reportId,
@@ -653,8 +806,13 @@ ${p.tasks.map(t => `- ${t}`).join("\n")}`
     roundScores: JSON.stringify(rounds.map(r => ({ round: r.roundNumber, name: r.roundName, score: r.score }))),
     technicalStrengths: JSON.stringify(reportData.technicalStrengths),
     areasForImprovement: JSON.stringify(reportData.areasForImprovement),
-    communicationAssessment: reportData.communicationAssessment,
-    codingAssessment: JSON.stringify({ summary: reportData.codingAssessmentSummary, submissionsCount: submissions.length }),
+    communicationAssessment: JSON.stringify(communicationReport),
+    codingAssessment: JSON.stringify({
+      summary: reportData.codingAssessmentSummary,
+      submissionsCount: submissions.length,
+      detailedCodingReports,
+      skillRadar,
+    }),
     sevenDayPlan: JSON.stringify(reportData.sevenDayPlan),
     readinessSummary: reportData.readinessSummary,
     readinessLevel: reportData.readinessLevel,

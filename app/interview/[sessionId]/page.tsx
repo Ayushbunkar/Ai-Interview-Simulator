@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Editor from "@monaco-editor/react";
 import {
   Play,
   Pause,
@@ -19,9 +20,18 @@ import {
   Info,
   ChevronRight,
   Maximize2,
+  Volume2,
+  Flame,
+  Terminal,
+  Check,
+  XCircle,
+  ArrowRight,
 } from "lucide-react";
 import { ROUND_NAMES } from "@/lib/interview/engine";
-import { RoundNumber } from "@/lib/types";
+import { RoundNumber, VoiceState } from "@/lib/types";
+import { VoiceSessionController } from "@/lib/voice/voice-session-controller";
+import { VoiceControls } from "@/components/voice/VoiceControls";
+import { LiveTranscriptPanel } from "@/components/voice/LiveTranscriptPanel";
 
 interface Message {
   id: string;
@@ -45,6 +55,7 @@ interface SessionData {
   timeRemainingSeconds: number;
   isPaused: boolean;
   status: string;
+  primaryLanguage: "java" | "python" | "cpp";
 }
 
 interface RoundData {
@@ -66,22 +77,63 @@ export default function InterviewRoomPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Input states
-  const [answerInput, setAnswerInput] = useState("");
+  // Voice State Machine & Controller
+  const [voiceState, setVoiceState] = useState<VoiceState>("idle");
+  const [isVoiceMode, setIsVoiceMode] = useState<boolean>(true);
+  const [interimTranscript, setInterimTranscript] = useState<string>("");
+  const [finalTranscript, setFinalTranscript] = useState<string>("");
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [manualText, setManualText] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  // Clarification Modal state
+  // Clarification / Interruption Modal State
   const [isClarifyOpen, setIsClarifyOpen] = useState(false);
   const [clarifyQuestion, setClarifyQuestion] = useState("");
   const [clarifying, setClarifying] = useState(false);
 
-  // Timer state
+  // Timer State
   const [secondsRemaining, setSecondsRemaining] = useState(3600);
   const [isPaused, setIsPaused] = useState(false);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  // Round 3 Monaco Coding Workspace State
+  const [codingProblem, setCodingProblem] = useState<any | null>(null);
+  const [codingLanguage, setCodingLanguage] = useState<"java" | "python" | "cpp">("java");
+  const [code, setCode] = useState<string>("");
+  const [isRunningCode, setIsRunningCode] = useState(false);
+  const [isSubmittingCode, setIsSubmittingCode] = useState(false);
+  const [runResult, setRunResult] = useState<any | null>(null);
+  const [submitResult, setSubmitResult] = useState<any | null>(null);
+  const [activeCodingTab, setActiveCodingTab] = useState<"problem" | "console">("problem");
 
-  // Load session state
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const voiceControllerRef = useRef<VoiceSessionController | null>(null);
+
+  // Initialize Voice Session Controller
+  useEffect(() => {
+    const controller = new VoiceSessionController({
+      onStateChange: (newState) => {
+        setVoiceState(newState);
+      },
+      onInterimTranscript: (interim) => {
+        setInterimTranscript(interim);
+      },
+      onFinalTranscript: (final) => {
+        setFinalTranscript(final);
+      },
+      onError: (msg) => {
+        setVoiceError(msg);
+      },
+    });
+
+    voiceControllerRef.current = controller;
+
+    return () => {
+      controller.stopSpeaking();
+      controller.stopListening();
+    };
+  }, []);
+
+  // Fetch session data
   const fetchSession = async () => {
     try {
       const res = await fetch(`/api/interviews/${sessionId}`);
@@ -96,10 +148,45 @@ export default function InterviewRoomPage() {
 
       if (data.session.status === "completed" && data.reportId) {
         router.push(`/reports/${data.reportId}`);
+        return;
+      }
+
+      // If in Round 3, fetch current coding challenge
+      if (data.session.currentRound === 3) {
+        loadCodingProblemForSession(data.messages);
       }
     } catch (err: any) {
       setError(err.message || "Failed to load session");
       setLoading(false);
+    }
+  };
+
+  const loadCodingProblemForSession = async (currentMessages: Message[]) => {
+    // Check if question message has problem metadata
+    const codingMsg = [...currentMessages]
+      .reverse()
+      .find(m => m.roundNumber === 3 && m.sender === "interviewer");
+
+    let slug = "two-sum";
+    if (codingMsg) {
+      try {
+        const meta = (codingMsg as any).metadata ? JSON.parse((codingMsg as any).metadata) : {};
+        if (meta.problemSlug) slug = meta.problemSlug;
+      } catch {
+        // Default
+      }
+    }
+
+    try {
+      const pRes = await fetch(`/api/coding/problems/${slug}`);
+      if (pRes.ok) {
+        const pData = await pRes.json();
+        setCodingProblem(pData.problem);
+        setCodingLanguage(session?.primaryLanguage || "java");
+        setCode(pData.problem.starterCode[session?.primaryLanguage || "java"] || "");
+      }
+    } catch (err) {
+      console.warn("Could not fetch coding problem details:", err);
     }
   };
 
@@ -112,7 +199,17 @@ export default function InterviewRoomPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Live Timer countdown
+  // Automatically speak new interviewer questions if voice mode is on
+  useEffect(() => {
+    if (!loading && messages.length > 0 && isVoiceMode && voiceControllerRef.current) {
+      const lastMsg = messages[messages.length - 1];
+      if (lastMsg.sender === "interviewer" && lastMsg.messageType === "question") {
+        voiceControllerRef.current.speakInterviewerMessage(lastMsg.id, lastMsg.content);
+      }
+    }
+  }, [messages, loading, isVoiceMode]);
+
+  // Live countdown timer
   useEffect(() => {
     if (isPaused || loading || !session || session.status === "completed") return;
     const interval = setInterval(() => {
@@ -121,24 +218,24 @@ export default function InterviewRoomPage() {
     return () => clearInterval(interval);
   }, [isPaused, loading, session]);
 
-  // Submit candidate answer
-  const handleSubmitAnswer = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!answerInput.trim() || submitting) return;
+  // Handle Candidate Answer Submission (Spoken or Typed)
+  const handleSubmitAnswer = async (submittedText: string) => {
+    if (!submittedText.trim() || submitting) return;
 
     setSubmitting(true);
-    const submittedText = answerInput.trim();
-    setAnswerInput("");
+    setVoiceError(null);
+    voiceControllerRef.current?.notifySubmissionStarted();
 
-    // Optimistic UI update
+    // Optimistic candidate message
+    const tempMsgId = "temp-" + Date.now();
     setMessages(prev => [
       ...prev,
       {
-        id: "temp-" + Date.now(),
+        id: tempMsgId,
         roundNumber: session?.currentRound || 1,
         sender: "candidate",
         messageType: "answer",
-        content: submittedText,
+        content: submittedText.trim(),
         timestamp: new Date().toISOString(),
       },
     ]);
@@ -147,7 +244,7 @@ export default function InterviewRoomPage() {
       const res = await fetch(`/api/interviews/${sessionId}/answer`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answer: submittedText }),
+        body: JSON.stringify({ answer: submittedText.trim() }),
       });
 
       const data = await res.json();
@@ -155,16 +252,22 @@ export default function InterviewRoomPage() {
 
       // Refetch latest session messages and rounds
       await fetchSession();
+
+      // Clear voice transcripts
+      setInterimTranscript("");
+      setFinalTranscript("");
+      setManualText("");
     } catch (err: any) {
       setError(err.message);
+      setVoiceError(err.message);
     } finally {
       setSubmitting(false);
     }
   };
 
-  // Submit candidate clarification / interruption
-  const handleAskInterviewer = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Handle Candidate Clarification / Interruption
+  const handleAskInterviewer = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!clarifyQuestion.trim() || clarifying) return;
 
     setClarifying(true);
@@ -183,6 +286,11 @@ export default function InterviewRoomPage() {
       setClarifyQuestion("");
       setIsClarifyOpen(false);
       await fetchSession();
+
+      // Read aloud the interviewer's clarification reply
+      if (data.interviewerReply && isVoiceMode && voiceControllerRef.current) {
+        voiceControllerRef.current.speakInterviewerMessage("clarify-" + Date.now(), data.interviewerReply);
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -190,7 +298,70 @@ export default function InterviewRoomPage() {
     }
   };
 
-  // Pause session
+  // Run Code in Monaco Editor (Round 3)
+  const handleRunCode = async () => {
+    if (!codingProblem || isRunningCode) return;
+    setIsRunningCode(true);
+    setRunResult(null);
+    setActiveCodingTab("console");
+
+    try {
+      const res = await fetch("/api/coding/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          language: codingLanguage,
+          code,
+          problemSlug: codingProblem.slug,
+          stdin: codingProblem.visibleTestCases[0]?.input || "",
+        }),
+      });
+
+      const data = await res.json();
+      setRunResult(data);
+    } catch (err: any) {
+      setRunResult({ success: false, error: err.message });
+    } finally {
+      setIsRunningCode(false);
+    }
+  };
+
+  // Submit Code Solution (Round 3)
+  const handleSubmitCode = async () => {
+    if (!codingProblem || isSubmittingCode) return;
+    setIsSubmittingCode(true);
+    setSubmitResult(null);
+    setActiveCodingTab("console");
+
+    try {
+      const res = await fetch("/api/coding/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          problemSlug: codingProblem.slug,
+          language: codingLanguage,
+          code,
+          sessionId,
+        }),
+      });
+
+      const data = await res.json();
+      setSubmitResult(data);
+
+      if (data.status === "accepted") {
+        // Automatically submit candidate notification to interview engine
+        await handleSubmitAnswer(
+          `I have completed and verified my solution in ${codingLanguage.toUpperCase()}. All test cases passed with optimal complexity.`
+        );
+      }
+    } catch (err: any) {
+      setSubmitResult({ error: err.message });
+    } finally {
+      setIsSubmittingCode(false);
+    }
+  };
+
+  // Toggle Pause
   const handleTogglePause = async () => {
     const endpoint = isPaused ? "resume" : "pause";
     try {
@@ -199,6 +370,10 @@ export default function InterviewRoomPage() {
       });
       if (res.ok) {
         setIsPaused(!isPaused);
+        if (!isPaused) {
+          voiceControllerRef.current?.stopSpeaking();
+          voiceControllerRef.current?.stopListening();
+        }
         await fetchSession();
       }
     } catch (err: any) {
@@ -206,12 +381,15 @@ export default function InterviewRoomPage() {
     }
   };
 
-  // End Interview early
+  // End Interview Early
   const handleEndInterview = async () => {
-    if (!confirm("Are you sure you want to end this interview now? A performance report will be generated based on your answers so far.")) {
+    if (!confirm("Are you sure you want to end this interview now? A performance report will be generated based on your answers and submissions so far.")) {
       return;
     }
     setSubmitting(true);
+    voiceControllerRef.current?.stopSpeaking();
+    voiceControllerRef.current?.stopListening();
+
     try {
       const res = await fetch(`/api/interviews/${sessionId}/finish`, {
         method: "POST",
@@ -239,7 +417,7 @@ export default function InterviewRoomPage() {
       <div className="flex h-[80vh] items-center justify-center">
         <div className="text-center space-y-3">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent mx-auto" />
-          <p className="text-xs text-gray-400">Loading interview room...</p>
+          <p className="text-xs text-muted-foreground">Connecting to InterviewForge AI Interview Room...</p>
         </div>
       </div>
     );
@@ -248,294 +426,367 @@ export default function InterviewRoomPage() {
   if (error && !session) {
     return (
       <div className="mx-auto max-w-xl p-8 text-center space-y-4">
-        <AlertCircle className="mx-auto h-10 w-10 text-red-400" />
-        <h2 className="text-base font-bold text-white">Error Loading Session</h2>
-        <p className="text-xs text-gray-400">{error}</p>
-        <Link
-          href="/"
-          className="inline-block rounded-md bg-blue-600 px-4 py-2 text-xs font-semibold text-white"
-        >
+        <AlertCircle className="h-10 w-10 text-red-500 mx-auto" />
+        <h2 className="text-xl font-bold">Interview Session Error</h2>
+        <p className="text-sm text-muted-foreground">{error}</p>
+        <Link href="/" className="inline-block px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium">
           Return to Dashboard
         </Link>
       </div>
     );
   }
 
-  const currentRoundNum = session?.currentRound || 1;
+  const isCodingRound = session?.currentRound === 3;
 
   return (
-    <div className="flex h-[calc(100vh-65px)] flex-col bg-[#0b0f17]">
-      {/* Top Header Bar */}
-      <div className="border-b border-gray-800 bg-gray-950/80 px-4 py-2.5 sm:px-6">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4">
-          {/* Round Information */}
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 px-2.5 py-1 text-xs font-bold text-blue-400">
-              <span>Round {currentRoundNum} of 4:</span>
-              <span className="text-white">{ROUND_NAMES[currentRoundNum as RoundNumber]}</span>
-            </div>
-
-            <span className="hidden sm:inline text-xs text-gray-400">
-              {session?.companyProfile} • {session?.targetRole}
-            </span>
-
-            {session?.mode === "practice" && (
-              <span className="rounded bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">
-                Practice Mode
+    <div className="flex flex-col h-[calc(100vh-4rem)] max-w-7xl mx-auto p-4 gap-4">
+      {/* Top Header Bar: Round status, timer, pause, end */}
+      <header className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-xl border border-border bg-card shadow-sm">
+        <div className="flex items-center gap-3">
+          <div className="h-9 w-9 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold text-sm">
+            R{session?.currentRound || 1}
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="font-semibold text-sm text-foreground">
+                Round {session?.currentRound}: {ROUND_NAMES[session?.currentRound || 1]}
+              </h1>
+              <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-muted text-muted-foreground">
+                {session?.mode}
               </span>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              {session?.companyProfile} • {session?.targetRole}
+            </p>
+          </div>
+        </div>
+
+        {/* Round Progress Tracker */}
+        <div className="hidden md:flex items-center gap-2">
+          {rounds.map((r) => (
+            <div
+              key={r.roundNumber}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium ${
+                r.roundNumber === session?.currentRound
+                  ? "bg-blue-600 text-white"
+                  : r.status === "completed"
+                  ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+                  : "bg-muted text-muted-foreground"
+              }`}
+            >
+              {r.status === "completed" ? (
+                <CheckCircle2 className="h-3.5 w-3.5" />
+              ) : (
+                <span>{r.roundNumber}</span>
+              )}
+              <span className="hidden lg:inline">{r.roundName.split(" ")[0]}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Controls: Timer, Pause, End */}
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-background text-xs font-mono font-semibold">
+            <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+            <span>{formatTimer(secondsRemaining)}</span>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleTogglePause}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted text-xs font-medium text-foreground transition-all"
+          >
+            {isPaused ? <Play className="h-3.5 w-3.5 text-emerald-500" /> : <Pause className="h-3.5 w-3.5" />}
+            {isPaused ? "Resume" : "Pause"}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleEndInterview}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-500 text-xs font-medium transition-all"
+          >
+            <Square className="h-3.5 w-3.5" />
+            End Interview
+          </button>
+        </div>
+      </header>
+
+      {/* Main Interview Body: Split Layout if Round 3 (Coding), Single Column otherwise */}
+      <div className={`grid gap-4 flex-1 overflow-hidden ${isCodingRound ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"}`}>
+        {/* Left Column: Voice Interview Conversation & Transcript */}
+        <div className="flex flex-col h-full rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+          {/* Voice Action & Status Bar */}
+          <div className="p-3 border-b border-border bg-muted/30">
+            {voiceControllerRef.current && (
+              <VoiceControls
+                voiceState={voiceState}
+                isVoiceMode={isVoiceMode}
+                onToggleVoiceMode={() => {
+                  const next = !isVoiceMode;
+                  setIsVoiceMode(next);
+                  voiceControllerRef.current?.setVoiceMode(next);
+                }}
+                onStartListening={() => voiceControllerRef.current?.startListening()}
+                onStopListening={() => voiceControllerRef.current?.stopListening()}
+                onStopSpeaking={() => voiceControllerRef.current?.stopSpeaking()}
+                onReplayQuestion={() => {
+                  const lastQ = [...messages].reverse().find(m => m.sender === "interviewer");
+                  if (lastQ) voiceControllerRef.current?.replayCurrentQuestion(lastQ.content);
+                }}
+                onInterrupt={() => {
+                  voiceControllerRef.current?.interruptInterviewer();
+                  setIsClarifyOpen(true);
+                }}
+                synthesizer={voiceControllerRef.current.getSpeechSynthesizer()}
+                errorMessage={voiceError}
+              />
             )}
           </div>
 
-          {/* Controls: Timer, Pause, End */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            {/* Session Timer */}
-            <div className="flex items-center gap-1.5 rounded-md border border-gray-800 bg-gray-900 px-2.5 py-1 text-xs font-mono font-medium text-gray-200">
-              <Clock className="h-3.5 w-3.5 text-cyan-400" />
-              <span>{formatTimer(secondsRemaining)}</span>
-            </div>
-
-            {/* Pause/Resume */}
-            <button
-              onClick={handleTogglePause}
-              className="flex items-center gap-1 rounded-md border border-gray-800 bg-gray-900 px-2.5 py-1 text-xs font-medium text-gray-300 hover:text-white hover:bg-gray-800 transition"
-              title={isPaused ? "Resume Interview" : "Pause Interview"}
-            >
-              {isPaused ? <Play className="h-3.5 w-3.5 text-emerald-400" /> : <Pause className="h-3.5 w-3.5 text-amber-400" />}
-              <span className="hidden sm:inline">{isPaused ? "Resume" : "Pause"}</span>
-            </button>
-
-            {/* End Interview */}
-            <button
-              onClick={handleEndInterview}
-              disabled={submitting}
-              className="flex items-center gap-1 rounded-md border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-xs font-medium text-red-400 hover:bg-red-500/20 transition"
-            >
-              <Square className="h-3.5 w-3.5 fill-red-400" />
-              <span className="hidden sm:inline">End Interview</span>
-            </button>
-          </div>
-        </div>
-
-        {/* 4 Rounds Progress Stepper */}
-        <div className="mx-auto max-w-7xl pt-2">
-          <div className="grid grid-cols-4 gap-2">
-            {[1, 2, 3, 4].map(r => {
-              const roundInfo = rounds.find(rnd => rnd.roundNumber === r);
-              const isCurrent = r === currentRoundNum;
-              const isDone = roundInfo?.status === "completed";
-              return (
-                <div
-                  key={r}
-                  className={`h-1.5 rounded-full transition-all ${
-                    isDone
-                      ? "bg-emerald-500"
-                      : isCurrent
-                      ? "bg-blue-500 animate-pulse"
-                      : "bg-gray-800"
-                  }`}
-                  title={`Round ${r}: ${ROUND_NAMES[r as RoundNumber]} (${roundInfo?.status || "pending"})`}
-                />
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Main Conversation Stream */}
-      <div className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
-        <div className="mx-auto max-w-3xl space-y-5">
-          {messages.map((m, idx) => {
-            const isInterviewer = m.sender === "interviewer";
-            const isCandidate = m.sender === "candidate";
-            const isSystem = m.sender === "system";
-
-            if (isSystem) {
-              return (
-                <div key={m.id || idx} className="flex justify-center my-3">
-                  <div className="inline-flex items-center gap-1.5 rounded-full border border-gray-800 bg-gray-900/60 px-3 py-1 text-[11px] text-gray-400">
-                    <Info className="h-3 w-3 text-blue-400" />
-                    <span>{m.content}</span>
-                  </div>
-                </div>
-              );
-            }
-
-            return (
+          {/* Messages History Feed */}
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {messages.map((msg) => (
               <div
-                key={m.id || idx}
-                className={`flex gap-3 ${isCandidate ? "justify-end" : "justify-start"}`}
+                key={msg.id}
+                className={`flex gap-3 max-w-[85%] ${
+                  msg.sender === "candidate" ? "ml-auto flex-row-reverse" : "mr-auto"
+                }`}
               >
-                {/* Interviewer Avatar */}
-                {isInterviewer && (
-                  <div className="flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-lg bg-blue-600/20 text-blue-400 border border-blue-500/30">
-                    <Bot className="h-4 w-4" />
-                  </div>
-                )}
-
                 <div
-                  className={`max-w-[85%] rounded-xl px-4 py-3 text-xs leading-relaxed space-y-1.5 shadow-sm ${
-                    isCandidate
-                      ? "bg-blue-600 text-white rounded-br-none"
-                      : "border border-gray-800 bg-gray-900/90 text-gray-200 rounded-bl-none"
+                  className={`h-8 w-8 rounded-full flex items-center justify-center shrink-0 text-xs font-bold ${
+                    msg.sender === "candidate"
+                      ? "bg-blue-600 text-white"
+                      : "bg-gradient-to-br from-indigo-500 to-purple-600 text-white"
                   }`}
                 >
-                  {/* Sender Tag */}
-                  <div className="flex items-center justify-between gap-2 text-[10px] font-semibold opacity-75">
-                    <span>
-                      {isCandidate ? "You (Candidate)" : `Interviewer (${session?.companyProfile})`}
-                    </span>
-                    {m.messageType === "clarification_question" && (
-                      <span className="rounded bg-amber-400/20 px-1 text-amber-300">Clarification</span>
-                    )}
-                    {m.messageType === "clarification_answer" && (
-                      <span className="rounded bg-cyan-400/20 px-1 text-cyan-300">Answer to Clarification</span>
-                    )}
-                  </div>
-
-                  {/* Body Content */}
-                  <div className="whitespace-pre-wrap font-sans">{m.content}</div>
-
-                  {/* Round 3 Coding Action Banner inside chat */}
-                  {isInterviewer && currentRoundNum === 3 && (
-                    <div className="pt-2 border-t border-gray-800/80 mt-2">
-                      <Link
-                        href={`/coding?sessionId=${sessionId}`}
-                        className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-500 transition shadow-sm"
-                      >
-                        <Code2 className="h-3.5 w-3.5" />
-                        <span>Open Coding Arena (Monaco Editor & Test Cases)</span>
-                      </Link>
-                    </div>
-                  )}
+                  {msg.sender === "candidate" ? <User className="h-4 w-4" /> : <Bot className="h-4 w-4" />}
                 </div>
 
-                {/* Candidate Avatar */}
-                {isCandidate && (
-                  <div className="flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-lg bg-gray-800 text-gray-300 border border-gray-700">
-                    <User className="h-4 w-4" />
+                <div
+                  className={`rounded-xl p-3.5 text-xs sm:text-sm leading-relaxed shadow-sm ${
+                    msg.sender === "candidate"
+                      ? "bg-blue-600 text-white rounded-tr-none"
+                      : "bg-muted/60 border border-border text-foreground rounded-tl-none"
+                  }`}
+                >
+                  <div className="flex items-center justify-between gap-4 mb-1 text-[10px] opacity-75 font-medium">
+                    <span>{msg.sender === "candidate" ? "Candidate (You)" : "AI Interviewer"}</span>
+                    <span>{new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                  </div>
+                  <div className="whitespace-pre-wrap">{msg.content}</div>
+                </div>
+              </div>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Live Transcript / Candidate Input Box */}
+          <div className="p-3 border-t border-border bg-card">
+            <LiveTranscriptPanel
+              voiceState={voiceState}
+              interimTranscript={interimTranscript}
+              finalTranscript={finalTranscript}
+              onSubmit={handleSubmitAnswer}
+              submitting={submitting}
+              manualText={manualText}
+              setManualText={setManualText}
+            />
+          </div>
+        </div>
+
+        {/* Right Column (Round 3 ONLY): Monaco Code Editor & Compiler Output */}
+        {isCodingRound && (
+          <div className="flex flex-col h-full rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+            {/* Header: Tabs & Language Selector */}
+            <div className="flex items-center justify-between p-3 border-b border-border bg-muted/40">
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setActiveCodingTab("problem")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    activeCodingTab === "problem"
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:bg-muted"
+                  }`}
+                >
+                  Problem & Instructions
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveCodingTab("console")}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    activeCodingTab === "console"
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:bg-muted"
+                  }`}
+                >
+                  Compiler Console & Tests
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <select
+                  value={codingLanguage}
+                  onChange={(e) => {
+                    const l = e.target.value as "java" | "python" | "cpp";
+                    setCodingLanguage(l);
+                    if (codingProblem?.starterCode?.[l]) {
+                      setCode(codingProblem.starterCode[l]);
+                    }
+                  }}
+                  className="rounded-lg border border-input bg-background px-2.5 py-1 text-xs font-medium"
+                >
+                  <option value="java">Java (OpenJDK 25)</option>
+                  <option value="python">Python 3.14</option>
+                  <option value="cpp">C++ (GCC 15)</option>
+                </select>
+
+                <button
+                  type="button"
+                  onClick={handleRunCode}
+                  disabled={isRunningCode || isSubmittingCode}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-background hover:bg-muted text-xs font-medium transition-colors disabled:opacity-50"
+                >
+                  <Play className="h-3.5 w-3.5 text-emerald-500" />
+                  {isRunningCode ? "Running..." : "Run Code"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleSubmitCode}
+                  disabled={isSubmittingCode || isRunningCode}
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
+                >
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  {isSubmittingCode ? "Testing..." : "Submit Code"}
+                </button>
+              </div>
+            </div>
+
+            {/* Coding Pane Content: Problem Description OR Console */}
+            {activeCodingTab === "problem" && codingProblem && (
+              <div className="p-4 border-b border-border bg-muted/20 text-xs overflow-y-auto max-h-48 space-y-2">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-bold text-sm text-foreground">{codingProblem.title}</h3>
+                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-blue-500/10 text-blue-500">
+                    {codingProblem.difficulty}
+                  </span>
+                </div>
+                <p className="text-muted-foreground whitespace-pre-wrap">{codingProblem.description}</p>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {codingProblem.constraints?.map((c: string, i: number) => (
+                    <span key={i} className="px-2 py-0.5 rounded bg-muted text-[10px] font-mono text-muted-foreground">
+                      {c}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Monaco Editor Pane */}
+            <div className="flex-1 min-h-[300px]">
+              <Editor
+                height="100%"
+                language={codingLanguage === "cpp" ? "cpp" : codingLanguage}
+                theme="vs-dark"
+                value={code}
+                onChange={(v) => setCode(v || "")}
+                options={{
+                  fontSize: 13,
+                  minimap: { enabled: false },
+                  scrollBeyondLastLine: false,
+                  automaticLayout: true,
+                  lineNumbers: "on",
+                  tabSize: 2,
+                }}
+              />
+            </div>
+
+            {/* Console Output Drawer */}
+            {activeCodingTab === "console" && (
+              <div className="p-3 border-t border-border bg-slate-950 text-slate-100 font-mono text-xs max-h-48 overflow-y-auto space-y-2">
+                <div className="flex items-center justify-between text-[11px] text-slate-400 border-b border-slate-800 pb-1">
+                  <span>Execution Output</span>
+                  {runResult?.time && <span>Duration: {runResult.time}s</span>}
+                </div>
+
+                {runResult?.stdout && (
+                  <div>
+                    <span className="text-emerald-400 font-semibold">Standard Output:</span>
+                    <pre className="whitespace-pre-wrap mt-1">{runResult.stdout}</pre>
+                  </div>
+                )}
+
+                {runResult?.compileOutput && (
+                  <div>
+                    <span className="text-red-400 font-semibold">Compiler Output:</span>
+                    <pre className="whitespace-pre-wrap mt-1 text-red-300">{runResult.compileOutput}</pre>
+                  </div>
+                )}
+
+                {submitResult && (
+                  <div className="p-2 rounded bg-slate-900 border border-slate-800 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold uppercase tracking-wider text-xs">
+                        {submitResult.status === "accepted" ? (
+                          <span className="text-emerald-400 flex items-center gap-1">
+                            <CheckCircle2 className="h-3.5 w-3.5" /> Accepted ({submitResult.passedCount}/{submitResult.totalCount} tests passed)
+                          </span>
+                        ) : (
+                          <span className="text-red-400 flex items-center gap-1">
+                            <XCircle className="h-3.5 w-3.5" /> {submitResult.status} ({submitResult.passedCount}/{submitResult.totalCount} tests passed)
+                          </span>
+                        )}
+                      </span>
+                    </div>
                   </div>
                 )}
               </div>
-            );
-          })}
-
-          {submitting && (
-            <div className="flex gap-3 justify-start items-center">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600/20 text-blue-400 border border-blue-500/30">
-                <Bot className="h-4 w-4" />
-              </div>
-              <div className="rounded-xl border border-gray-800 bg-gray-900/90 px-4 py-2.5 text-xs text-gray-400 flex items-center gap-2">
-                <div className="h-2 w-2 rounded-full bg-blue-400 animate-ping" />
-                <span>Interviewer is evaluating your response...</span>
-              </div>
-            </div>
-          )}
-
-          <div ref={messagesEndRef} />
-        </div>
-      </div>
-
-      {/* Candidate Input Toolbar & Action Area */}
-      <div className="border-t border-gray-800 bg-gray-950/90 p-4">
-        <div className="mx-auto max-w-3xl space-y-2">
-          {/* Helper toolbar */}
-          <div className="flex items-center justify-between text-xs">
-            <span className="text-[11px] text-gray-400">
-              Press Enter or click Submit to send your answer.
-            </span>
-
-            {/* Candidate Interruption / Clarification Button */}
-            <button
-              type="button"
-              onClick={() => setIsClarifyOpen(true)}
-              disabled={submitting || isPaused}
-              className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-400 hover:text-amber-300 transition"
-            >
-              <HelpCircle className="h-3.5 w-3.5" />
-              <span>Ask Interviewer for Clarification</span>
-            </button>
+            )}
           </div>
-
-          {/* Form */}
-          <form onSubmit={handleSubmitAnswer} className="flex gap-2">
-            <textarea
-              rows={2}
-              value={answerInput}
-              onChange={e => setAnswerInput(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSubmitAnswer(e);
-                }
-              }}
-              disabled={submitting || isPaused}
-              placeholder={
-                isPaused
-                  ? "Interview is paused. Click Resume in the header to proceed."
-                  : currentRoundNum === 3
-                  ? "Explain your algorithmic approach here, or click 'Open Coding Arena' to write and compile code..."
-                  : "Type your structured answer here (explain principles, trade-offs, and examples)..."
-              }
-              className="flex-1 rounded-xl border border-gray-800 bg-gray-900/80 p-3 text-xs text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none resize-none"
-            />
-
-            <button
-              type="submit"
-              disabled={submitting || !answerInput.trim() || isPaused}
-              className="inline-flex items-center justify-center rounded-xl bg-blue-600 px-5 text-white hover:bg-blue-500 disabled:opacity-40 transition"
-            >
-              <Send className="h-4 w-4" />
-            </button>
-          </form>
-        </div>
+        )}
       </div>
 
-      {/* Candidate Clarification Modal */}
+      {/* Interruption / Clarification Modal */}
       {isClarifyOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="w-full max-w-lg rounded-2xl border border-gray-800 bg-gray-900 p-6 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <HelpCircle className="h-4 w-4 text-amber-400" />
-                <span>Ask Interviewer for Clarification</span>
-              </h3>
-              <button
-                onClick={() => setIsClarifyOpen(false)}
-                className="text-gray-400 hover:text-white text-xs"
-              >
-                ✕
-              </button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in">
+          <div className="w-full max-w-lg rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center">
+                <HelpCircle className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-base text-foreground">Ask Interviewer / Interruption</h3>
+                <p className="text-xs text-muted-foreground">
+                  Ask for clarification, constraints, or assumptions without advancing the interview or penalty.
+                </p>
+              </div>
             </div>
 
-            <p className="text-xs text-gray-300 leading-relaxed">
-              Asking questions does <strong className="text-white">NOT</strong> count as an answer or penalize your score.
-              You can ask about input constraints, boundary edge cases, expected formats, or clarify ambiguous assumptions.
-            </p>
-
-            <form onSubmit={handleAskInterviewer} className="space-y-4">
+            <form onSubmit={handleAskInterviewer} className="space-y-3">
               <textarea
-                rows={3}
                 value={clarifyQuestion}
-                onChange={e => setClarifyQuestion(e.target.value)}
-                placeholder="e.g. 'Can I assume all array elements are positive integers?' or 'Should this be thread-safe?'"
-                required
-                className="w-full rounded-lg border border-gray-800 bg-gray-950 p-3 text-xs text-white placeholder-gray-500 focus:border-amber-500 focus:outline-none"
+                onChange={(e) => setClarifyQuestion(e.target.value)}
+                placeholder="e.g. Could you clarify if input contains duplicate elements? Can we assume single-threaded execution?"
+                rows={3}
+                className="w-full rounded-lg border border-input bg-background p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                autoFocus
               />
 
-              <div className="flex justify-end gap-2">
+              <div className="flex items-center justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setIsClarifyOpen(false)}
-                  className="rounded-lg border border-gray-800 px-3.5 py-2 text-xs font-medium text-gray-400 hover:text-white"
+                  className="px-3 py-1.5 rounded-lg border border-border text-xs text-muted-foreground hover:bg-muted"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={clarifying || !clarifyQuestion.trim()}
-                  className="rounded-lg bg-amber-500 px-4 py-2 text-xs font-semibold text-gray-950 hover:bg-amber-400 disabled:opacity-50"
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
                 >
-                  {clarifying ? "Asking Interviewer..." : "Ask Question"}
+                  {clarifying ? "Inquiring..." : "Ask Question"}
                 </button>
               </div>
             </form>

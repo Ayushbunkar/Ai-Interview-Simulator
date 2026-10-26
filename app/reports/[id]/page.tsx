@@ -18,7 +18,14 @@ import {
   MessageSquare,
   Sparkles,
   BarChart2,
+  BookOpen,
+  Volume2,
+  Terminal,
+  Check,
+  Flame,
 } from "lucide-react";
+import { ROUND_NAMES } from "@/lib/interview/engine";
+import { CommunicationReport, SkillRadarAnalysis, DetailedProblemCodingReport } from "@/lib/types";
 
 interface ReportDetail {
   report: {
@@ -28,8 +35,8 @@ interface ReportDetail {
     roundScores: { round: number; name: string; score: number | null }[];
     technicalStrengths: string[];
     areasForImprovement: string[];
-    communicationAssessment: string;
-    codingAssessment: { summary: string; submissionsCount: number };
+    communicationAssessment: any;
+    codingAssessment: any;
     sevenDayPlan: { day: number; focus: string; tasks: string[] }[];
     readinessSummary: string;
     readinessLevel: string;
@@ -43,6 +50,7 @@ interface ReportDetail {
     difficulty: string;
     mode: string;
     primaryLanguage: string;
+    durationMinutes: number;
   };
   rounds: {
     id: string;
@@ -71,6 +79,7 @@ interface ReportDetail {
     passedTests: number;
     totalTests: number;
     runtimeMs: number | null;
+    code?: string;
   }[];
 }
 
@@ -82,6 +91,7 @@ export default function ReportDetailPage() {
   const [data, setData] = useState<ReportDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     fetch(`/api/reports/${reportId}`)
@@ -101,11 +111,11 @@ export default function ReportDetailPage() {
 
   const handleDownloadMarkdown = () => {
     if (!data) return;
-    const blob = new Blob([data.report.markdownExport], { type: "text/markdown" });
+    const blob = new Blob([data.report.markdownExport], { type: "text/markdown;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `InterviewForge-${data.session.companyProfile}-${data.session.targetRole}.md`;
+    a.download = `InterviewForge-Report-${reportId}.md`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -116,9 +126,15 @@ export default function ReportDetailPage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `InterviewForge-${data.session.companyProfile}-${data.session.targetRole}.json`;
+    a.download = `InterviewForge-Report-${reportId}.json`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   if (loading) {
@@ -126,7 +142,7 @@ export default function ReportDetailPage() {
       <div className="flex h-[80vh] items-center justify-center">
         <div className="text-center space-y-3">
           <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent mx-auto" />
-          <p className="text-xs text-gray-400">Loading interview performance report...</p>
+          <p className="text-xs text-muted-foreground">Generating Candidate Performance Dossier...</p>
         </div>
       </div>
     );
@@ -135,10 +151,11 @@ export default function ReportDetailPage() {
   if (error || !data) {
     return (
       <div className="mx-auto max-w-xl p-8 text-center space-y-4">
-        <h2 className="text-base font-bold text-white">Report Not Found</h2>
-        <p className="text-xs text-gray-400">{error || "Could not retrieve report records."}</p>
-        <Link href="/reports" className="inline-block rounded-md bg-blue-600 px-4 py-2 text-xs font-semibold text-white">
-          Back to Reports
+        <AlertTriangle className="h-10 w-10 text-amber-500 mx-auto" />
+        <h2 className="text-xl font-bold">Report Not Found</h2>
+        <p className="text-sm text-muted-foreground">{error || "The requested interview report does not exist."}</p>
+        <Link href="/reports" className="inline-block px-4 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-medium">
+          Back to Reports History
         </Link>
       </div>
     );
@@ -146,206 +163,365 @@ export default function ReportDetailPage() {
 
   const { report, session, rounds, answers, submissions } = data;
 
+  // Parse structured communication & skill radar
+  let communicationReport: CommunicationReport | null = null;
+  if (typeof report.communicationAssessment === "object") {
+    communicationReport = report.communicationAssessment;
+  } else if (typeof report.communicationAssessment === "string") {
+    try {
+      communicationReport = JSON.parse(report.communicationAssessment);
+    } catch {
+      // String format fallback
+    }
+  }
+
+  let skillRadar: SkillRadarAnalysis | null = null;
+  let detailedCodingReports: DetailedProblemCodingReport[] = [];
+  if (report.codingAssessment && typeof report.codingAssessment === "object") {
+    if (report.codingAssessment.skillRadar) skillRadar = report.codingAssessment.skillRadar;
+    if (report.codingAssessment.detailedCodingReports) detailedCodingReports = report.codingAssessment.detailedCodingReports;
+  }
+
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 space-y-8">
-      {/* Top Navigation & Action Buttons */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-800 pb-5">
-        <Link href="/reports" className="inline-flex items-center gap-1.5 text-xs text-gray-400 hover:text-white transition">
+    <div className="max-w-6xl mx-auto p-4 sm:p-6 space-y-8">
+      {/* Top Breadcrumb & Action Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <Link href="/reports" className="flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" />
-          <span>Back to All Reports</span>
+          Back to Interview History
         </Link>
 
         <div className="flex items-center gap-2">
           <button
-            onClick={handleDownloadMarkdown}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-700 bg-gray-800/80 px-3 py-1.5 text-xs font-medium text-gray-200 hover:bg-gray-700 hover:text-white transition"
+            type="button"
+            onClick={handleCopyLink}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted text-xs font-medium transition-colors"
           >
-            <Download className="h-3.5 w-3.5" />
-            <span>Export Markdown</span>
+            {copied ? <Check className="h-3.5 w-3.5 text-emerald-500" /> : <Share2 className="h-3.5 w-3.5" />}
+            {copied ? "Link Copied" : "Share"}
           </button>
 
           <button
+            type="button"
             onClick={handleDownloadJSON}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-700 bg-gray-800/80 px-3 py-1.5 text-xs font-medium text-gray-200 hover:bg-gray-700 hover:text-white transition"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted text-xs font-medium transition-colors"
           >
             <Download className="h-3.5 w-3.5" />
-            <span>Export JSON</span>
+            JSON
+          </button>
+
+          <button
+            type="button"
+            onClick={handleDownloadMarkdown}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm transition-all"
+          >
+            <Download className="h-3.5 w-3.5" />
+            Export Markdown
           </button>
         </div>
       </div>
 
-      {/* Executive Summary Hero Card */}
-      <div className="rounded-2xl border border-blue-500/20 bg-gradient-to-br from-blue-950/40 via-gray-900/90 to-[#0d1527] p-6 sm:p-8 space-y-6 shadow-xl">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      {/* Section A: Header & Executive Summary */}
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-1">
-            <div className="flex items-center gap-2 text-xs text-gray-400">
-              <span>{session.companyProfile}</span>
-              <span>•</span>
-              <span>{session.targetRole}</span>
-              <span>•</span>
-              <span>{new Date(report.createdAt).toLocaleDateString()}</span>
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase bg-blue-500/10 text-blue-500">
+                {session.companyProfile} Interview
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground uppercase">
+                {session.difficulty}
+              </span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
-              {session.title}
-            </h1>
+            <h1 className="text-2xl font-bold text-foreground">{session.title}</h1>
+            <p className="text-xs text-muted-foreground">
+              Candidate Target Role: <strong className="text-foreground">{session.targetRole}</strong> • Completed on{" "}
+              {new Date(report.createdAt).toLocaleDateString()}
+            </p>
           </div>
 
-          <div className="rounded-xl border border-blue-500/30 bg-blue-500/10 p-4 text-center sm:text-right shrink-0">
-            <div className="text-3xl sm:text-4xl font-extrabold text-blue-400">
-              {report.overallScore}<span className="text-base text-gray-400">/100</span>
-            </div>
-            <div className="mt-1 text-xs font-bold text-white uppercase tracking-wider">
+          <div className="text-right">
+            <div className="text-3xl font-extrabold text-blue-500">{report.overallScore}/100</div>
+            <div className="text-xs font-bold uppercase tracking-wider text-muted-foreground mt-0.5">
               {report.readinessLevel}
             </div>
           </div>
         </div>
 
-        {/* Executive Text */}
-        <div className="rounded-xl border border-gray-800 bg-gray-950/60 p-4 text-xs text-gray-200 leading-relaxed">
+        <div className="p-4 rounded-xl bg-muted/40 border border-border text-xs sm:text-sm leading-relaxed text-foreground">
+          <span className="font-semibold text-blue-500">Executive Summary: </span>
           {report.readinessSummary}
         </div>
-      </div>
 
-      {/* Round-by-Round Score Grid */}
-      <div className="space-y-3">
-        <h2 className="text-sm font-bold text-white flex items-center gap-2">
-          <Layers className="h-4 w-4 text-blue-400" />
-          <span>Performance by Round</span>
-        </h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {rounds.map(r => (
-            <div key={r.id} className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-2">
-              <div className="flex items-center justify-between">
-                <span className="text-[11px] font-semibold text-gray-400">Round {r.roundNumber}</span>
-                <span
-                  className={`rounded px-1.5 py-0.5 text-[10px] font-bold ${
-                    r.status === "completed" ? "bg-emerald-500/20 text-emerald-400" : "bg-gray-800 text-gray-400"
-                  }`}
-                >
-                  {r.status}
+        {/* Round Breakdown Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-2">
+          {rounds.map((r) => (
+            <div key={r.roundNumber} className="rounded-xl border border-border bg-background p-3.5 space-y-1">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-muted-foreground font-medium">Round {r.roundNumber}</span>
+                <span className="font-bold text-foreground">
+                  {r.score !== null ? `${r.score}/100` : "Incomplete"}
                 </span>
               </div>
-              <div className="font-semibold text-xs text-white">{r.roundName}</div>
-              <div className="text-xl font-bold text-blue-400">
-                {r.score !== null ? `${r.score}%` : "—"}
-              </div>
-              {r.roundFeedback && (
-                <p className="text-[11px] text-gray-400 line-clamp-2 leading-relaxed">
-                  {r.roundFeedback}
-                </p>
-              )}
+              <div className="text-xs font-semibold text-foreground truncate">{r.roundName}</div>
+              <p className="text-[11px] text-muted-foreground line-clamp-2">{r.roundFeedback || "Round completed."}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Strengths & Improvement Areas */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div className="rounded-xl border border-emerald-500/20 bg-gray-900/60 p-5 space-y-3">
-          <h3 className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
-            <CheckCircle2 className="h-4 w-4" />
-            <span>Demonstrated Strengths</span>
-          </h3>
-          <ul className="space-y-2 text-xs text-gray-300">
-            {report.technicalStrengths.map((s, i) => (
-              <li key={i} className="flex items-start gap-2">
-                <span className="text-emerald-400 mt-0.5">•</span>
-                <span>{s}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+      {/* Section D: English Grammar & Communication Report */}
+      {communicationReport && (
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-5">
+          <div className="flex items-center gap-2">
+            <Volume2 className="h-5 w-5 text-indigo-500" />
+            <h2 className="text-lg font-bold text-foreground">English Grammar & Communication Report</h2>
+          </div>
 
-        <div className="rounded-xl border border-amber-500/20 bg-gray-900/60 p-5 space-y-3">
-          <h3 className="text-xs font-bold text-amber-400 flex items-center gap-1.5">
-            <AlertTriangle className="h-4 w-4" />
-            <span>Targeted Areas for Improvement</span>
-          </h3>
-          <ul className="space-y-2 text-xs text-gray-300">
-            {report.areasForImprovement.map((a, i) => (
-              <li key={i} className="flex items-start gap-2">
-                <span className="text-amber-400 mt-0.5">•</span>
-                <span>{a}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+            <div className="rounded-xl border border-border p-3 bg-muted/20">
+              <div className="text-xl font-bold text-indigo-500">{communicationReport.overallScore}/100</div>
+              <div className="text-[11px] text-muted-foreground mt-1 font-medium">Overall Communication</div>
+            </div>
+            <div className="rounded-xl border border-border p-3 bg-muted/20">
+              <div className="text-xl font-bold text-foreground">{communicationReport.grammarScore}/100</div>
+              <div className="text-[11px] text-muted-foreground mt-1 font-medium">Grammar & Syntax</div>
+            </div>
+            <div className="rounded-xl border border-border p-3 bg-muted/20">
+              <div className="text-xl font-bold text-foreground">{communicationReport.clarityScore}/100</div>
+              <div className="text-[11px] text-muted-foreground mt-1 font-medium">Clarity & Articulation</div>
+            </div>
+            <div className="rounded-xl border border-border p-3 bg-muted/20">
+              <div className="text-xl font-bold text-foreground">{communicationReport.technicalExplanationScore}/100</div>
+              <div className="text-[11px] text-muted-foreground mt-1 font-medium">Technical Vocabulary</div>
+            </div>
+          </div>
 
-      {/* 7-Day Personalized Practice Plan */}
-      <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-5 space-y-4">
-        <h3 className="text-sm font-bold text-white flex items-center gap-2">
-          <Calendar className="h-4 w-4 text-cyan-400" />
-          <span>7-Day Structured Placement Revision Plan</span>
-        </h3>
+          {/* Grammar Issues with Exact Sentences and Corrections */}
+          {communicationReport.issues && communicationReport.issues.length > 0 ? (
+            <div className="space-y-3 pt-2">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Grammatical & Phrasing Corrections from Candidate Transcripts:
+              </h3>
+              <div className="grid gap-3">
+                {communicationReport.issues.map((iss, idx) => (
+                  <div key={idx} className="rounded-xl border border-border bg-background p-4 text-xs space-y-2">
+                    <div className="flex items-center gap-2 font-semibold text-amber-500">
+                      <AlertTriangle className="h-3.5 w-3.5" />
+                      <span>{iss.identifiedIssue}</span>
+                    </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3">
-          {report.sevenDayPlan.map(day => (
-            <div key={day.day} className="rounded-lg border border-gray-800 bg-gray-950/70 p-3 space-y-2 text-xs">
-              <div className="flex items-center justify-between border-b border-gray-800 pb-1.5">
-                <span className="font-bold text-blue-400">Day {day.day}</span>
-              </div>
-              <div className="font-semibold text-gray-200 text-[11px]">{day.focus}</div>
-              <ul className="space-y-1 text-[10px] text-gray-400">
-                {day.tasks.map((t, idx) => (
-                  <li key={idx} className="leading-tight">• {t}</li>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+                      <div className="p-2.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500">
+                        <span className="font-bold block text-[10px] uppercase mb-0.5">Submitted Transcript:</span>
+                        "{iss.submittedSentence}"
+                      </div>
+                      <div className="p-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-500">
+                        <span className="font-bold block text-[10px] uppercase mb-0.5">Grammatical Correction:</span>
+                        "{iss.correctedSentence}"
+                      </div>
+                    </div>
+
+                    {iss.improvedInterviewVersion && (
+                      <div className="p-2.5 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-500">
+                        <span className="font-bold block text-[10px] uppercase mb-0.5">
+                          Professional Interview-Ready Phrasing:
+                        </span>
+                        "{iss.improvedInterviewVersion}"
+                      </div>
+                    )}
+                    <p className="text-[11px] text-muted-foreground pt-1">{iss.reason}</p>
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
-          ))}
-        </div>
-      </div>
+          ) : (
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-emerald-500/10 text-emerald-500 text-xs font-medium">
+              <CheckCircle2 className="h-4 w-4 shrink-0" />
+              <span>No major grammatical errors detected in candidate transcripts. Excellent clarity of expression.</span>
+            </div>
+          )}
 
-      {/* Question-by-Question Recorded Answers & Rubrics */}
-      <div className="space-y-4">
-        <h3 className="text-sm font-bold text-white flex items-center gap-2">
-          <MessageSquare className="h-4 w-4 text-blue-400" />
-          <span>Detailed Question-by-Question Evaluation ({answers.length} Responses)</span>
-        </h3>
+          <p className="text-[11px] text-muted-foreground italic border-t border-border pt-3">
+            * {communicationReport.disclaimer}
+          </p>
+        </div>
+      )}
+
+      {/* Section F: Skill Radar & Weakness Analysis (16 Independent Categories) */}
+      {skillRadar && (
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-5">
+          <div className="flex items-center gap-2">
+            <BarChart2 className="h-5 w-5 text-blue-500" />
+            <h2 className="text-lg font-bold text-foreground">Skill Radar & Weakness Root-Cause Analysis</h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            {skillRadar.skills.map((s) => (
+              <div
+                key={s.skill}
+                className={`rounded-xl border p-3.5 space-y-1.5 ${
+                  s.assessed
+                    ? (s.score || 0) >= 75
+                      ? "border-emerald-500/30 bg-emerald-500/5"
+                      : "border-amber-500/30 bg-amber-500/5"
+                    : "border-border bg-muted/20 opacity-60"
+                }`}
+              >
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-semibold text-foreground truncate">{s.label}</span>
+                  <span
+                    className={`font-mono font-bold ${
+                      s.assessed
+                        ? (s.score || 0) >= 75
+                          ? "text-emerald-500"
+                          : "text-amber-500"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {s.assessed ? `${s.score}%` : "Not Assessed"}
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground line-clamp-2">{s.evidence}</p>
+                {s.assessed && (
+                  <p className="text-[10px] text-foreground font-medium pt-1 border-t border-border/50">
+                    Action: {s.action}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="p-4 rounded-xl border border-border bg-muted/20 text-xs space-y-2">
+            <div className="flex items-center gap-2 font-bold text-foreground">
+              <Sparkles className="h-4 w-4 text-blue-500" />
+              <span>Demonstrated Weakness Root-Cause Origin:</span>
+            </div>
+            <p className="text-muted-foreground">
+              {skillRadar.gapOrigin.knowledgeGap && "• Knowledge Gap: Requires systematic revision of foundational CS theory and specifications."}
+              {skillRadar.gapOrigin.reasoningGap && " • Reasoning Gap: Requires practice identifying optimal algorithmic invariants and complexity trade-offs."}
+              {skillRadar.gapOrigin.implementationGap && " • Implementation Gap: Requires practicing hands-on edge-case checks and compiler bug resolutions."}
+              {skillRadar.gapOrigin.communicationGap && " • Communication Gap: Focus on delivering structured STAR responses without technical ambiguity."}
+              {!skillRadar.gapOrigin.knowledgeGap && !skillRadar.gapOrigin.reasoningGap && !skillRadar.gapOrigin.implementationGap && !skillRadar.gapOrigin.communicationGap && " • Demonstrates strong calibration across tested knowledge, implementation, and verbal reasoning."}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Section C: Detailed Coding Assessment & Compiler Results */}
+      {submissions.length > 0 && (
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4">
+          <div className="flex items-center gap-2">
+            <Code2 className="h-5 w-5 text-emerald-500" />
+            <h2 className="text-lg font-bold text-foreground">Coding Assessment & Real Compiler Verification</h2>
+          </div>
+
+          <div className="space-y-4">
+            {submissions.map((sub) => (
+              <div key={sub.id} className="rounded-xl border border-border bg-background p-4 space-y-3">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Terminal className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-bold text-sm text-foreground">{sub.problemId}</span>
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono uppercase bg-muted text-muted-foreground">
+                      {sub.language}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3 text-xs">
+                    <span
+                      className={`font-semibold uppercase tracking-wider ${
+                        sub.status === "accepted" ? "text-emerald-500" : "text-amber-500"
+                      }`}
+                    >
+                      {sub.status}
+                    </span>
+                    <span className="font-mono text-muted-foreground">
+                      {sub.passedTests}/{sub.totalTests} tests passed
+                    </span>
+                    {sub.runtimeMs && <span className="font-mono text-muted-foreground">{sub.runtimeMs}ms</span>}
+                  </div>
+                </div>
+
+                {sub.code && (
+                  <pre className="p-3 rounded-lg bg-slate-950 text-slate-100 font-mono text-xs overflow-x-auto">
+                    {sub.code}
+                  </pre>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Section B: Technical Question-by-Question Assessment */}
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4">
+        <div className="flex items-center gap-2">
+          <BookOpen className="h-5 w-5 text-blue-500" />
+          <h2 className="text-lg font-bold text-foreground">Question-by-Question Technical Assessment</h2>
+        </div>
 
         <div className="space-y-4">
-          {answers.map((a, idx) => (
-            <div key={a.id || idx} className="rounded-xl border border-gray-800 bg-gray-900/50 p-4 space-y-3">
+          {answers.map((ans, idx) => (
+            <div key={ans.id} className="rounded-xl border border-border bg-background p-4 space-y-3">
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-[10px] text-gray-400">
-                    <span className="font-semibold text-blue-400">Question {idx + 1}</span>
-                    <span>•</span>
-                    <span>Round {a.roundNumber}</span>
-                  </div>
-                  <h4 className="text-xs font-semibold text-white">{a.questionText}</h4>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
+                    Question {idx + 1} • Round {ans.roundNumber} ({ROUND_NAMES[ans.roundNumber as 1 | 2 | 3 | 4]})
+                  </span>
+                  <h3 className="font-semibold text-sm text-foreground">{ans.questionText}</h3>
                 </div>
-                <div className="rounded bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 text-xs font-bold text-blue-400 shrink-0">
-                  {a.evaluationScore}/100
-                </div>
+
+                {ans.evaluationScore !== null && (
+                  <span className="px-2.5 py-1 rounded-lg bg-blue-500/10 text-blue-500 font-mono font-bold text-xs shrink-0">
+                    {ans.evaluationScore}/100
+                  </span>
+                )}
               </div>
 
-              {/* Candidate Answer */}
-              <div className="rounded-lg border border-gray-800 bg-gray-950/80 p-3 text-xs text-gray-300">
-                <span className="text-[10px] font-semibold text-gray-500 block mb-1">Your Answer:</span>
-                <p className="whitespace-pre-wrap">{a.answerText}</p>
+              {/* Candidate Transcript */}
+              <div className="p-3 rounded-lg bg-muted/40 border border-border text-xs space-y-1">
+                <span className="font-bold text-[10px] uppercase text-muted-foreground block">
+                  Recorded Answer Transcript:
+                </span>
+                <p className="text-foreground leading-relaxed">"{ans.answerText}"</p>
               </div>
 
-              {/* Feedback */}
-              {a.feedback && (
-                <div className="rounded-lg border border-gray-800/80 bg-gray-900 p-3 text-xs text-gray-400 space-y-1">
-                  <span className="text-[10px] font-semibold text-blue-400 block">Interviewer Assessment:</span>
-                  <p className="whitespace-pre-wrap text-gray-300">{a.feedback}</p>
+              {/* Formative Feedback */}
+              {ans.feedback && (
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <span className="font-semibold text-foreground">Interviewer Feedback: </span>
+                  <span>{ans.feedback}</span>
                 </div>
               )}
+            </div>
+          ))}
+        </div>
+      </div>
 
-              {/* Rubric Breakdown */}
-              {a.rubricBreakdown && a.rubricBreakdown.length > 0 && (
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-2 border-t border-gray-800/60">
-                  {a.rubricBreakdown.map((r, i) => (
-                    <div key={i} className="text-[10px] bg-gray-950/60 p-2 rounded border border-gray-800">
-                      <div className="text-gray-400 truncate">{r.name}</div>
-                      <div className="font-bold text-gray-200">{r.score}%</div>
-                    </div>
-                  ))}
-                </div>
-              )}
+      {/* Section G: Personalized 7-Day Targeted Practice Plan */}
+      <div className="rounded-2xl border border-border bg-card p-6 shadow-sm space-y-4">
+        <div className="flex items-center gap-2">
+          <Calendar className="h-5 w-5 text-indigo-500" />
+          <h2 className="text-lg font-bold text-foreground">Personalized 7-Day Targeted Revision Roadmap</h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {report.sevenDayPlan.map((plan) => (
+            <div key={plan.day} className="rounded-xl border border-border bg-background p-4 space-y-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="font-bold text-indigo-500">Day {plan.day}</span>
+                <span className="text-[10px] font-semibold uppercase text-muted-foreground">Focus</span>
+              </div>
+              <h3 className="font-bold text-sm text-foreground">{plan.focus}</h3>
+              <ul className="space-y-1 text-xs text-muted-foreground pt-1">
+                {plan.tasks.map((task, i) => (
+                  <li key={i} className="flex items-start gap-1.5">
+                    <span className="text-indigo-500 font-bold">•</span>
+                    <span>{task}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           ))}
         </div>
