@@ -218,49 +218,50 @@ export function VoiceControls({
           <button
             type="button"
             onClick={onStopWhisperRecording}
-            className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-semibold shadow-md transition-all animate-pulse"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-semibold shadow-md shadow-red-600/30 transition-all animate-pulse cursor-pointer"
           >
             <Square className="h-3.5 w-3.5 fill-white" />
-            Recording ({recordSeconds}s) — Click to Transcribe
+            <span>Recording ({recordSeconds}s) — Click to Transcribe</span>
           </button>
         ) : isTranscribingAudio ? (
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-600/20 border border-indigo-500/40 text-indigo-300 text-xs font-medium">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-600/20 border border-indigo-500/40 text-indigo-300 text-xs font-medium animate-pulse">
             <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-indigo-400 border-t-transparent" />
-            Transcribing audio with Whisper AI...
+            <span>Transcribing with Whisper AI...</span>
           </div>
         ) : isListening ? (
           <button
             type="button"
             onClick={onStopListening}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium shadow-sm transition-all animate-pulse"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium shadow-md shadow-emerald-600/25 transition-all animate-pulse cursor-pointer"
           >
             <Mic className="h-4 w-4" />
-            Listening... (Click to Pause)
+            <span>Listening... (Click to Pause)</span>
           </button>
         ) : (
           <>
-            <button
-              type="button"
-              onClick={onStartListening}
-              disabled={!isVoiceMode}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-medium shadow-sm transition-all disabled:opacity-50"
-            >
-              <Mic className="h-4 w-4" />
-              Live Mic (Browser)
-            </button>
-
             {onStartWhisperRecording && (
               <button
                 type="button"
                 onClick={onStartWhisperRecording}
                 disabled={!isVoiceMode}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
-                title="Records audio via microphone and transcribes with Groq Whisper AI (bypasses browser network errors)"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+                title="Records your microphone audio and transcribes accurately with Groq Whisper AI"
               >
                 <Mic className="h-4 w-4 text-indigo-200" />
-                Record Voice (Whisper AI)
+                <span>Record Voice (Whisper AI)</span>
               </button>
             )}
+
+            <button
+              type="button"
+              onClick={onStartListening}
+              disabled={!isVoiceMode}
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border bg-background hover:bg-muted text-foreground text-xs font-medium shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 cursor-pointer"
+              title="Real-time Web Speech transcription"
+            >
+              <Mic className="h-3.5 w-3.5 text-muted-foreground" />
+              <span>Live Mic (Browser)</span>
+            </button>
           </>
         )}
 
@@ -269,11 +270,11 @@ export function VoiceControls({
           <button
             type="button"
             onClick={onInterrupt}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-medium shadow-sm transition-all"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-semibold shadow-md shadow-amber-500/20 transition-all animate-pulse cursor-pointer"
             title="Interrupt interviewer and ask a clarification or question"
           >
             <Flame className="h-3.5 w-3.5" />
-            Interrupt Interviewer
+            <span>Interrupt Interviewer</span>
           </button>
         )}
 
@@ -282,10 +283,10 @@ export function VoiceControls({
           <button
             type="button"
             onClick={onStopSpeaking}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted text-xs text-muted-foreground transition-all"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border bg-card hover:bg-muted text-xs text-muted-foreground hover:text-foreground transition-all cursor-pointer"
           >
             <Square className="h-3.5 w-3.5" />
-            Stop Audio
+            <span>Stop Audio</span>
           </button>
         )}
 
@@ -293,21 +294,21 @@ export function VoiceControls({
         <button
           type="button"
           onClick={onReplayQuestion}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-muted text-xs text-muted-foreground transition-all"
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-border bg-card hover:bg-muted text-xs text-muted-foreground hover:text-foreground transition-all cursor-pointer"
           title="Replay the last question aloud"
         >
           <RotateCcw className="h-3.5 w-3.5" />
-          Replay Question
+          <span>Replay Question</span>
         </button>
 
         {/* Quick Interruption Help Button */}
         <button
           type="button"
           onClick={onInterrupt}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 text-xs font-medium transition-all ml-auto"
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-xs font-medium transition-all ml-auto cursor-pointer"
         >
           <HelpCircle className="h-3.5 w-3.5" />
-          Ask / Clarify
+          <span>Ask / Clarify</span>
         </button>
       </div>
 

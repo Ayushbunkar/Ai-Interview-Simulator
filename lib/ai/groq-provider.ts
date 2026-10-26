@@ -5,20 +5,24 @@ import { AnswerEvaluation, ClarificationResponse, RubricScoreItem } from "../typ
 import { TECHNICAL_ROUND_RUBRIC, BEHAVIORAL_ROUND_RUBRIC, calculateWeightedScore } from "../rubric";
 import { executeAIRequest } from "../reliability/ai-request-manager";
 
-const RubricItemSchema = z.union([
-  z.object({
-    name: z.string(),
-    weight: z.number().optional().default(20),
-    score: z.number().min(0).max(100),
-    notes: z.string().optional().default(""),
-  }),
-  z.string().transform((str) => ({
-    name: str.slice(0, 30),
-    weight: 20,
-    score: 75,
-    notes: str,
-  })),
-]);
+const RubricItemSchema = z.preprocess((val: any) => {
+  if (typeof val === "string") {
+    return { name: val.slice(0, 40), weight: 20, score: 75, notes: val };
+  }
+  if (typeof val === "object" && val !== null) {
+    const name = val.name || val.criterion || val.category || val.title || "Technical Evaluation";
+    const score = typeof val.score === "number" ? val.score : (typeof val.points === "number" ? val.points : 70);
+    const weight = typeof val.weight === "number" ? val.weight : 20;
+    const notes = typeof val.notes === "string" ? val.notes : (typeof val.feedback === "string" ? val.feedback : "");
+    return { name: String(name), weight, score: Math.max(0, Math.min(100, score)), notes };
+  }
+  return { name: "Technical Evaluation", weight: 20, score: 70, notes: "" };
+}, z.object({
+  name: z.string(),
+  weight: z.number().default(20),
+  score: z.number().min(0).max(100),
+  notes: z.string().default(""),
+}));
 
 const EvaluationSchema = z.object({
   score: z.number().min(0).max(100).transform(s => Math.round(s)),
