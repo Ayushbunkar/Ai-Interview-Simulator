@@ -1,0 +1,261 @@
+[
+  {
+    "id": "back-01",
+    "category": "backend_api",
+    "topic": "REST Architectural Constraints",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Java / Backend Specialist"
+    ],
+    "questionText": "What are the 6 architectural constraints of REST? Explain what makes an API truly RESTful.",
+    "expectedAnswer": "1. Client-Server architecture. 2. Statelessness (no client session on server). 3. Cacheability (explicit cache headers). 4. Layered System (proxies, load balancers transparent to client). 5. Uniform Interface (resource identification, HATEOAS). 6. Code on Demand (optional).",
+    "explanation": "Statelessness means every request must contain all context necessary to process it.",
+    "followUps": [
+      "What is HATEOAS (Hypermedia As The Engine Of Application State)?",
+      "What is Richardson Maturity Model (Levels 0 to 3)?"
+    ]
+  },
+  {
+    "id": "back-02",
+    "category": "backend_api",
+    "topic": "HTTP Methods & Idempotency",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Compare GET, POST, PUT, PATCH, and DELETE. Which methods are Safe and which are Idempotent?",
+    "expectedAnswer": "Safe (does not modify server state): GET, HEAD, OPTIONS. Idempotent (multiple identical requests have same side-effect as a single request): GET, PUT (complete replacement), DELETE, HEAD, OPTIONS. Non-idempotent: POST (creates new resource), PATCH (partial modification, can be non-idempotent).",
+    "explanation": "Calling DELETE /users/5 ten times leaves the user deleted; calling POST /orders ten times creates 10 orders unless idempotency keys are used.",
+    "followUps": [
+      "How do payment gateways implement idempotency using Idempotency Keys?",
+      "What is the difference between PUT and PATCH?"
+    ]
+  },
+  {
+    "id": "back-03",
+    "category": "backend_api",
+    "topic": "Authentication & Authorization",
+    "difficulty": "medium",
+    "companyTags": [
+      "Java / Backend Specialist",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Differentiate between Authentication (AuthN) and Authorization (AuthZ). Explain Session-based auth vs Token-based auth (JWT).",
+    "expectedAnswer": "AuthN verifies WHO you are (login). AuthZ verifies WHAT you can do (roles/permissions). Session-based auth stores session state on server (DB/Redis) and sets cookie. Token-based auth (JWT) is stateless: claims are cryptographically signed by server and sent in Authorization Bearer header.",
+    "explanation": "JWT structure: Header.Payload.Signature. Because JWT is stateless, invalidating a compromised token before expiration requires a revocation blocklist or short expiry + refresh tokens.",
+    "followUps": [
+      "How do Access Tokens and Refresh Tokens work together?",
+      "What is OAuth 2.0 vs OpenID Connect (OIDC)?"
+    ]
+  },
+  {
+    "id": "back-04",
+    "category": "backend_api",
+    "topic": "Spring Boot Fundamentals",
+    "difficulty": "medium",
+    "companyTags": [
+      "Java / Backend Specialist",
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Explain Inversion of Control (IoC) and Dependency Injection (DI) in Spring Boot. What are Spring Bean Scopes?",
+    "expectedAnswer": "IoC transfers object creation and lifecycle control from application code to the Spring container. DI injects dependencies via constructor, setter, or field (@Autowired). Bean scopes: Singleton (default, one per container), Prototype (new instance per request), Request, Session, Application.",
+    "explanation": "Constructor injection is preferred because it guarantees immutability, facilitates unit testing with mocks, and avoids circular dependencies.",
+    "followUps": [
+      "Why is Constructor Injection preferred over Field Injection?",
+      "What is @SpringBootApplication annotation composed of (@Configuration, @EnableAutoConfiguration, @ComponentScan)?"
+    ]
+  },
+  {
+    "id": "back-05",
+    "category": "backend_api",
+    "topic": "Microservices vs Monolith",
+    "difficulty": "medium",
+    "companyTags": [
+      "Java / Backend Specialist",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Compare Monolithic and Microservices architectures. What are the trade-offs and operational complexities of Microservices?",
+    "expectedAnswer": "Monolith: single deployment unit, simple debugging/testing, fast in-memory calls, but hard to scale independently and has tight coupling. Microservices: independent deployment, polyglot tech, fault isolation, but introduces network latency, distributed data consistency, complex monitoring, and service discovery overhead.",
+    "explanation": "Microservices trade code simplicity for operational and distributed systems complexity.",
+    "followUps": [
+      "What is an API Gateway?",
+      "What is Service Discovery (e.g. Eureka, Consul, Kubernetes DNS)?"
+    ]
+  },
+  {
+    "id": "back-06",
+    "category": "backend_api",
+    "topic": "Message Brokers",
+    "difficulty": "medium",
+    "companyTags": [
+      "Java / Backend Specialist",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Explain asynchronous messaging using Message Queues. Compare RabbitMQ and Apache Kafka.",
+    "expectedAnswer": "Message brokers decouple producers and consumers asynchronously. RabbitMQ is a traditional smart broker/dumb consumer queue (AMQP, push model, messages removed after ACK, complex routing exchanges). Kafka is an append-only distributed commit log (pull model, partitioned topics, retained messages, high throughput streaming).",
+    "explanation": "Kafka consumers maintain their own read offsets, allowing replay of historical event streams.",
+    "followUps": [
+      "What is At-least-once, At-most-once, and Exactly-once message delivery?",
+      "What is a Dead Letter Queue (DLQ)?"
+    ]
+  },
+  {
+    "id": "back-07",
+    "category": "backend_api",
+    "topic": "Distributed Transactions",
+    "difficulty": "hard",
+    "companyTags": [
+      "Product-Based Engineering",
+      "Java / Backend Specialist"
+    ],
+    "questionText": "How do you manage distributed transactions across microservices? Explain the Saga Pattern vs Two-Phase Commit (2PC).",
+    "expectedAnswer": "2PC uses a coordinator to prepare and commit across services (strong consistency, but blocking and poor availability under network partitions). Saga breaks transaction into local transactions; if one fails, compensating transactions are executed backwards to undo changes (eventual consistency). Sagas can be Choreographed (event-driven) or Orchestrated (central coordinator).",
+    "explanation": "2PC violates the CAP theorem's availability under partitions; Saga embraces eventual consistency.",
+    "followUps": [
+      "What is an Outbox Pattern for reliable event publishing?",
+      "What is idempotent consumer pattern?"
+    ]
+  },
+  {
+    "id": "back-08",
+    "category": "backend_api",
+    "topic": "Rate Limiting",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "Explain algorithms for API Rate Limiting: Token Bucket, Leaky Bucket, Fixed Window, and Sliding Window Log.",
+    "expectedAnswer": "Token Bucket adds tokens at constant rate; requests consume tokens (allows bursts). Leaky Bucket processes requests at constant leak rate (smoothes bursts). Fixed Window counts requests per calendar minute (vulnerable to 2x burst at boundary). Sliding Window Log/Counter tracks timestamps or weighted counts across a sliding time range.",
+    "explanation": "Redis + Lua scripts are commonly used to implement distributed atomic token bucket rate limiters.",
+    "followUps": [
+      "How do you implement rate limiting in a distributed cluster with Redis?",
+      "What HTTP response headers convey rate limit status (X-RateLimit-Limit, X-RateLimit-Remaining, Retry-After)?"
+    ]
+  },
+  {
+    "id": "back-09",
+    "category": "backend_api",
+    "topic": "API Versioning",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Java / Backend Specialist"
+    ],
+    "questionText": "What are the common strategies for REST API Versioning? (URI path, Query param, Header, Content Negotiation).",
+    "expectedAnswer": "1. URI path (/api/v1/users - most explicit and common). 2. Query parameter (/users?v=1). 3. Custom request header (X-API-Version: 1). 4. Content negotiation / Accept header (Accept: application/vnd.company.v1+json).",
+    "explanation": "URI versioning is favored for ease of caching, exploration, and routing at load balancers.",
+    "followUps": [
+      "How do you deprecate an old API version without breaking mobile client apps?",
+      "What is backward compatibility?"
+    ]
+  },
+  {
+    "id": "back-10",
+    "category": "backend_api",
+    "topic": "Git Version Control",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "What is the difference between Git Merge and Git Rebase? When should you use each?",
+    "expectedAnswer": "git merge combines histories by creating a new merge commit with two parents (preserves full historical context). git rebase moves the base of your branch to the tip of target branch by replaying commits sequentially (creates clean, linear history). Never rebase public shared branches.",
+    "explanation": "Rebasing public branches rewrites commit hashes, causing conflicts for other collaborators.",
+    "followUps": [
+      "What is git cherry-pick?",
+      "What is git stash and git reset vs git revert?"
+    ]
+  },
+  {
+    "id": "back-11",
+    "category": "backend_api",
+    "topic": "Git Internals",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "How does Git store data internally? Explain Blobs, Trees, Commits, and Annotated Tags.",
+    "expectedAnswer": "Git is a content-addressable key-value store using SHA-1/SHA-256 hashes. Blob stores file contents (no filename/permissions). Tree stores directory structure pointing to blobs and sub-trees with filenames and permissions. Commit points to a root tree, parent commit(s), author, and message.",
+    "explanation": "Because commits are directed acyclic graphs (DAGs) of immutable trees, git operations are lightweight pointer updates.",
+    "followUps": [
+      "What is stored in the .git/objects directory?",
+      "What is the difference between a Fast-Forward merge and a non-fast-forward merge?"
+    ]
+  },
+  {
+    "id": "back-12",
+    "category": "backend_api",
+    "topic": "Testing Pyramid",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Explain the Testing Pyramid (Unit, Integration, End-to-End). What role does each level play?",
+    "expectedAnswer": "Unit tests form the broad base (fast, cheap, isolated, test individual functions with mocks). Integration tests form the middle (verify components/DB/external services interact correctly). E2E tests form the narrow peak (slow, expensive, flaky, test complete user flows through UI/API).",
+    "explanation": "Focusing too heavily on E2E tests results in the 'testing ice cream cone' anti-pattern.",
+    "followUps": [
+      "What is Test-Driven Development (TDD) cycle (Red-Green-Refactor)?",
+      "What is Mockito and what is the difference between @Mock and @Spy?"
+    ]
+  },
+  {
+    "id": "back-13",
+    "category": "backend_api",
+    "topic": "CI/CD Pipelines",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "What is CI/CD (Continuous Integration / Continuous Deployment)? Describe a standard pipeline workflow.",
+    "expectedAnswer": "CI automatically builds and tests code on every commit to detect integration errors early. CD automatically deploys passing builds to staging (Continuous Delivery) and production (Continuous Deployment). Workflow: Commit -> Lint/Static Analysis -> Unit Tests -> Build Docker Image -> Integration Tests -> Deploy.",
+    "explanation": "Popular tools include GitHub Actions, GitLab CI, Jenkins, and ArgoCD.",
+    "followUps": [
+      "What is Blue-Green Deployment vs Canary Deployment?",
+      "What is a Rollback strategy?"
+    ]
+  },
+  {
+    "id": "back-14",
+    "category": "backend_api",
+    "topic": "Web Security Vulnerabilities",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering",
+      "Java / Backend Specialist"
+    ],
+    "questionText": "Explain Cross-Site Scripting (XSS) and Cross-Site Request Forgery (CSRF). How do you defend against each?",
+    "expectedAnswer": "XSS injects malicious client-side scripts into web pages viewed by other users (defend via HTML output encoding, Content Security Policy (CSP), HttpOnly cookies). CSRF tricks authenticated users into submitting unauthorized requests to a trusted site (defend via Anti-CSRF tokens, SameSite cookie attribute, re-authentication for sensitive actions).",
+    "explanation": "SameSite=Lax/Strict cookies prevent browsers from attaching session cookies to cross-site requests.",
+    "followUps": [
+      "What is Stored XSS vs Reflected XSS vs DOM-based XSS?",
+      "What is the OWASP Top 10?"
+    ]
+  },
+  {
+    "id": "back-15",
+    "category": "backend_api",
+    "topic": "GraphQL vs REST",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "Compare GraphQL and REST. What problems does GraphQL solve, and what challenges does it introduce?",
+    "expectedAnswer": "GraphQL solves over-fetching and under-fetching by allowing clients to request exact fields needed in a single query schema. Challenges: complex HTTP caching (all queries use POST /graphql), N+1 query problem on server (solved using DataLoader batching), complex rate limiting, and arbitrary query complexity attacks.",
+    "explanation": "REST leverages native HTTP caching (ETags, CDN), while GraphQL requires specialized client caching (Apollo, Relay).",
+    "followUps": [
+      "What is the N+1 problem in GraphQL and ORMs?",
+      "What are GraphQL Queries, Mutations, and Subscriptions?"
+    ]
+  }
+]

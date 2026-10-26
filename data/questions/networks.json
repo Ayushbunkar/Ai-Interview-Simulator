@@ -1,0 +1,343 @@
+[
+  {
+    "id": "net-01",
+    "category": "networks",
+    "topic": "OSI Model vs TCP/IP",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Explain the 7 layers of the OSI Model and compare them with the 4 layers of the TCP/IP Model.",
+    "expectedAnswer": "OSI: Physical, Data Link, Network, Transport, Session, Presentation, Application. TCP/IP: Network Access (Link), Internet (IP), Transport (TCP/UDP), Application (HTTP, DNS, SSH).",
+    "explanation": "Data Link works with frames and MAC addresses; Network with packets and IP addresses; Transport with segments and ports; Application with data.",
+    "followUps": [
+      "At which layer do routers, switches, and hubs operate?",
+      "What is encapsulation and decapsulation?"
+    ]
+  },
+  {
+    "id": "net-02",
+    "category": "networks",
+    "topic": "TCP 3-Way Handshake",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Describe the TCP 3-Way Handshake for connection establishment and 4-way handshake for termination.",
+    "expectedAnswer": "Establishment: Client sends SYN (seq=x); Server replies SYN-ACK (seq=y, ack=x+1); Client sends ACK (ack=y+1). Termination: FIN from initiator -> ACK -> FIN from receiver -> ACK (with TIME_WAIT state).",
+    "explanation": "Handshake synchronizes initial sequence numbers (ISNs) and allocates socket buffers.",
+    "followUps": [
+      "Why does TCP use TIME_WAIT state (2MSL)?",
+      "What is a SYN Flood attack and how do SYN Cookies mitigate it?"
+    ]
+  },
+  {
+    "id": "net-03",
+    "category": "networks",
+    "topic": "TCP vs UDP",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Compare TCP and UDP protocols. In what scenarios would you choose UDP over TCP?",
+    "expectedAnswer": "TCP is connection-oriented, reliable (guaranteed delivery via ACKs, retransmissions), ordered, and has flow/congestion control. UDP is connectionless, unreliable, unordered, lightweight with minimal header (8 bytes vs 20 bytes). UDP is chosen for real-time gaming, DNS, live video streaming, VoIP.",
+    "explanation": "TCP head-of-line blocking is unacceptable in latency-sensitive real-time communication.",
+    "followUps": [
+      "How does QUIC (HTTP/3) combine advantages of UDP and TCP?",
+      "What is the size of TCP and UDP headers?"
+    ]
+  },
+  {
+    "id": "net-04",
+    "category": "networks",
+    "topic": "HTTP vs HTTPS & SSL/TLS",
+    "difficulty": "medium",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "How does HTTPS work? Explain the TLS/SSL handshake and asymmetric vs symmetric encryption.",
+    "expectedAnswer": "HTTPS wraps HTTP inside TLS. In handshake: Client and server negotiate cipher suite; server presents digital certificate (validated via CA); asymmetric encryption (RSA/ECDH) safely exchanges a symmetric session key; subsequent communication uses fast symmetric encryption (AES).",
+    "explanation": "Asymmetric cryptography solves key exchange; symmetric cryptography encrypts bulk payload efficiently.",
+    "followUps": [
+      "What is the difference between TLS 1.2 and TLS 1.3 (1-RTT handshake)?",
+      "What is Server Name Indication (SNI)?"
+    ]
+  },
+  {
+    "id": "net-05",
+    "category": "networks",
+    "topic": "HTTP Evolution",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering",
+      "Java / Backend Specialist"
+    ],
+    "questionText": "Explain the key differences between HTTP/1.1, HTTP/2, and HTTP/3.",
+    "expectedAnswer": "HTTP/1.1: persistent connections, chunked transfer, text-based, head-of-line blocking on single request. HTTP/2: binary framing, single multiplexed TCP connection, header compression (HPACK), server push. HTTP/3: uses QUIC over UDP, eliminating TCP head-of-line blocking across streams.",
+    "explanation": "In HTTP/2, a dropped TCP packet stalls all multiplexed streams; HTTP/3 over QUIC isolates packet loss to individual streams.",
+    "followUps": [
+      "What is HOL (Head of Line) blocking?",
+      "What are WebSockets and how do they differ from HTTP polling?"
+    ]
+  },
+  {
+    "id": "net-06",
+    "category": "networks",
+    "topic": "DNS Resolution",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "What happens step-by-step when you type a URL like 'https://www.google.com' into your browser and press Enter?",
+    "expectedAnswer": "1. Browser checks cache (browser, OS, router). 2. Recursive DNS query to Resolver -> Root -> TLD (.com) -> Authoritative Nameserver. 3. TCP 3-way handshake with IP on port 443. 4. TLS handshake. 5. HTTP GET request. 6. Server processes & returns HTML/CSS/JS. 7. Browser parses DOM/CSSOM and renders page.",
+    "explanation": "Covers DNS, TCP, TLS, HTTP, and browser rendering pipeline.",
+    "followUps": [
+      "What are DNS record types: A, AAAA, CNAME, MX, TXT?",
+      "What is DNS TTL (Time to Live)?"
+    ]
+  },
+  {
+    "id": "net-07",
+    "category": "networks",
+    "topic": "Flow Control vs Congestion Control",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "Differentiate between TCP Flow Control and TCP Congestion Control.",
+    "expectedAnswer": "Flow control prevents sender from overwhelming receiver buffer (managed by Receiver Window rwnd). Congestion control prevents sender from overwhelming intermediate network links/routers (managed by Congestion Window cwnd using Slow Start, Congestion Avoidance, Fast Retransmit, Fast Recovery).",
+    "explanation": "Effective sending window = min(rwnd, cwnd).",
+    "followUps": [
+      "What is TCP Slow Start and Slow Start Threshold (ssthresh)?",
+      "What is TCP Reno vs BBR algorithm?"
+    ]
+  },
+  {
+    "id": "net-08",
+    "category": "networks",
+    "topic": "IP Addressing & Subnetting",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Explain IPv4 vs IPv6, Subnet Masks, and CIDR notation (e.g. 192.168.1.0/24).",
+    "expectedAnswer": "IPv4 is 32-bit (4.3 billion addresses). IPv6 is 128-bit (hexadecimal). Subnet mask divides IP into Network ID and Host ID. /24 means 24 network bits, leaving 8 host bits (256 addresses, 254 usable hosts subtracting network and broadcast).",
+    "explanation": "IPv6 eliminates NAT necessity and provides built-in IPsec and stateless auto-configuration.",
+    "followUps": [
+      "What are Private IP address ranges (RFC 1918)?",
+      "What is the purpose of NAT (Network Address Translation)?"
+    ]
+  },
+  {
+    "id": "net-09",
+    "category": "networks",
+    "topic": "NAT & DHCP",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "What are NAT (Network Address Translation) and DHCP? Describe the DORA process in DHCP.",
+    "expectedAnswer": "NAT maps private IP addresses inside local LAN to a single public IP using port translation (PAT). DHCP dynamically assigns IP addresses to devices joining a network via DORA: Discover (broadcast), Offer, Request, Acknowledge.",
+    "explanation": "DHCP uses UDP ports 67 (server) and 68 (client).",
+    "followUps": [
+      "What is an APIPA address (169.254.x.x)?",
+      "What is Port Forwarding?"
+    ]
+  },
+  {
+    "id": "net-10",
+    "category": "networks",
+    "topic": "Routing Protocols",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "Compare Distance Vector vs Link State routing protocols. Give examples of RIP, OSPF, and BGP.",
+    "expectedAnswer": "Distance vector (RIP) shares routing table with immediate neighbors based on hop count (Bellman-Ford). Link state (OSPF) floods link status to all routers to build full network topology map using Dijkstra's shortest path. BGP is a path-vector protocol used for inter-domain routing across Autonomous Systems (AS) on the global Internet.",
+    "explanation": "BGP is the backbone protocol connecting global Internet Service Providers.",
+    "followUps": [
+      "What is an Autonomous System (AS)?",
+      "What is BGP Hijacking?"
+    ]
+  },
+  {
+    "id": "net-11",
+    "category": "networks",
+    "topic": "ARP",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "What is ARP (Address Resolution Protocol) and how does it work?",
+    "expectedAnswer": "ARP resolves a known Layer 3 IP address to a physical Layer 2 MAC address within the same local broadcast domain. The sender broadcasts an ARP Request ('Who has IP x?'), and the target unicasts an ARP Reply with its MAC address.",
+    "explanation": "Results are cached in the ARP Table to avoid repetitive network broadcasts.",
+    "followUps": [
+      "What is ARP Spoofing / ARP Poisoning?",
+      "What is RARP (Reverse ARP)?"
+    ]
+  },
+  {
+    "id": "net-12",
+    "category": "networks",
+    "topic": "Load Balancing",
+    "difficulty": "medium",
+    "companyTags": [
+      "Java / Backend Specialist",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Differentiate between Layer 4 (Transport) and Layer 7 (Application) Load Balancing.",
+    "expectedAnswer": "Layer 4 load balancers route traffic based on IP address and TCP/UDP ports without inspecting packet payload (faster, lower CPU overhead). Layer 7 load balancers inspect application data (HTTP headers, cookies, URLs, path routing) allowing smart content-based routing (e.g. /api to service A, /images to CDN).",
+    "explanation": "L7 enables SSL termination, rate limiting, and sticky sessions based on session cookies.",
+    "followUps": [
+      "What algorithms do load balancers use (Round Robin, Least Connections, IP Hash)?",
+      "What is Consistent Hashing?"
+    ]
+  },
+  {
+    "id": "net-13",
+    "category": "networks",
+    "topic": "HTTP Status Codes",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Explain HTTP status code classes and common codes: 200, 201, 301, 302, 400, 401, 403, 404, 500, 502, 503, 504.",
+    "expectedAnswer": "1xx Informational, 2xx Success (200 OK, 201 Created), 3xx Redirection (301 Permanent, 302 Temporary), 4xx Client Error (400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found), 5xx Server Error (500 Internal, 502 Bad Gateway, 503 Service Unavailable, 504 Gateway Timeout).",
+    "explanation": "502 means an upstream server returned invalid response; 504 means the gateway timed out waiting for upstream.",
+    "followUps": [
+      "What is the difference between 401 Unauthorized and 403 Forbidden?",
+      "What is 429 Too Many Requests?"
+    ]
+  },
+  {
+    "id": "net-14",
+    "category": "networks",
+    "topic": "Cookies and Sessions",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "How do HTTP Cookies and Sessions maintain state in stateless HTTP? Explain HttpOnly, Secure, and SameSite attributes.",
+    "expectedAnswer": "Server generates a session ID stored in DB/Redis and sends it to browser in a Set-Cookie header. Browser attaches cookie to subsequent requests. HttpOnly prevents client JS access (mitigating XSS). Secure ensures transmission only over HTTPS. SameSite (Strict/Lax/None) defends against CSRF.",
+    "explanation": "Statelessness of HTTP is bridged by client-held session tokens.",
+    "followUps": [
+      "What is the difference between Session Cookie and Persistent Cookie?",
+      "What is JWT (JSON Web Token)?"
+    ]
+  },
+  {
+    "id": "net-15",
+    "category": "networks",
+    "topic": "CORS",
+    "difficulty": "medium",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "What is CORS (Cross-Origin Resource Sharing)? Explain Preflight OPTIONS request.",
+    "expectedAnswer": "CORS is a browser security mechanism enforcing the Same-Origin Policy (protocol, domain, port must match). For non-simple HTTP requests (custom headers, PUT/DELETE), the browser automatically sends an HTTP OPTIONS preflight request to check Access-Control-Allow-Origin headers before sending the actual request.",
+    "explanation": "CORS is enforced by the browser client, not by backend server processes directly.",
+    "followUps": [
+      "What constitutes a 'Simple Request' in CORS?",
+      "Why is CORS not a security defense for backend APIs against server-to-server calls?"
+    ]
+  },
+  {
+    "id": "net-16",
+    "category": "networks",
+    "topic": "CDN",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "What is a CDN (Content Delivery Network) and how does it reduce latency for global users?",
+    "expectedAnswer": "A CDN is a distributed network of edge proxy servers (Points of Presence - PoPs) deployed globally. It caches static and dynamic assets close to end users, reducing round-trip latency, offloading origin servers, and absorbing DDoS attacks.",
+    "explanation": "Uses Anycast routing to direct user DNS requests to the physically closest edge server.",
+    "followUps": [
+      "What is Cache Invalidation and TTL in CDN?",
+      "What is Push vs Pull CDN?"
+    ]
+  },
+  {
+    "id": "net-17",
+    "category": "networks",
+    "topic": "DDoS Attacks",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "What is a Distributed Denial of Service (DDoS) attack? Explain common types (SYN Flood, UDP Amplification, HTTP Flood).",
+    "expectedAnswer": "DDoS overwhelms a target system with distributed traffic from a botnet. Volume attacks (UDP amplification exploit spoofed IP requests to open DNS/NTP servers), Protocol attacks (SYN floods exhaust server connection tables), Application attacks (HTTP GET/POST floods exhaust CPU/DB).",
+    "explanation": "Mitigation involves CDN scrubbing centers, rate limiting, and Anycast absorption.",
+    "followUps": [
+      "What is a Slowloris attack?",
+      "What is rate limiting with Token Bucket algorithm?"
+    ]
+  },
+  {
+    "id": "net-18",
+    "category": "networks",
+    "topic": "ICMP & Ping / Traceroute",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "What is ICMP (Internet Control Message Protocol)? How do 'ping' and 'traceroute' work under the hood?",
+    "expectedAnswer": "ICMP sends network error reports and diagnostics. ping sends ICMP Echo Request and listens for Echo Reply. traceroute sends UDP/ICMP packets with incrementally increasing TTL (Time to Live) starting at 1, causing routers along the path to return ICMP Time Exceeded messages.",
+    "explanation": "TTL decrement identifies every intermediate router IP hop.",
+    "followUps": [
+      "Why do some hops in traceroute display asterisks (*)?",
+      "Can ICMP be disabled by firewalls?"
+    ]
+  },
+  {
+    "id": "net-19",
+    "category": "networks",
+    "topic": "MTU and MSS",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "What are MTU (Maximum Transmission Unit) and MSS (Maximum Segment Size)? What happens during IP Fragmentation?",
+    "expectedAnswer": "MTU is the largest Layer 2 frame payload (standard Ethernet is 1500 bytes). MSS is the largest TCP segment payload excluding IP and TCP headers (1500 - 20 - 20 = 1460 bytes). If a packet exceeds path MTU and DF (Don't Fragment) flag is not set, intermediate routers fragment it into smaller packets.",
+    "explanation": "Path MTU Discovery (PMTUD) uses ICMP Fragmentation Needed to find optimal segment size without fragmentation.",
+    "followUps": [
+      "What is the performance drawback of IP fragmentation?",
+      "What are Jumbo Frames (9000 bytes)?"
+    ]
+  },
+  {
+    "id": "net-20",
+    "category": "networks",
+    "topic": "WebSockets vs Server-Sent Events (SSE)",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering",
+      "Java / Backend Specialist"
+    ],
+    "questionText": "Compare WebSockets, Server-Sent Events (SSE), and Long Polling for real-time web applications.",
+    "expectedAnswer": "WebSockets provide full-duplex, bidirectional communication over a single persistent TCP connection initiated via HTTP upgrade. SSE provides unidirectional server-to-client streaming over standard HTTP text/event-stream. Long polling holds HTTP requests open until data is available, then closes and re-establishes.",
+    "explanation": "SSE is simpler and reconnects automatically over HTTP/2, ideal for live tickers and AI stream tokens; WebSockets are ideal for chat and multiplayer games.",
+    "followUps": [
+      "Why does ChatGPT use SSE for streaming responses?",
+      "How do WebSockets pass through corporate HTTP proxies?"
+    ]
+  }
+]

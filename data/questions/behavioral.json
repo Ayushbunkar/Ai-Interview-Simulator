@@ -1,0 +1,697 @@
+[
+  {
+    "id": "hr-01",
+    "category": "behavioral",
+    "topic": "Introduction",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Service-Based General",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Tell me about yourself, your background, and why you are interested in this software engineering role.",
+    "expectedAnswer": "A structured 2-minute elevator pitch: Past (education/relevant experience), Present (current core technical skills, recent projects/achievements), and Future (why this specific company and role aligns with career ambitions).",
+    "explanation": "Sets the tone of the interview; focus on professional engineering growth and impact rather than childhood history.",
+    "followUps": [
+      "What was the most challenging technical project you worked on?",
+      "What programming language are you most proficient in and why?"
+    ]
+  },
+  {
+    "id": "hr-02",
+    "category": "behavioral",
+    "topic": "STAR Framework",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering",
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Describe a time when you faced a difficult technical bug or challenge in a project. How did you resolve it?",
+    "expectedAnswer": "STAR: Situation (context of bug and urgency), Task (what needed to be fixed), Action (systematic debugging steps, profiling, logs, root cause analysis), Result (successful fix, performance improvement, preventive test added).",
+    "explanation": "Demonstrates problem-solving resilience and systematic engineering methodology.",
+    "followUps": [
+      "What did you learn from that bug to prevent similar occurrences?",
+      "Did this issue affect users in production?"
+    ]
+  },
+  {
+    "id": "hr-03",
+    "category": "behavioral",
+    "topic": "Conflict Resolution",
+    "difficulty": "medium",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Tell me about a time you had a technical disagreement with a team member or peer. How did you handle it?",
+    "expectedAnswer": "Focus on professional discourse: listened to their reasoning, depersonalized the debate by evaluating empirical data/benchmarks/prototypes, found common ground, and committed fully once a decision was made (disagree and commit).",
+    "explanation": "Shows emotional intelligence, communication skills, and collaborative maturity.",
+    "followUps": [
+      "What would you do if your lead insisted on an approach you believed was technically flawed?",
+      "How do you give constructive feedback during code reviews?"
+    ]
+  },
+  {
+    "id": "hr-04",
+    "category": "behavioral",
+    "topic": "Failure and Learning",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering",
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Tell me about a time you made a mistake or failed to meet an expectation. What happened and what did you learn?",
+    "expectedAnswer": "Honest reflection: took full ownership without blaming others, communicated transparently with stakeholders immediately, took corrective action, and instituted a process or test to prevent repeat failure.",
+    "explanation": "Authentic self-awareness and accountability are hallmarks of dependable engineers.",
+    "followUps": [
+      "How do you handle critical feedback from managers or senior engineers?",
+      "Can you describe a time a project missed its deadline?"
+    ]
+  },
+  {
+    "id": "hr-05",
+    "category": "behavioral",
+    "topic": "Fast Learning",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Tell me about a time you had to learn an unfamiliar technology or framework under tight deadlines.",
+    "expectedAnswer": "Explained learning strategy: read official documentation, built small proof-of-concept prototypes, sought targeted guidance from experts, and successfully delivered the production requirement.",
+    "explanation": "Adaptability and self-directed learning speed are vital for freshers and entry-level candidates.",
+    "followUps": [
+      "What new technology or tool have you learned recently outside of work or class?",
+      "How do you stay updated with industry developments?"
+    ]
+  },
+  {
+    "id": "hr-06",
+    "category": "behavioral",
+    "topic": "Why This Company",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Service-Based General"
+    ],
+    "questionText": "Why do you want to join our company (e.g. TCS / Capgemini), and what value will you bring to our clients?",
+    "expectedAnswer": "Researched answer highlighting company culture, scale of enterprise impact, training programs, and alignment of candidate's technical skills (Java/backend/AI) with company's core client delivery domains.",
+    "explanation": "Generic answers ('it is a big MNC') fail; candidate should reference specific company initiatives, values, or client impact.",
+    "followUps": [
+      "Are you comfortable working across different technology stacks based on project requirements?",
+      "Are you willing to relocate or work in flexible shifts if required?"
+    ]
+  },
+  {
+    "id": "hr-07",
+    "category": "behavioral",
+    "topic": "Career Goals",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Where do you see yourself in five years professionally?",
+    "expectedAnswer": "A realistic progression: mastering backend engineering/system architecture, taking ownership of critical modules, mentoring junior developers, and contributing to high-impact technical initiatives.",
+    "explanation": "Shows ambition balanced with practical engineering commitment.",
+    "followUps": [
+      "Do you prefer an individual contributor technical path or management path?",
+      "What technical certifications or skills are you aiming to acquire next?"
+    ]
+  },
+  {
+    "id": "hr-08",
+    "category": "behavioral",
+    "topic": "Strengths and Weaknesses",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "What are your greatest professional strengths and a genuine area of improvement you are working on?",
+    "expectedAnswer": "Strength: backed by concrete evidence (e.g. disciplined problem decomposition, proactive communication). Weakness: a genuine area (e.g. tendency to over-engineer solutions, hesitation to delegate) accompanied by proactive steps currently being taken to improve.",
+    "explanation": "Avoid humble-brag clichés like 'I work too hard' or 'I am a perfectionist'.",
+    "followUps": [
+      "How has your weakness impacted a previous team project?",
+      "What feedback did you receive in your last evaluation?"
+    ]
+  },
+  {
+    "id": "hr-09",
+    "category": "behavioral",
+    "topic": "Working Under Pressure",
+    "difficulty": "medium",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Describe a situation where you had to manage competing priorities and tight deadlines. How did you prioritize?",
+    "expectedAnswer": "Employed Eisenhower matrix / impact vs urgency assessment, communicated transparently with team/lead to realign expectations, cut non-essential scope, and delivered the highest-value deliverables on time.",
+    "explanation": "Demonstrates composure, organizational discipline, and stakeholder management.",
+    "followUps": [
+      "How do you avoid burnout when project deadlines become intense?",
+      "How do you handle last-minute scope changes from a client?"
+    ]
+  },
+  {
+    "id": "hr-10",
+    "category": "behavioral",
+    "topic": "Ownership & Initiative",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering",
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Give an example of a time you went above and beyond your assigned responsibilities to improve a system or team process.",
+    "expectedAnswer": "Identified a recurring inefficiency or missing test coverage, took independent initiative to automate it or create documentation without being asked, and measured positive team impact.",
+    "explanation": "Separates passive task-doers from proactive engineering owners.",
+    "followUps": [
+      "Did anyone ask you to do that, or did you initiate it yourself?",
+      "How did the team respond to your initiative?"
+    ]
+  },
+  {
+    "id": "hr-11",
+    "category": "behavioral",
+    "topic": "Teamwork",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Tell me about a time you worked in a multidisciplinary team. How did you ensure effective collaboration?",
+    "expectedAnswer": "Clarified roles early, established regular syncs, communicated in clear domain-appropriate language without unnecessary jargon, and actively supported team members when blockers arose.",
+    "explanation": "Highlights collaborative spirit and inter-functional communication.",
+    "followUps": [
+      "How do you handle a team member who is not pulling their weight?",
+      "Do you prefer working independently or in teams?"
+    ]
+  },
+  {
+    "id": "hr-12",
+    "category": "behavioral",
+    "topic": "Receiving Criticism",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Describe a time when you received harsh or critical feedback on your code or project. How did you react?",
+    "expectedAnswer": "Took the feedback objectively without defensiveness, separated ego from the code, asked clarifying questions to understand the underlying standard, and incorporated the recommendations promptly.",
+    "explanation": "Receptiveness to mentorship and code reviews is crucial for junior engineers.",
+    "followUps": [
+      "How do you approach reviewing a peer's pull request?",
+      "What do you do if you disagree with code review comments?"
+    ]
+  },
+  {
+    "id": "hr-13",
+    "category": "behavioral",
+    "topic": "Ethics & Integrity",
+    "difficulty": "medium",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "What would you do if you noticed a peer taking credit for your work or violating company security protocols?",
+    "expectedAnswer": "For credit: have a calm 1-on-1 private conversation first to understand their perspective and clarify contributions with the manager. For security violation: adhere strictly to company compliance reporting guidelines, as security and data integrity are non-negotiable.",
+    "explanation": "Shows ethical boundaries and professional conflict resolution.",
+    "followUps": [
+      "Why are confidentiality and data compliance vital in enterprise consulting companies?",
+      "Have you ever faced an ethical dilemma in college or work?"
+    ]
+  },
+  {
+    "id": "hr-14",
+    "category": "behavioral",
+    "topic": "Adaptability",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Service-Based General"
+    ],
+    "questionText": "In consulting companies like TCS and Capgemini, engineers are often assigned to different domains (banking, retail, healthcare) and varying tech stacks. How do you feel about this?",
+    "expectedAnswer": "Embraces domain breadth as an accelerated learning opportunity. Emphasizes strong foundational CS principles that translate across languages and technologies, and excitement to solve diverse enterprise problems.",
+    "explanation": "Crucial question for service-based company placement interviews.",
+    "followUps": [
+      "If asked to work on a legacy technology like COBOL or older Java versions, how would you approach it?",
+      "What is your philosophy on continuous learning?"
+    ]
+  },
+  {
+    "id": "hr-15",
+    "category": "behavioral",
+    "topic": "Questions for Interviewer",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Do you have any questions for me as your interviewer?",
+    "expectedAnswer": "Thoughtful questions demonstrating genuine interest: 'What does success look like for a new engineer in this role during the first 90 days?', 'What engineering challenges is your team currently tackling?', 'What opportunities exist for mentorship and technical growth?'",
+    "explanation": "Asking 'No questions' or asking about salary/vacation too early creates a negative impression.",
+    "followUps": [
+      "What attracted you to our company culture specifically?",
+      "What is the next step in your preparation?"
+    ]
+  },
+  {
+    "id": "hr-16",
+    "category": "behavioral",
+    "topic": "Dealing with Ambiguity",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "Tell me about a time you had to work on a project where the requirements were vague or constantly changing.",
+    "expectedAnswer": "Proactively engaged stakeholders with clarifying questions, built small iterative prototypes to validate assumptions early, documented accepted requirements, and remained agile as specifications evolved.",
+    "explanation": "Ambiguity tolerance is a core hiring criterion for product engineering companies.",
+    "followUps": [
+      "How do you avoid building the wrong feature when requirements are unclear?",
+      "What assumptions do you make before starting code?"
+    ]
+  },
+  {
+    "id": "hr-17",
+    "category": "behavioral",
+    "topic": "Work-Life Balance & Dedication",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "How do you maintain productivity and manage stress during intense release cycles?",
+    "expectedAnswer": "Maintains structured scheduling, breaks complex tasks into manageable sub-goals, exercises discipline with sleep and health, and communicates early with managers if delivery risks arise.",
+    "explanation": "Shows maturity in sustained professional performance.",
+    "followUps": [
+      "Can you work late or on weekends if a critical production issue occurs?",
+      "How do you recharge outside of work?"
+    ]
+  },
+  {
+    "id": "hr-18",
+    "category": "behavioral",
+    "topic": "Leadership without Title",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering",
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Tell me about a time you demonstrated leadership, even if you were not formally designated as the team leader.",
+    "expectedAnswer": "Stepped up during a period of team uncertainty or delay to facilitate coordination, established clear meeting agendas, aligned tasks to individual strengths, and fostered morale to deliver the project.",
+    "explanation": "Leadership is influence and initiative, not a title.",
+    "followUps": [
+      "How do you motivate a demotivated teammate?",
+      "What is your leadership style?"
+    ]
+  },
+  {
+    "id": "hr-19",
+    "category": "behavioral",
+    "topic": "Decision Making with Incomplete Data",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "Describe a situation where you had to make a critical technical or project decision with incomplete information.",
+    "expectedAnswer": "Assessed the blast radius and reversibility of the decision (one-way vs two-way door decision), consulted available domain heuristics, chose the lowest-risk adaptable path, and established monitoring to course-correct quickly.",
+    "explanation": "Amazon leadership principle: Bias for Action and Two-Way Door decisions.",
+    "followUps": [
+      "What is a one-way door vs two-way door decision?",
+      "How did the outcome validate your choice?"
+    ]
+  },
+  {
+    "id": "hr-20",
+    "category": "behavioral",
+    "topic": "Relocation and Bonds",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Service-Based General"
+    ],
+    "questionText": "Are you willing to relocate to any of our development centers across India (e.g. Bangalore, Pune, Hyderabad, Chennai) and sign an employment agreement/bond if applicable?",
+    "expectedAnswer": "Yes, fully open and excited to relocate to wherever business needs require, and comfortable committing to an employment agreement to learn and grow within the organization.",
+    "explanation": "Standard HR alignment question for college placement drives.",
+    "followUps": [
+      "Do you have any location preferences and why?",
+      "When can you join if offered?"
+    ]
+  },
+  {
+    "id": "hr-21",
+    "category": "behavioral",
+    "topic": "Handling Client Criticism",
+    "difficulty": "medium",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Service-Based General"
+    ],
+    "questionText": "If an external client is unhappy with a deliverable and expresses frustration during a status call, how would you respond?",
+    "expectedAnswer": "Listen actively without getting defensive, validate their concerns calmly, summarize their expectations to ensure alignment, and commit to an agreed action plan with specific deadlines.",
+    "explanation": "Client-facing composure is essential for service delivery consulting.",
+    "followUps": [
+      "What would you do if a client asks for a feature that contradicts the contract?",
+      "How do you manage client expectations?"
+    ]
+  },
+  {
+    "id": "hr-22",
+    "category": "behavioral",
+    "topic": "Self-Motivation",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "What motivates you as a software engineer? What drives you to sit in front of a screen and debug code for hours?",
+    "expectedAnswer": "Passionate about building tangible solutions that solve real human and business problems, the intellectual challenge of debugging complex logic, and continuous self-improvement in technical craftsmanship.",
+    "explanation": "Authentic intrinsic motivation reflects long-term retention and resilience.",
+    "followUps": [
+      "What was the most rewarding moment in your engineering studies?",
+      "What open-source or personal projects have you built for fun?"
+    ]
+  },
+  {
+    "id": "hr-23",
+    "category": "behavioral",
+    "topic": "Mentoring & Knowledge Sharing",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Tell me about a time you helped a peer or junior colleague understand a difficult concept or solve a problem.",
+    "expectedAnswer": "Met them at their current knowledge level, used analogies and whiteboarding to break down foundational principles, guided them to discover the solution rather than just handing them the code, and followed up to check understanding.",
+    "explanation": "Teaching others reinforces personal mastery and team productivity.",
+    "followUps": [
+      "How do you document your code so others can maintain it?",
+      "What makes technical documentation effective?"
+    ]
+  },
+  {
+    "id": "hr-24",
+    "category": "behavioral",
+    "topic": "Customer Focus",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "Give an example of when you advocated for the end-user's experience over a simpler technical shortcut.",
+    "expectedAnswer": "Recognized that a proposed shortcut would save developer hours but create UI latency or confusion for end-users; advocated for the customer-centric architecture, implemented optimized caching, and validated with user feedback.",
+    "explanation": "Customer obsession and engineering empathy.",
+    "followUps": [
+      "How do you measure user satisfaction in a software application?",
+      "What is accessibility in software engineering?"
+    ]
+  },
+  {
+    "id": "hr-25",
+    "category": "behavioral",
+    "topic": "Handling Repetitive Tasks",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "How do you handle routine, repetitive tasks such as regression testing, documentation, or maintenance tickets?",
+    "expectedAnswer": "Maintains thoroughness and attention to detail while actively looking for opportunities to automate repetitive manual steps using scripts, test suites, or CI/CD pipelines.",
+    "explanation": "A balance of diligence in routine duties and proactive automation mindset.",
+    "followUps": [
+      "Can you share a specific script or tool you built to automate a boring task?",
+      "How do you ensure documentation remains up to date?"
+    ]
+  },
+  {
+    "id": "hr-26",
+    "category": "behavioral",
+    "topic": "Why Tech / Software Engineering",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Why did you choose software engineering as your career path instead of other fields?",
+    "expectedAnswer": "Captivated by the ability to turn logical thought and code into real-world working software with global reach, and excited by the rapid innovation in cloud, distributed systems, and AI.",
+    "explanation": "Demonstrates passion for the field.",
+    "followUps": [
+      "If you couldn't be a software engineer, what career would you pursue?",
+      "What tech trend excites you most today?"
+    ]
+  },
+  {
+    "id": "hr-27",
+    "category": "behavioral",
+    "topic": "Overcoming Disappointment",
+    "difficulty": "medium",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Tell me about a time you worked hard on something (e.g. a feature, a project, an interview) and the outcome was disappointing. How did you bounce back?",
+    "expectedAnswer": "Acknowledged the initial disappointment, conducted a constructive retrospective on areas to improve, focused on the skills gained during the process, and used the experience as fuel to succeed in subsequent opportunities.",
+    "explanation": "Resilience and growth mindset under adversity.",
+    "followUps": [
+      "How do you process negative outcomes without losing motivation?",
+      "What is your philosophy on failure?"
+    ]
+  },
+  {
+    "id": "hr-28",
+    "category": "behavioral",
+    "topic": "Persuasion and Influence",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering",
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Tell me about a time you had to persuade a team or manager to adopt a new tool, process, or architectural change.",
+    "expectedAnswer": "Did not push opinion; built a working prototype, benchmarked metrics (performance, development speed), presented a clear comparison of pros/cons, addressed security/risk concerns, and won alignment through evidence.",
+    "explanation": "Influence without authority through empirical data.",
+    "followUps": [
+      "What do you do if a manager rejects your proposal despite good data?",
+      "How do you balance innovation with stability?"
+    ]
+  },
+  {
+    "id": "hr-29",
+    "category": "behavioral",
+    "topic": "Navigating Ethical Code Quality vs Speed",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "What do you do when a product manager pressures you to deploy code that works but has known technical debt or inadequate test coverage?",
+    "expectedAnswer": "Communicate trade-offs transparently: explain the risk of production outages and future regression costs. Agree on a pragmatic compromise (e.g., shipping minimal viable scope with essential tests, and immediately creating a scheduled ticket to pay down technical debt).",
+    "explanation": "Balances business velocity with engineering integrity.",
+    "followUps": [
+      "What is technical debt and when is it acceptable to take on?",
+      "How do you measure test coverage?"
+    ]
+  },
+  {
+    "id": "hr-30",
+    "category": "behavioral",
+    "topic": "Continuous Feedback",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "How do you prefer to receive feedback from your manager and peers?",
+    "expectedAnswer": "Prefers frequent, direct, and actionable feedback in 1-on-1s rather than waiting for annual reviews, focusing on specific behaviors and recommendations for improvement.",
+    "explanation": "Openness to continuous professional growth.",
+    "followUps": [
+      "How often do you ask for feedback?",
+      "What is an example of feedback that significantly shaped your work?"
+    ]
+  },
+  {
+    "id": "hr-31",
+    "category": "behavioral",
+    "topic": "Work Ethic",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "How do you ensure high quality in your work when working independently with minimal supervision?",
+    "expectedAnswer": "Follows disciplined engineering checklists: writing unit tests, self-reviewing diffs before opening PRs, documenting edge cases, and proactively updating leads with status and blockers.",
+    "explanation": "Reliability in remote and hybrid engineering environments.",
+    "followUps": [
+      "Do you prefer remote work, hybrid, or office-based work?",
+      "How do you stay accountable while working remotely?"
+    ]
+  },
+  {
+    "id": "hr-32",
+    "category": "behavioral",
+    "topic": "Handling Multiple Offers",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Service-Based General"
+    ],
+    "questionText": "If you receive multiple job offers, what criteria will you use to make your final decision?",
+    "expectedAnswer": "Prioritizes long-term learning trajectory, quality of engineering mentorship, company stability, and opportunities to work on scalable distributed technologies.",
+    "explanation": "Demonstrates principled career decision-making over short-term vanity.",
+    "followUps": [
+      "What makes our company stand out compared to other companies you have applied to?",
+      "Are you interviewing with other firms currently?"
+    ]
+  },
+  {
+    "id": "hr-33",
+    "category": "behavioral",
+    "topic": "Cross-Cultural Communication",
+    "difficulty": "medium",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Service-Based General"
+    ],
+    "questionText": "In our global delivery model, you will collaborate with clients and engineers across US, Europe, and Asia timezones. How do you adapt to cultural differences and asynchronous communication?",
+    "expectedAnswer": "Practices explicit, structured written communication, respects timezone boundaries, clarifies assumptions proactively, and shows empathy and cultural awareness in meetings.",
+    "explanation": "Critical for global enterprise consulting roles.",
+    "followUps": [
+      "What is effective asynchronous communication?",
+      "How do you prepare for a meeting with international stakeholders?"
+    ]
+  },
+  {
+    "id": "hr-34",
+    "category": "behavioral",
+    "topic": "Presentation Skills",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Tell me about a time you had to present a technical topic or project demo to a non-technical audience.",
+    "expectedAnswer": "Tailored the presentation around business value and user outcomes, avoided deep technical jargon, used visual diagrams and live workflows, and paused for questions to ensure comprehension.",
+    "explanation": "Translating engineering complexity into stakeholder clarity.",
+    "followUps": [
+      "How do you gauge whether your audience understands your presentation?",
+      "How do you prepare technical slides?"
+    ]
+  },
+  {
+    "id": "hr-35",
+    "category": "behavioral",
+    "topic": "Curiosity and Passion",
+    "difficulty": "easy",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "Tell me about an interesting technical concept or tool you researched recently just out of personal curiosity.",
+    "expectedAnswer": "Describes a recent technical discovery (e.g. how LLM attention works, vector embeddings in pgvector, eBPF in the Linux kernel) with genuine enthusiasm and accurate conceptual explanation.",
+    "explanation": "Reveals genuine passion for computing and continuous curiosity.",
+    "followUps": [
+      "What technical blogs, podcasts, or creators do you follow?",
+      "Have you tried building a small side project with it?"
+    ]
+  },
+  {
+    "id": "hr-36",
+    "category": "behavioral",
+    "topic": "Over-Engineering vs Pragmatism",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "Have you ever caught yourself over-engineering a simple problem? How did you recognize and simplify it?",
+    "expectedAnswer": "Recognized when building a complex microservices or design pattern architecture for a simple MVP was creating unnecessary overhead; refactored back to a clean, modular monolith adhering to YAGNI (You Aren't Gonna Need It).",
+    "explanation": "Pragmatism is a key mark of senior engineering maturity.",
+    "followUps": [
+      "What is the KISS principle?",
+      "What is YAGNI?"
+    ]
+  },
+  {
+    "id": "hr-37",
+    "category": "behavioral",
+    "topic": "Managing High Cognitive Load",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "When faced with an overwhelming codebase or massive project documentation on day one, how do you get up to speed?",
+    "expectedAnswer": "Starts by getting the application to build and run locally, maps out the high-level architecture diagrams, traces a single end-to-end user request through the codebase, reads recent PRs, and asks targeted questions.",
+    "explanation": "Structured onboarding strategy reduces ramp-up time.",
+    "followUps": [
+      "How do you take notes when onboarding to a new team?",
+      "What is your approach to reading unfamiliar code?"
+    ]
+  },
+  {
+    "id": "hr-38",
+    "category": "behavioral",
+    "topic": "Long Term Loyalty",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Service-Based General"
+    ],
+    "questionText": "What factors make you stay at a company for multiple years versus switching jobs frequently?",
+    "expectedAnswer": "Continuous intellectual challenge, opportunities to take on broader architectural ownership, strong team camaraderie, transparent leadership, and competitive career advancement.",
+    "explanation": "Company retention focus for campus hiring.",
+    "followUps": [
+      "What would make you leave a company?",
+      "How do you view job hopping vs staying to see the long-term impact of your code?"
+    ]
+  },
+  {
+    "id": "hr-39",
+    "category": "behavioral",
+    "topic": "Dealing with Burnout / Frustration",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "When you have been stuck on a frustrating bug for hours and feel mental fatigue, what do you do?",
+    "expectedAnswer": "Steps away for a brief walk or break to clear the mind, explains the problem aloud using Rubber Duck Debugging, validates fundamental assumptions with logs, and reaches out to a teammate with concise context if still blocked.",
+    "explanation": "Rubber duck debugging and knowing when to ask for help prevents wasted hours.",
+    "followUps": [
+      "What is rubber duck debugging?",
+      "How long do you struggle on a problem before asking for senior help? (Typically 30-60 mins rule)"
+    ]
+  },
+  {
+    "id": "hr-40",
+    "category": "behavioral",
+    "topic": "Closing Pitch",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Why should we hire you today over the other hundreds of qualified candidates interviewing for this position?",
+    "expectedAnswer": "Summarizes the unique blend of strong foundational CS and backend coding skills, proven problem-solving work ethic, hunger to continuously learn and adapt, and a team-first collaborative attitude ready to deliver value from day one.",
+    "explanation": "Confident, humble, and value-oriented closing pitch.",
+    "followUps": [
+      "Are there any final thoughts or points you would like to highlight before we conclude?",
+      "Thank you for your time today."
+    ]
+  }
+]

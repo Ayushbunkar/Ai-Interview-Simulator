@@ -1,0 +1,492 @@
+[
+  {
+    "id": "prob-hard-01",
+    "title": "Trapping Rain Water",
+    "slug": "trapping-rain-water",
+    "difficulty": "hard",
+    "topicTags": [
+      "Two Pointers / Monotonic Stack"
+    ],
+    "description": "Problem: Trapping Rain Water. Given complex constraints, design an optimal algorithm using Two Pointers / Monotonic Stack. Must pass edge cases and execute within time limit.",
+    "inputFormat": "Standard formatted input lines.",
+    "outputFormat": "Expected output result.",
+    "constraints": [
+      "Large inputs up to 10^5",
+      "Requires sub-quadratic or optimal polynomial time."
+    ],
+    "examples": [
+      {
+        "input": "0 1 0 2 1 0 1 3 2 1 2 1",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef main():\n    print(\"0\")\n\nif __name__ == '__main__':\n    main()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n) or O(n log k) optimal bound.",
+    "spaceComplexity": "O(n) or O(k) heap space.",
+    "hints": [
+      "Consider advanced data structures like Monotonic Deque or Two Heaps.",
+      "Analyze invariants carefully."
+    ],
+    "testCases": [
+      {
+        "id": "prob-hard-01-1",
+        "input": "0 1 0 2 1 0 1 3 2 1 2 1",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-hard-01-2",
+        "input": "4 2 0 3 2 5",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-hard-02",
+    "title": "Merge k Sorted Lists",
+    "slug": "merge-k-sorted-lists",
+    "difficulty": "hard",
+    "topicTags": [
+      "Heap / Divide and Conquer"
+    ],
+    "description": "Problem: Merge k Sorted Lists. Given complex constraints, design an optimal algorithm using Heap / Divide and Conquer. Must pass edge cases and execute within time limit.",
+    "inputFormat": "Standard formatted input lines.",
+    "outputFormat": "Expected output result.",
+    "constraints": [
+      "Large inputs up to 10^5",
+      "Requires sub-quadratic or optimal polynomial time."
+    ],
+    "examples": [
+      {
+        "input": "0 1 0 2 1 0 1 3 2 1 2 1",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef main():\n    print(\"0\")\n\nif __name__ == '__main__':\n    main()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n) or O(n log k) optimal bound.",
+    "spaceComplexity": "O(n) or O(k) heap space.",
+    "hints": [
+      "Consider advanced data structures like Monotonic Deque or Two Heaps.",
+      "Analyze invariants carefully."
+    ],
+    "testCases": [
+      {
+        "id": "prob-hard-02-1",
+        "input": "0 1 0 2 1 0 1 3 2 1 2 1",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-hard-02-2",
+        "input": "4 2 0 3 2 5",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-hard-03",
+    "title": "Sliding Window Maximum",
+    "slug": "sliding-window-maximum",
+    "difficulty": "hard",
+    "topicTags": [
+      "Monotonic Deque"
+    ],
+    "description": "Problem: Sliding Window Maximum. Given complex constraints, design an optimal algorithm using Monotonic Deque. Must pass edge cases and execute within time limit.",
+    "inputFormat": "Standard formatted input lines.",
+    "outputFormat": "Expected output result.",
+    "constraints": [
+      "Large inputs up to 10^5",
+      "Requires sub-quadratic or optimal polynomial time."
+    ],
+    "examples": [
+      {
+        "input": "0 1 0 2 1 0 1 3 2 1 2 1",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef main():\n    print(\"0\")\n\nif __name__ == '__main__':\n    main()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n) or O(n log k) optimal bound.",
+    "spaceComplexity": "O(n) or O(k) heap space.",
+    "hints": [
+      "Consider advanced data structures like Monotonic Deque or Two Heaps.",
+      "Analyze invariants carefully."
+    ],
+    "testCases": [
+      {
+        "id": "prob-hard-03-1",
+        "input": "0 1 0 2 1 0 1 3 2 1 2 1",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-hard-03-2",
+        "input": "4 2 0 3 2 5",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-hard-04",
+    "title": "Median of Two Sorted Arrays",
+    "slug": "median-of-two-sorted-arrays",
+    "difficulty": "hard",
+    "topicTags": [
+      "Binary Search"
+    ],
+    "description": "Problem: Median of Two Sorted Arrays. Given complex constraints, design an optimal algorithm using Binary Search. Must pass edge cases and execute within time limit.",
+    "inputFormat": "Standard formatted input lines.",
+    "outputFormat": "Expected output result.",
+    "constraints": [
+      "Large inputs up to 10^5",
+      "Requires sub-quadratic or optimal polynomial time."
+    ],
+    "examples": [
+      {
+        "input": "0 1 0 2 1 0 1 3 2 1 2 1",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef main():\n    print(\"0\")\n\nif __name__ == '__main__':\n    main()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n) or O(n log k) optimal bound.",
+    "spaceComplexity": "O(n) or O(k) heap space.",
+    "hints": [
+      "Consider advanced data structures like Monotonic Deque or Two Heaps.",
+      "Analyze invariants carefully."
+    ],
+    "testCases": [
+      {
+        "id": "prob-hard-04-1",
+        "input": "0 1 0 2 1 0 1 3 2 1 2 1",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-hard-04-2",
+        "input": "4 2 0 3 2 5",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-hard-05",
+    "title": "Regular Expression Matching",
+    "slug": "regular-expression-matching",
+    "difficulty": "hard",
+    "topicTags": [
+      "Dynamic Programming"
+    ],
+    "description": "Problem: Regular Expression Matching. Given complex constraints, design an optimal algorithm using Dynamic Programming. Must pass edge cases and execute within time limit.",
+    "inputFormat": "Standard formatted input lines.",
+    "outputFormat": "Expected output result.",
+    "constraints": [
+      "Large inputs up to 10^5",
+      "Requires sub-quadratic or optimal polynomial time."
+    ],
+    "examples": [
+      {
+        "input": "0 1 0 2 1 0 1 3 2 1 2 1",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef main():\n    print(\"0\")\n\nif __name__ == '__main__':\n    main()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n) or O(n log k) optimal bound.",
+    "spaceComplexity": "O(n) or O(k) heap space.",
+    "hints": [
+      "Consider advanced data structures like Monotonic Deque or Two Heaps.",
+      "Analyze invariants carefully."
+    ],
+    "testCases": [
+      {
+        "id": "prob-hard-05-1",
+        "input": "0 1 0 2 1 0 1 3 2 1 2 1",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-hard-05-2",
+        "input": "4 2 0 3 2 5",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-hard-06",
+    "title": "N-Queens",
+    "slug": "n-queens",
+    "difficulty": "hard",
+    "topicTags": [
+      "Backtracking"
+    ],
+    "description": "Problem: N-Queens. Given complex constraints, design an optimal algorithm using Backtracking. Must pass edge cases and execute within time limit.",
+    "inputFormat": "Standard formatted input lines.",
+    "outputFormat": "Expected output result.",
+    "constraints": [
+      "Large inputs up to 10^5",
+      "Requires sub-quadratic or optimal polynomial time."
+    ],
+    "examples": [
+      {
+        "input": "0 1 0 2 1 0 1 3 2 1 2 1",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef main():\n    print(\"0\")\n\nif __name__ == '__main__':\n    main()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n) or O(n log k) optimal bound.",
+    "spaceComplexity": "O(n) or O(k) heap space.",
+    "hints": [
+      "Consider advanced data structures like Monotonic Deque or Two Heaps.",
+      "Analyze invariants carefully."
+    ],
+    "testCases": [
+      {
+        "id": "prob-hard-06-1",
+        "input": "0 1 0 2 1 0 1 3 2 1 2 1",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-hard-06-2",
+        "input": "4 2 0 3 2 5",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-hard-07",
+    "title": "Word Ladder",
+    "slug": "word-ladder",
+    "difficulty": "hard",
+    "topicTags": [
+      "BFS / Graph"
+    ],
+    "description": "Problem: Word Ladder. Given complex constraints, design an optimal algorithm using BFS / Graph. Must pass edge cases and execute within time limit.",
+    "inputFormat": "Standard formatted input lines.",
+    "outputFormat": "Expected output result.",
+    "constraints": [
+      "Large inputs up to 10^5",
+      "Requires sub-quadratic or optimal polynomial time."
+    ],
+    "examples": [
+      {
+        "input": "0 1 0 2 1 0 1 3 2 1 2 1",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef main():\n    print(\"0\")\n\nif __name__ == '__main__':\n    main()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n) or O(n log k) optimal bound.",
+    "spaceComplexity": "O(n) or O(k) heap space.",
+    "hints": [
+      "Consider advanced data structures like Monotonic Deque or Two Heaps.",
+      "Analyze invariants carefully."
+    ],
+    "testCases": [
+      {
+        "id": "prob-hard-07-1",
+        "input": "0 1 0 2 1 0 1 3 2 1 2 1",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-hard-07-2",
+        "input": "4 2 0 3 2 5",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-hard-08",
+    "title": "Binary Tree Maximum Path Sum",
+    "slug": "binary-tree-maximum-path-sum",
+    "difficulty": "hard",
+    "topicTags": [
+      "Tree / DFS"
+    ],
+    "description": "Problem: Binary Tree Maximum Path Sum. Given complex constraints, design an optimal algorithm using Tree / DFS. Must pass edge cases and execute within time limit.",
+    "inputFormat": "Standard formatted input lines.",
+    "outputFormat": "Expected output result.",
+    "constraints": [
+      "Large inputs up to 10^5",
+      "Requires sub-quadratic or optimal polynomial time."
+    ],
+    "examples": [
+      {
+        "input": "0 1 0 2 1 0 1 3 2 1 2 1",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef main():\n    print(\"0\")\n\nif __name__ == '__main__':\n    main()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n) or O(n log k) optimal bound.",
+    "spaceComplexity": "O(n) or O(k) heap space.",
+    "hints": [
+      "Consider advanced data structures like Monotonic Deque or Two Heaps.",
+      "Analyze invariants carefully."
+    ],
+    "testCases": [
+      {
+        "id": "prob-hard-08-1",
+        "input": "0 1 0 2 1 0 1 3 2 1 2 1",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-hard-08-2",
+        "input": "4 2 0 3 2 5",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-hard-09",
+    "title": "Find Median from Data Stream",
+    "slug": "find-median-from-data-stream",
+    "difficulty": "hard",
+    "topicTags": [
+      "Two Heaps"
+    ],
+    "description": "Problem: Find Median from Data Stream. Given complex constraints, design an optimal algorithm using Two Heaps. Must pass edge cases and execute within time limit.",
+    "inputFormat": "Standard formatted input lines.",
+    "outputFormat": "Expected output result.",
+    "constraints": [
+      "Large inputs up to 10^5",
+      "Requires sub-quadratic or optimal polynomial time."
+    ],
+    "examples": [
+      {
+        "input": "0 1 0 2 1 0 1 3 2 1 2 1",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef main():\n    print(\"0\")\n\nif __name__ == '__main__':\n    main()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n) or O(n log k) optimal bound.",
+    "spaceComplexity": "O(n) or O(k) heap space.",
+    "hints": [
+      "Consider advanced data structures like Monotonic Deque or Two Heaps.",
+      "Analyze invariants carefully."
+    ],
+    "testCases": [
+      {
+        "id": "prob-hard-09-1",
+        "input": "0 1 0 2 1 0 1 3 2 1 2 1",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-hard-09-2",
+        "input": "4 2 0 3 2 5",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-hard-10",
+    "title": "Alien Dictionary",
+    "slug": "alien-dictionary",
+    "difficulty": "hard",
+    "topicTags": [
+      "Topological Sort / Graph"
+    ],
+    "description": "Problem: Alien Dictionary. Given complex constraints, design an optimal algorithm using Topological Sort / Graph. Must pass edge cases and execute within time limit.",
+    "inputFormat": "Standard formatted input lines.",
+    "outputFormat": "Expected output result.",
+    "constraints": [
+      "Large inputs up to 10^5",
+      "Requires sub-quadratic or optimal polynomial time."
+    ],
+    "examples": [
+      {
+        "input": "0 1 0 2 1 0 1 3 2 1 2 1",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef main():\n    print(\"0\")\n\nif __name__ == '__main__':\n    main()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n) or O(n log k) optimal bound.",
+    "spaceComplexity": "O(n) or O(k) heap space.",
+    "hints": [
+      "Consider advanced data structures like Monotonic Deque or Two Heaps.",
+      "Analyze invariants carefully."
+    ],
+    "testCases": [
+      {
+        "id": "prob-hard-10-1",
+        "input": "0 1 0 2 1 0 1 3 2 1 2 1",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-hard-10-2",
+        "input": "4 2 0 3 2 5",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  }
+]

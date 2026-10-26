@@ -1,0 +1,427 @@
+[
+  {
+    "id": "dbms-01",
+    "category": "dbms_sql",
+    "topic": "ACID Properties",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Explain the ACID properties of a database transaction with a banking transfer example.",
+    "expectedAnswer": "Atomicity (all or nothing), Consistency (preserves invariants/constraints), Isolation (concurrent transactions execute independently), Durability (committed data survives crashes).",
+    "explanation": "In transferring $100 from account A to B: Atomicity ensures A is debited and B credited together; Consistency maintains total funds; Isolation prevents reading intermediate states; Durability writes to write-ahead log.",
+    "followUps": [
+      "What is a Write-Ahead Log (WAL)?",
+      "What happens if a crash occurs between debit and credit?"
+    ]
+  },
+  {
+    "id": "dbms-02",
+    "category": "dbms_sql",
+    "topic": "Transaction Isolation",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering",
+      "Java / Backend Specialist"
+    ],
+    "questionText": "What are the standard SQL Transaction Isolation Levels and the concurrency phenomena they prevent?",
+    "expectedAnswer": "Read Uncommitted (allows dirty reads), Read Committed (prevents dirty reads, allows non-repeatable reads), Repeatable Read (prevents non-repeatable reads, may allow phantom reads), Serializable (prevents all phenomena via strict locking or MVCC).",
+    "explanation": "Dirty read reads uncommitted data. Non-repeatable read re-reads a row and finds modified values. Phantom read re-queries a range and finds newly inserted rows.",
+    "followUps": [
+      "How does MVCC (Multi-Version Concurrency Control) implement isolation without read locks?",
+      "What is the default isolation level in MySQL InnoDB vs PostgreSQL?"
+    ]
+  },
+  {
+    "id": "dbms-03",
+    "category": "dbms_sql",
+    "topic": "Indexing",
+    "difficulty": "medium",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "How do database indexes work? Compare B-Tree vs Hash indexes and explain why B+ Trees are preferred for disk storage.",
+    "expectedAnswer": "Indexes are secondary data structures speeding up lookups. B+ Trees store all records in leaf nodes linked sequentially, facilitating range queries and logarithmic search with shallow tree height.",
+    "explanation": "Hash indexes offer O(1) equality lookups but cannot perform range scans (BETWEEN, >, <). B+ Trees have high fan-out, reducing disk I/O operations.",
+    "followUps": [
+      "What is a Composite/Composite-column index and the leftmost prefix rule?",
+      "What are covering indexes?"
+    ]
+  },
+  {
+    "id": "dbms-04",
+    "category": "dbms_sql",
+    "topic": "Clustered vs Non-Clustered",
+    "difficulty": "medium",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Java / Backend Specialist"
+    ],
+    "questionText": "What is the difference between a Clustered Index and a Non-Clustered (Secondary) Index?",
+    "expectedAnswer": "Clustered index physically sorts and stores data rows in the leaf nodes of the table (only 1 per table, typically Primary Key). Non-clustered index stores index key with a pointer to the physical data row (multiple per table).",
+    "explanation": "In MySQL InnoDB, secondary indexes store primary key values as row pointers. Looking up via non-clustered index causes a secondary lookup unless it's a covering index.",
+    "followUps": [
+      "Can a table have multiple clustered indexes?",
+      "Why should primary keys generally be monotonically increasing integers?"
+    ]
+  },
+  {
+    "id": "dbms-05",
+    "category": "dbms_sql",
+    "topic": "SQL Joins",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Explain the differences between INNER JOIN, LEFT JOIN, RIGHT JOIN, FULL OUTER JOIN, and CROSS JOIN.",
+    "expectedAnswer": "INNER returns matching rows from both tables. LEFT returns all rows from left table plus matching right rows (nulls if no match). RIGHT returns all right plus matching left. FULL returns rows when match in either. CROSS produces Cartesian product.",
+    "explanation": "Joins combine columns based on predicate conditions. Performance depends on join algorithms: Nested Loop, Hash Join, or Sort-Merge Join.",
+    "followUps": [
+      "How does the database engine decide between Nested Loop Join and Hash Join?",
+      "What is a self join?"
+    ]
+  },
+  {
+    "id": "dbms-06",
+    "category": "dbms_sql",
+    "topic": "Normalization",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "What is database normalization? Explain 1NF, 2NF, 3NF, and BCNF.",
+    "expectedAnswer": "Normalization organizes tables to minimize data redundancy and anomalies (insert, update, delete). 1NF: atomic values, unique rows. 2NF: 1NF + no partial dependency on composite key. 3NF: 2NF + no transitive dependency. BCNF: every determinant is a candidate key.",
+    "explanation": "Denormalization is intentionally reintroducing redundancy to optimize read performance and reduce expensive joins in OLAP/reporting systems.",
+    "followUps": [
+      "When is denormalization preferred in production systems?",
+      "What is an update anomaly?"
+    ]
+  },
+  {
+    "id": "dbms-07",
+    "category": "dbms_sql",
+    "topic": "Primary vs Unique Key",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "What is the difference between a Primary Key and a Unique Key constraint?",
+    "expectedAnswer": "Primary Key uniquely identifies each row, cannot accept NULL values, and only 1 exists per table. Unique Key enforces uniqueness, allows NULL values (one or more depending on RDBMS), and multiple exist per table.",
+    "explanation": "Primary keys automatically create a clustered index by default in many RDBMS systems (like SQL Server and MySQL).",
+    "followUps": [
+      "What is a Foreign Key and cascading delete?",
+      "What is a Surrogate Key vs Natural Key?"
+    ]
+  },
+  {
+    "id": "dbms-08",
+    "category": "dbms_sql",
+    "topic": "SQL Aggregate Functions",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "What is the difference between WHERE and HAVING clauses in SQL?",
+    "expectedAnswer": "WHERE filters rows before aggregation and grouping, and cannot use aggregate functions. HAVING filters groups after GROUP BY aggregation has occurred.",
+    "explanation": "Execution order: FROM -> WHERE -> GROUP BY -> HAVING -> SELECT -> ORDER BY -> LIMIT.",
+    "followUps": [
+      "Write a query to find departments with more than 5 employees.",
+      "How do NULL values interact with COUNT(*), COUNT(column), and SUM()?"
+    ]
+  },
+  {
+    "id": "dbms-09",
+    "category": "dbms_sql",
+    "topic": "Window Functions",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering",
+      "Java / Backend Specialist"
+    ],
+    "questionText": "What are SQL Window Functions? Explain ROW_NUMBER(), RANK(), and DENSE_RANK() with an example.",
+    "expectedAnswer": "Window functions perform calculations across a set of rows related to current row without collapsing rows into a single summary. ROW_NUMBER assigns unique sequential integers. RANK leaves gaps for ties (1,2,2,4). DENSE_RANK leaves no gaps (1,2,2,3).",
+    "explanation": "Syntax uses OVER (PARTITION BY col ORDER BY col). Useful for top-N per group queries.",
+    "followUps": [
+      "How do you find the N-th highest salary in an employee table using DENSE_RANK?",
+      "What are LEAD() and LAG()?"
+    ]
+  },
+  {
+    "id": "dbms-10",
+    "category": "dbms_sql",
+    "topic": "NoSQL vs SQL",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering",
+      "Java / Backend Specialist"
+    ],
+    "questionText": "Compare SQL (Relational) and NoSQL databases. When would you choose MongoDB, Cassandra, or Redis over PostgreSQL?",
+    "expectedAnswer": "SQL databases are structured, schema-enforced, ACID-compliant, ideal for transactional data. NoSQL offers flexible schemas and horizontal scalability: Document (MongoDB for JSON hierarchies), Wide-column (Cassandra for high-write time series), Key-Value (Redis for caching/in-memory).",
+    "explanation": "CAP theorem considerations govern trade-offs between consistency, availability, and partition tolerance in distributed NoSQL stores.",
+    "followUps": [
+      "What is the CAP Theorem?",
+      "What is BASE consistency (Basically Available, Soft-state, Eventual consistency)?"
+    ]
+  },
+  {
+    "id": "dbms-11",
+    "category": "dbms_sql",
+    "topic": "Query Optimization",
+    "difficulty": "medium",
+    "companyTags": [
+      "Java / Backend Specialist",
+      "Product-Based Engineering"
+    ],
+    "questionText": "How do you analyze and optimize a slow SQL query? What does EXPLAIN / EXPLAIN ANALYZE show?",
+    "expectedAnswer": "Use EXPLAIN to inspect execution plan: table scans (ALL) vs index scans (range, ref), rows examined, temporary tables, and filesort. Optimize by adding indexes, avoiding SELECT *, avoiding leading wildcards (LIKE '%abc'), and refactoring correlated subqueries.",
+    "explanation": "EXPLAIN reveals cost estimates and execution paths chosen by the Cost-Based Optimizer.",
+    "followUps": [
+      "Why does SELECT * harm performance?",
+      "What is index selectivity?"
+    ]
+  },
+  {
+    "id": "dbms-12",
+    "category": "dbms_sql",
+    "topic": "Locking & Concurrency",
+    "difficulty": "medium",
+    "companyTags": [
+      "Java / Backend Specialist"
+    ],
+    "questionText": "Explain Optimistic Locking vs Pessimistic Locking with real-world scenarios.",
+    "expectedAnswer": "Pessimistic locking locks records on read (SELECT ... FOR UPDATE) preventing others from modifying it, ideal for high conflict. Optimistic locking does not lock on read but validates a version/timestamp on update (UPDATE ... WHERE version = 1), failing if modified.",
+    "explanation": "Optimistic locking is ideal for web applications where user interaction takes seconds and conflicts are infrequent.",
+    "followUps": [
+      "What is a phantom read?",
+      "What is row-level locking vs table-level locking?"
+    ]
+  },
+  {
+    "id": "dbms-13",
+    "category": "dbms_sql",
+    "topic": "Subqueries vs Joins",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "What is a Correlated Subquery and how does it differ from a regular subquery?",
+    "expectedAnswer": "A regular subquery executes once independently and passes results to outer query. A correlated subquery depends on values from the outer query row and executes repeatedly for every row evaluated by the outer query.",
+    "explanation": "Correlated subqueries can cause severe O(N*M) performance bottlenecks and can often be rewritten as INNER JOIN or window function.",
+    "followUps": [
+      "What is the difference between IN and EXISTS in SQL?",
+      "What is a Common Table Expression (CTE)?"
+    ]
+  },
+  {
+    "id": "dbms-14",
+    "category": "dbms_sql",
+    "topic": "Database Views",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "What is a Database View and what is a Materialized View?",
+    "expectedAnswer": "A View is a virtual table defined by a stored SQL query, executed dynamically on access. A Materialized View physically stores query results on disk and must be refreshed periodically, trading storage and staleness for fast reads.",
+    "explanation": "Views provide abstraction, simplify complex queries, and restrict column access for security.",
+    "followUps": [
+      "Can you update data through a SQL View?",
+      "How are Materialized Views refreshed?"
+    ]
+  },
+  {
+    "id": "dbms-15",
+    "category": "dbms_sql",
+    "topic": "Stored Procedures & Triggers",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "What are Stored Procedures and Triggers? Mention their benefits and risks.",
+    "expectedAnswer": "Stored Procedures are precompiled SQL routines stored in the DB. Triggers automatically execute in response to table events (INSERT, UPDATE, DELETE). Benefits: precompiled performance, reduced network traffic. Risks: hard to test/version control, business logic leaks into DB.",
+    "explanation": "Modern microservices generally minimize triggers and procedures, keeping business logic in application code.",
+    "followUps": [
+      "What is the difference between a Function and a Stored Procedure in SQL?",
+      "What is an INSTEAD OF trigger?"
+    ]
+  },
+  {
+    "id": "dbms-16",
+    "category": "dbms_sql",
+    "topic": "Sharding & Partitioning",
+    "difficulty": "hard",
+    "companyTags": [
+      "Product-Based Engineering",
+      "Java / Backend Specialist"
+    ],
+    "questionText": "What is the difference between Database Partitioning (Horizontal/Vertical) and Database Sharding?",
+    "expectedAnswer": "Partitioning splits a large table across partitions on the SAME database server (range, list, hash). Sharding distributes partitions horizontally across MULTIPLE independent physical database servers.",
+    "explanation": "Sharding introduces complexity: distributed transactions, cross-shard joins, rebalancing, and shard key selection.",
+    "followUps": [
+      "What factors determine an effective shard key?",
+      "What is consistent hashing?"
+    ]
+  },
+  {
+    "id": "dbms-17",
+    "category": "dbms_sql",
+    "topic": "Replication",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering",
+      "Java / Backend Specialist"
+    ],
+    "questionText": "Explain Master-Slave (Primary-Replica) Database Replication. Differentiate Synchronous vs Asynchronous replication.",
+    "expectedAnswer": "Primary handles writes and propagates changes (binlog/WAL) to read replicas. Synchronous waits for replica acknowledgment before commit (zero data loss, higher write latency). Asynchronous commits immediately and replicates in background (faster writes, potential replication lag/data loss on crash).",
+    "explanation": "Read replicas scale read queries horizontally, but applications must tolerate eventual consistency due to replication lag.",
+    "followUps": [
+      "What is replication lag and how does it cause read-your-own-writes inconsistencies?",
+      "What is multi-master replication?"
+    ]
+  },
+  {
+    "id": "dbms-18",
+    "category": "dbms_sql",
+    "topic": "SQL Constraints",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "What are the common integrity constraints in SQL? (NOT NULL, UNIQUE, PRIMARY KEY, FOREIGN KEY, CHECK, DEFAULT).",
+    "expectedAnswer": "NOT NULL prevents nulls; UNIQUE enforces distinct values; PRIMARY KEY combines NOT NULL and UNIQUE; FOREIGN KEY enforces referential integrity; CHECK validates boolean condition; DEFAULT provides fallback value.",
+    "explanation": "Constraints enforce relational invariants at the database engine level.",
+    "followUps": [
+      "What happens when you attempt to insert data violating a CHECK constraint?",
+      "Can a foreign key reference a column that is not a primary key?"
+    ]
+  },
+  {
+    "id": "dbms-19",
+    "category": "dbms_sql",
+    "topic": "DELETE vs TRUNCATE vs DROP",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Compare DELETE, TRUNCATE, and DROP statements in SQL.",
+    "expectedAnswer": "DELETE is DML, removes rows one by one, logs each deletion, fires triggers, can be rolled back. TRUNCATE is DDL, deallocates data pages, resets identity counter, does not fire row triggers, faster. DROP removes table structure and data entirely.",
+    "explanation": "TRUNCATE cannot be executed on tables referenced by foreign key constraints.",
+    "followUps": [
+      "Can TRUNCATE be rolled back inside a transaction?",
+      "Why is TRUNCATE faster than DELETE without WHERE clause?"
+    ]
+  },
+  {
+    "id": "dbms-20",
+    "category": "dbms_sql",
+    "topic": "Two-Phase Locking (2PL)",
+    "difficulty": "hard",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "Explain the Two-Phase Locking (2PL) protocol in DBMS and how it ensures serializability.",
+    "expectedAnswer": "2PL divides transaction locking into two phases: Growing Phase (locks acquired, none released) and Shrinking Phase (locks released, none acquired). Ensures conflict serializability.",
+    "explanation": "Strict 2PL holds all exclusive locks until commit/abort, preventing cascading rollbacks.",
+    "followUps": [
+      "Does 2PL prevent deadlocks?",
+      "What is the difference between Shared (S) and Exclusive (X) locks?"
+    ]
+  },
+  {
+    "id": "dbms-21",
+    "category": "dbms_sql",
+    "topic": "SQL Injection",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "What is SQL Injection (SQLi) and how do Parameterized Queries (Prepared Statements) prevent it?",
+    "expectedAnswer": "SQLi occurs when untrusted user input alters SQL syntax (e.g., ' OR 1=1 --). Prepared Statements compile SQL structure first with parameter placeholders (?) so inputs are treated strictly as literal data values, never executable code.",
+    "explanation": "Database query parser separates code from data parameters, eliminating command injection.",
+    "followUps": [
+      "Does an ORM automatically prevent all SQL injection?",
+      "Can SQL injection occur in ORDER BY clauses?"
+    ]
+  },
+  {
+    "id": "dbms-22",
+    "category": "dbms_sql",
+    "topic": "Database Connection Pooling",
+    "difficulty": "medium",
+    "companyTags": [
+      "Java / Backend Specialist"
+    ],
+    "questionText": "What is Database Connection Pooling (e.g. HikariCP) and why is opening connections per request bad?",
+    "expectedAnswer": "Opening TCP/DB connections involves socket creation, authentication handshake, and memory allocation overhead. Connection pool maintains a pool of pre-warmed connections reused by requests, dramatically lowering latency and capping DB load.",
+    "explanation": "HikariCP is the default pool in Spring Boot due to bytecode engineering and lock-free concurrency.",
+    "followUps": [
+      "What happens when the connection pool is exhausted?",
+      "How do you calculate optimal pool size using Amdahl's law / CPU core formula?"
+    ]
+  },
+  {
+    "id": "dbms-23",
+    "category": "dbms_sql",
+    "topic": "Write-Ahead Logging & Crash Recovery",
+    "difficulty": "hard",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "Explain Write-Ahead Logging (WAL) and the ARIES recovery algorithm (Analysis, Redo, Undo).",
+    "expectedAnswer": "WAL mandates that log records describing changes must be flushed to non-volatile disk before dirty data pages are written. ARIES recovery: Analysis scans log forward to find dirty pages and active txns, Redo reapplies all logged actions, Undo reverses uncommitted transactions backwards.",
+    "explanation": "Enables fast in-memory modifications while guaranteeing Durability after system crash.",
+    "followUps": [
+      "What is a checkpoint in database recovery?",
+      "What is dirty page flushing?"
+    ]
+  },
+  {
+    "id": "dbms-24",
+    "category": "dbms_sql",
+    "topic": "UNION vs UNION ALL",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "What is the difference between UNION and UNION ALL in SQL?",
+    "expectedAnswer": "UNION combines result sets of two queries and removes duplicate rows via an implicit sort/hash, which is computationally expensive. UNION ALL combines results without deduplication, preserving all rows and executing much faster.",
+    "explanation": "Both queries must have the same number of columns with compatible data types.",
+    "followUps": [
+      "When should you choose UNION ALL over UNION?",
+      "What is INTERSECT and EXCEPT / MINUS?"
+    ]
+  },
+  {
+    "id": "dbms-25",
+    "category": "dbms_sql",
+    "topic": "SQL Date and Time",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Explain TIMESTAMP vs DATETIME data types and how Timezones should be handled in database architecture.",
+    "expectedAnswer": "DATETIME stores absolute year-month-day time without timezone conversion. TIMESTAMP converts current time to UTC for storage and converts back to local session timezone on retrieval. Best practice: store all timestamps in UTC.",
+    "explanation": "Storing UTC ensures cross-region consistency and simplifies daylight saving transitions.",
+    "followUps": [
+      "What is the Year 2038 problem for 32-bit TIMESTAMP?",
+      "How do you convert timezones in PostgreSQL or MySQL?"
+    ]
+  }
+]

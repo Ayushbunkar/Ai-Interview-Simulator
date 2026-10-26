@@ -1,0 +1,512 @@
+[
+  {
+    "id": "java-01",
+    "category": "java_oop",
+    "topic": "Java Fundamentals",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Service-Based General"
+    ],
+    "questionText": "What is the difference between JDK, JRE, and JVM in Java?",
+    "expectedAnswer": "JVM executes bytecode; JRE contains JVM and runtime libraries; JDK contains JRE plus development tools (javac, debugger).",
+    "explanation": "JVM provides the platform-independent runtime environment. JRE includes class libraries (rt.jar/modules) needed to run apps. JDK includes compiler (javac), archiver (jar), and tools for developers.",
+    "followUps": [
+      "How does Java achieve 'Write Once, Run Anywhere'?",
+      "What is Just-In-Time (JIT) compilation?"
+    ]
+  },
+  {
+    "id": "java-02",
+    "category": "java_oop",
+    "topic": "OOP Principles",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Explain the four core principles of Object-Oriented Programming with practical real-world examples.",
+    "expectedAnswer": "Encapsulation (data hiding via private fields and getters/setters), Abstraction (hiding implementation details via interfaces/abstract classes), Inheritance (code reuse via extends), Polymorphism (method overloading and overriding).",
+    "explanation": "Encapsulation safeguards internal state. Abstraction reduces cognitive complexity. Inheritance enables hierarchical classification. Polymorphism allows unified interfaces for diverse underlying implementations.",
+    "followUps": [
+      "Why is composition favored over inheritance in modern design?",
+      "Can you achieve multiple inheritance in Java?"
+    ]
+  },
+  {
+    "id": "java-03",
+    "category": "java_oop",
+    "topic": "Memory Management",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering",
+      "Java / Backend Specialist"
+    ],
+    "questionText": "How does Java Memory Management work? Differentiate between Stack and Heap memory.",
+    "expectedAnswer": "Stack memory stores primitive values and references to objects in frame lifecycles (LIFO, thread-safe, fast). Heap stores objects and JRE classes, shared across threads, managed by Garbage Collector.",
+    "explanation": "Stack memory allocation is fast and tied to thread execution frames. Heap memory is partitioned into Young Generation (Eden, S0, S1), Old/Tenured Generation, and Metaspace.",
+    "followUps": [
+      "What causes a java.lang.OutOfMemoryError: Java heap space?",
+      "What triggers a StackOverflowError?"
+    ]
+  },
+  {
+    "id": "java-04",
+    "category": "java_oop",
+    "topic": "Garbage Collection",
+    "difficulty": "medium",
+    "companyTags": [
+      "Java / Backend Specialist",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Explain how Java Garbage Collection works and differentiate between Minor GC and Major/Full GC.",
+    "expectedAnswer": "GC identifies unreferenced objects using mark-and-sweep or generational algorithms. Minor GC collects dead objects in Young Gen (Eden/Survivor). Major GC cleans Old Gen and causes longer Stop-The-World pauses.",
+    "explanation": "Generational hypothesis assumes most objects die young. Surviving objects age through survivor spaces and get promoted to Old Generation after reaching the tenuring threshold.",
+    "followUps": [
+      "What are G1GC and ZGC?",
+      "Can System.gc() guarantee immediate garbage collection?"
+    ]
+  },
+  {
+    "id": "java-05",
+    "category": "java_oop",
+    "topic": "Strings & Immutability",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Why are String objects immutable in Java, and how does the String Constant Pool work?",
+    "expectedAnswer": "Strings are immutable for security (network/DB URLs), thread safety, caching hash codes, and memory optimization via the String Constant Pool located in the Heap.",
+    "explanation": "When a literal is created, JVM checks the pool. If present, it returns the reference; otherwise it creates it. Because strings are immutable, sharing pool instances is safe across threads.",
+    "followUps": [
+      "What is the difference between String, StringBuilder, and StringBuffer?",
+      "How does String.intern() function?"
+    ]
+  },
+  {
+    "id": "java-06",
+    "category": "java_oop",
+    "topic": "Exception Handling",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Differentiate between Checked and Unchecked exceptions in Java.",
+    "expectedAnswer": "Checked exceptions inherit from Exception (excluding RuntimeException) and must be handled or declared with throws at compile-time (e.g., IOException, SQLException). Unchecked exceptions inherit from RuntimeException or Error and occur at runtime (e.g., NullPointerException, ArrayIndexOutOfBoundsException).",
+    "explanation": "Checked exceptions represent recoverable external conditions. Unchecked exceptions indicate programming bugs or unrecoverable system failures.",
+    "followUps": [
+      "Can finally block be skipped?",
+      "What is try-with-resources and AutoCloseable?"
+    ]
+  },
+  {
+    "id": "java-07",
+    "category": "java_oop",
+    "topic": "Collections Framework",
+    "difficulty": "medium",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "How does HashMap work internally in Java? Explain bucket structure, collision resolution, and Java 8 treeification.",
+    "expectedAnswer": "HashMap uses an array of Node buckets. Key hashCode() determines the bucket index. Collisions are handled using a linked list. In Java 8+, if a bucket exceeds 8 nodes and array capacity is >= 64, it converts to a Red-Black Tree (O(log n)).",
+    "explanation": "Load factor (default 0.75) determines when resizing occurs (doubling the table). When table size doubles, elements are rehashed.",
+    "followUps": [
+      "Why must equals() and hashCode() contract be maintained?",
+      "What is the difference between HashMap and ConcurrentHashMap?"
+    ]
+  },
+  {
+    "id": "java-08",
+    "category": "java_oop",
+    "topic": "Collections",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "What is the difference between ArrayList and LinkedList in Java? When would you use each?",
+    "expectedAnswer": "ArrayList is backed by a dynamic array offering O(1) random access by index and O(n) insertions/deletions. LinkedList is a doubly-linked list with O(n) indexed access and O(1) insertions/deletions at known nodes.",
+    "explanation": "ArrayList has superior CPU cache locality and lower memory overhead. LinkedList is rarely preferred in modern JVMs due to pointer overhead and cache misses.",
+    "followUps": [
+      "How does ArrayList resize when full?",
+      "What is the initial default capacity of ArrayList?"
+    ]
+  },
+  {
+    "id": "java-09",
+    "category": "java_oop",
+    "topic": "Multithreading",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering",
+      "Java / Backend Specialist"
+    ],
+    "questionText": "How do you create a thread in Java, and what is the difference between extending Thread vs implementing Runnable or Callable?",
+    "expectedAnswer": "Extending Thread limits single inheritance. Implementing Runnable separates task from execution. Callable returns a Future result and can throw checked exceptions.",
+    "explanation": "Modern applications submit Runnable/Callable tasks to ExecutorService rather than creating unmanaged Thread objects.",
+    "followUps": [
+      "What does synchronized keyword do?",
+      "Explain the volatile keyword and memory visibility."
+    ]
+  },
+  {
+    "id": "java-10",
+    "category": "java_oop",
+    "topic": "Java 8 Features",
+    "difficulty": "medium",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Java / Backend Specialist"
+    ],
+    "questionText": "What are the key features introduced in Java 8? Explain Lambda expressions and Functional Interfaces.",
+    "expectedAnswer": "Lambdas, Stream API, Functional Interfaces (@FunctionalInterface, e.g. Predicate, Consumer, Supplier, Function), Optional class, default/static interface methods, and Date/Time API (java.time).",
+    "explanation": "A functional interface has exactly one abstract method (SAM). Lambdas provide clear, concise anonymous class implementations.",
+    "followUps": [
+      "What is the difference between intermediate and terminal operations in Streams?",
+      "What is Optional and how does it prevent NPE?"
+    ]
+  },
+  {
+    "id": "java-11",
+    "category": "java_oop",
+    "topic": "Generics",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "Explain Java Generics, type erasure, and bounded wildcards (? extends T vs ? super T).",
+    "expectedAnswer": "Generics provide compile-time type safety. Type erasure removes generic types at bytecode level for backward compatibility. Producer Extends, Consumer Super (PECS): extends for read-only producer, super for write consumer.",
+    "explanation": "Bytecode replaces generic type with its bound (or Object) and inserts necessary casts.",
+    "followUps": [
+      "Why can't you create an array of a generic type like new T[10]?",
+      "What is a raw type?"
+    ]
+  },
+  {
+    "id": "java-12",
+    "category": "java_oop",
+    "topic": "Interface vs Abstract Class",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Differentiate between an Abstract Class and an Interface in modern Java (Java 8+).",
+    "expectedAnswer": "Abstract class can hold state (instance variables) and constructors, representing an 'is-a' hierarchy. Interface represents capability/contract ('can-do'), can have default/static methods and private helper methods, and supports multiple inheritance.",
+    "explanation": "Interfaces cannot define instance state; their fields are implicitly public static final.",
+    "followUps": [
+      "Can an abstract class have zero abstract methods?",
+      "Why did Java 8 introduce default methods?"
+    ]
+  },
+  {
+    "id": "java-13",
+    "category": "java_oop",
+    "topic": "Java Concurrency",
+    "difficulty": "hard",
+    "companyTags": [
+      "Java / Backend Specialist",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Explain how ConcurrentHashMap achieves thread safety without locking the entire map like Hashtable.",
+    "expectedAnswer": "In Java 8+, ConcurrentHashMap uses fine-grained locking with synchronized blocks on individual bucket bin heads (first node) and CAS (Compare-And-Swap) for empty buckets, allowing concurrent reads without locking.",
+    "explanation": "Earlier Java versions used 16 Segment locks. Modern implementation locks only the head node of a hash bucket on insertion/update, minimizing contention.",
+    "followUps": [
+      "What is the difference between synchronized and ReentrantLock?",
+      "What is ThreadLocal?"
+    ]
+  },
+  {
+    "id": "java-14",
+    "category": "java_oop",
+    "topic": "Equals and HashCode",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Why is it mandatory to override hashCode() whenever you override equals() in Java?",
+    "expectedAnswer": "If two objects are equal according to equals(), they must produce the same integer hashCode(). Otherwise, hash-based collections (HashMap, HashSet) fail to find existing objects during lookup.",
+    "explanation": "Without matching hashCode, the collection calculates the wrong bucket index, causing duplicate keys in HashSet and null lookups in HashMap.",
+    "followUps": [
+      "Can two unequal objects have the same hashCode?",
+      "What is a hash collision?"
+    ]
+  },
+  {
+    "id": "java-15",
+    "category": "java_oop",
+    "topic": "Keywords",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Explain the final, finally, and finalize keywords in Java.",
+    "expectedAnswer": "final is a modifier (constant variable, uninheritable class, non-overridable method). finally is a block in exception handling that executes regardless of exceptions. finalize() was an Object method called before GC, now deprecated in Java 9+.",
+    "explanation": "Cleaner and PhantomReference replace finalize due to unpredictable invocation timing and resurrection bugs.",
+    "followUps": [
+      "Can a constructor be declared final?",
+      "What happens if System.exit(0) is called inside a try block?"
+    ]
+  },
+  {
+    "id": "java-16",
+    "category": "java_oop",
+    "topic": "Static Keyword",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "What is the static keyword in Java? Can we override a static method?",
+    "expectedAnswer": "static belongs to the class rather than instances (static variables, methods, blocks, nested classes). Static methods cannot be overridden; if declared with same signature in subclass, it is method hiding.",
+    "explanation": "Static method calls are resolved at compile time based on the reference type, not runtime object type.",
+    "followUps": [
+      "Can a static method access non-static instance variables?",
+      "What is a static initialization block?"
+    ]
+  },
+  {
+    "id": "java-17",
+    "category": "java_oop",
+    "topic": "Design Patterns",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering",
+      "Java / Backend Specialist"
+    ],
+    "questionText": "How do you implement a thread-safe Singleton design pattern in Java? Explain Double-Checked Locking.",
+    "expectedAnswer": "Use private constructor, volatile instance variable, and synchronized block on class object with double null check. Or use Bill Pugh Singleton (static inner class) or Enum Singleton.",
+    "explanation": "volatile prevents instruction reordering during instance construction (allocating memory, initializing fields, assigning reference).",
+    "followUps": [
+      "Why is Enum considered the safest way to implement Singleton in Java?",
+      "What is the Factory pattern?"
+    ]
+  },
+  {
+    "id": "java-18",
+    "category": "java_oop",
+    "topic": "Java Reflection",
+    "difficulty": "medium",
+    "companyTags": [
+      "Java / Backend Specialist"
+    ],
+    "questionText": "What is Java Reflection API, what are its use cases, and what are its performance and security drawbacks?",
+    "expectedAnswer": "Reflection inspects and modifies classes, fields, methods at runtime (Class.forName, getDeclaredMethods). Used by frameworks like Spring (DI, annotations), Hibernate, JUnit. Drawbacks: performance overhead, breaks encapsulation, bypasses access control.",
+    "explanation": "Modern Java modules (JPMS) restrict deep reflection unless packages are explicitly opened.",
+    "followUps": [
+      "How does Spring Dependency Injection use reflection?",
+      "What are Java Annotations and RetentionPolicy?"
+    ]
+  },
+  {
+    "id": "java-19",
+    "category": "java_oop",
+    "topic": "Serialization",
+    "difficulty": "medium",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Explain Java Serialization, transient keyword, and the importance of serialVersionUID.",
+    "expectedAnswer": "Serialization converts object state to byte stream via Serializable marker interface. transient prevents field serialization. serialVersionUID ensures sender and receiver have compatible class versions.",
+    "explanation": "If serialVersionUID does not match during deserialization, InvalidClassException is thrown.",
+    "followUps": [
+      "What is Externalizable interface?",
+      "Can static fields be serialized?"
+    ]
+  },
+  {
+    "id": "java-20",
+    "category": "java_oop",
+    "topic": "Comparable vs Comparator",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Differentiate between Comparable and Comparator interfaces in Java with code examples.",
+    "expectedAnswer": "Comparable defines natural ordering inside the class via compareTo(T o). Comparator defines external custom ordering outside the class via compare(T o1, T o2) and supports multiple sorting strategies.",
+    "explanation": "Comparable is found in java.lang (single sequence), while Comparator is in java.util and supports functional composition (e.g. Comparator.comparing().thenComparing()).",
+    "followUps": [
+      "How does Arrays.sort() work for primitive vs reference types?",
+      "What algorithm does TimSort use?"
+    ]
+  },
+  {
+    "id": "java-21",
+    "category": "java_oop",
+    "topic": "Pass by Value",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Is Java pass-by-value or pass-by-reference? Demonstrate with an example.",
+    "expectedAnswer": "Java is strictly pass-by-value. For primitives, a copy of the actual value is passed. For objects, a copy of the reference address is passed, not the object itself.",
+    "explanation": "Reassigning the parameter variable inside a method does not affect the caller's reference, though modifying an object's internal fields through the reference copy will mutate the object.",
+    "followUps": [
+      "What happens if you swap two object references inside a helper method?",
+      "How do wrapper classes handle pass-by-value?"
+    ]
+  },
+  {
+    "id": "java-22",
+    "category": "java_oop",
+    "topic": "Java Records & Modern Features",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering",
+      "Java / Backend Specialist"
+    ],
+    "questionText": "What are Java Records (introduced in Java 14/16), and how do they differ from regular classes or Lombok @Data?",
+    "expectedAnswer": "Records are immutable data carriers with concise syntax. The compiler generates private final fields, canonical constructor, getters (name()), equals, hashCode, and toString automatically.",
+    "explanation": "Records cannot extend other classes (they implicitly extend java.lang.Record) but can implement interfaces.",
+    "followUps": [
+      "What are Sealed Classes in Java 17?",
+      "Explain Pattern Matching for instanceof."
+    ]
+  },
+  {
+    "id": "java-23",
+    "category": "java_oop",
+    "topic": "JVM Architecture",
+    "difficulty": "medium",
+    "companyTags": [
+      "Java / Backend Specialist"
+    ],
+    "questionText": "Explain the JVM ClassLoader subsystem and the Delegation hierarchy (Bootstrap, Extension/Platform, Application).",
+    "expectedAnswer": "ClassLoader loads .class files. Delegation hierarchy checks parent first before loading: Bootstrap loads core rt.jar/java.base, Platform/Extension loads platform extensions, Application/System loads classpath classes.",
+    "explanation": "Loading process consists of Loading, Linking (Verification, Preparation, Resolution), and Initialization.",
+    "followUps": [
+      "What is a ClassNotFoundException vs NoClassDefFoundError?",
+      "Can you write a custom ClassLoader?"
+    ]
+  },
+  {
+    "id": "java-24",
+    "category": "java_oop",
+    "topic": "Deadlock",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering",
+      "Java / Backend Specialist"
+    ],
+    "questionText": "What is a thread deadlock in Java? What are the 4 Coffman conditions required for deadlock, and how can it be prevented?",
+    "expectedAnswer": "Deadlock occurs when two or more threads are blocked forever, each holding a lock the other needs. Conditions: Mutual exclusion, Hold and wait, No preemption, Circular wait. Prevent by lock ordering or tryLock with timeouts.",
+    "explanation": "Eliminating circular wait by enforcing a strict global lock acquisition hierarchy is the standard prevention technique.",
+    "followUps": [
+      "How do you detect deadlocks in production using jstack or visualvm?",
+      "What is livelock and thread starvation?"
+    ]
+  },
+  {
+    "id": "java-25",
+    "category": "java_oop",
+    "topic": "Executor Framework",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering",
+      "Java / Backend Specialist"
+    ],
+    "questionText": "Explain Java ExecutorService and ThreadPoolExecutor. What parameters configure a thread pool?",
+    "expectedAnswer": "ExecutorService manages a pool of worker threads and task queue. Parameters: corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit, BlockingQueue (workQueue), ThreadFactory, and RejectedExecutionHandler.",
+    "explanation": "Tasks are assigned to core threads first; if busy, placed into workQueue; if queue fills, expands up to maximumPoolSize; if max reached, rejected.",
+    "followUps": [
+      "What are the standard rejection policies (Abort, CallerRuns, Discard, DiscardOldest)?",
+      "What is CompletableFuture?"
+    ]
+  },
+  {
+    "id": "java-26",
+    "category": "java_oop",
+    "topic": "Autoboxing & Unboxing",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "What is Autoboxing and Unboxing in Java? What is the Integer Cache (-128 to 127)?",
+    "expectedAnswer": "Automatic conversion between primitives and their wrapper classes (int <-> Integer). Java caches Integer objects between -128 and 127 via Integer.valueOf(), so == returns true for cached values but false for new instances.",
+    "explanation": "Using == on wrapper classes compares memory addresses, not values, which is a common source of bugs outside the cached range.",
+    "followUps": [
+      "How can unboxing cause a NullPointerException?",
+      "What is the memory overhead of an Integer vs int?"
+    ]
+  },
+  {
+    "id": "java-27",
+    "category": "java_oop",
+    "topic": "Constructors",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "What is constructor chaining in Java? Differentiate between this() and super() constructor calls.",
+    "expectedAnswer": "Constructor chaining calls one constructor from another within the same class using this(...) or from superclass using super(...). The call must be the very first statement in the constructor.",
+    "explanation": "Ensures superclass state is fully initialized before subclass constructor body executes.",
+    "followUps": [
+      "Can a constructor be private?",
+      "What is a copy constructor?"
+    ]
+  },
+  {
+    "id": "java-28",
+    "category": "java_oop",
+    "topic": "Access Modifiers",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Explain the four access modifiers in Java: private, default (package-private), protected, and public.",
+    "expectedAnswer": "private: accessible only within declaring class. default: within same package. protected: same package plus subclasses in other packages. public: accessible everywhere.",
+    "explanation": "Top-level classes can only be public or default (package-private).",
+    "followUps": [
+      "Why can't top-level classes be private or protected?",
+      "How does encapsulation benefit software maintenance?"
+    ]
+  },
+  {
+    "id": "java-29",
+    "category": "java_oop",
+    "topic": "Cloning",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "Explain Shallow Copy vs Deep Copy in Java. How does Object.clone() work?",
+    "expectedAnswer": "Shallow copy duplicates field values; for object references, both copies reference the same nested object in memory. Deep copy creates independent duplicates of referenced nested objects recursively.",
+    "explanation": "Object.clone() performs shallow copy and requires implementing Cloneable marker interface. Copy constructors or serialization are generally preferred.",
+    "followUps": [
+      "Why is Cloneable interface widely considered flawed?",
+      "How do you perform deep copy with JSON or copy constructor?"
+    ]
+  },
+  {
+    "id": "java-30",
+    "category": "java_oop",
+    "topic": "Virtual Threads",
+    "difficulty": "hard",
+    "companyTags": [
+      "Java / Backend Specialist",
+      "Product-Based Engineering"
+    ],
+    "questionText": "What are Java Virtual Threads (Project Loom, Java 21) and how do they differ from traditional OS platform threads?",
+    "expectedAnswer": "Virtual threads are lightweight user-mode threads managed by the JVM rather than OS. Millions can be spawned with negligible memory overhead (bytes vs 1MB stack), revolutionizing high-throughput I/O blocking servers.",
+    "explanation": "When a virtual thread performs blocking I/O, JVM unmounts it from the carrier OS thread, allowing other virtual threads to execute.",
+    "followUps": [
+      "What is carrier thread pinning?",
+      "Should you pool virtual threads like platform threads?"
+    ]
+  }
+]

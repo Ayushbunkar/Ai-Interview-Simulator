@@ -1,0 +1,341 @@
+[
+  {
+    "id": "os-01",
+    "category": "os",
+    "topic": "Process vs Thread",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "What is the fundamental difference between a Process and a Thread?",
+    "expectedAnswer": "A Process is an executing program instance with its own independent address space, memory, and file handles. A Thread is a lightweight unit of execution within a process that shares code, data, and heap with other threads but has its own register state and stack.",
+    "explanation": "Context switching between processes is costly (flushing TLB, MMU page tables). Context switching between threads in the same process is faster because memory mappings remain unchanged.",
+    "followUps": [
+      "What is stored in a Process Control Block (PCB)?",
+      "What resources are shared between threads of the same process?"
+    ]
+  },
+  {
+    "id": "os-02",
+    "category": "os",
+    "topic": "Virtual Memory & Paging",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering",
+      "Java / Backend Specialist"
+    ],
+    "questionText": "Explain Virtual Memory, Paging, Page Tables, and the Translation Lookaside Buffer (TLB).",
+    "expectedAnswer": "Virtual memory gives processes the illusion of contiguous physical memory. Memory is divided into fixed-size pages mapped to physical frames via Page Tables. TLB is a high-speed hardware cache of recent virtual-to-physical address translations.",
+    "explanation": "MMU (Memory Management Unit) translates virtual addresses to physical. A TLB miss incurs page table walk in RAM.",
+    "followUps": [
+      "What is a Page Fault and what happens when it occurs?",
+      "What is multi-level paging?"
+    ]
+  },
+  {
+    "id": "os-03",
+    "category": "os",
+    "topic": "CPU Scheduling",
+    "difficulty": "medium",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Compare CPU scheduling algorithms: FCFS, SJF, Round Robin, and Priority Scheduling.",
+    "expectedAnswer": "FCFS executes in order of arrival (can suffer convoy effect). SJF is optimal for average waiting time but requires knowing burst time (starvation risk). Round Robin uses time quantum slices for fair multitasking. Priority schedules highest priority first (starvation solved via aging).",
+    "explanation": "Preemptive schedulers can interrupt running tasks when higher priority tasks arrive, unlike non-preemptive schedulers.",
+    "followUps": [
+      "What is the Convoy Effect?",
+      "How does Linux Completely Fair Scheduler (CFS) work?"
+    ]
+  },
+  {
+    "id": "os-04",
+    "category": "os",
+    "topic": "Process Synchronization",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering",
+      "Java / Backend Specialist"
+    ],
+    "questionText": "What is a Critical Section? Explain the difference between a Mutex and a Semaphore.",
+    "expectedAnswer": "Critical section is code accessing shared resources that must not be concurrently accessed by multiple threads. A Mutex is a locking mechanism with ownership (only the thread that locked can unlock). A Semaphore is a signaling mechanism with an integer counter (Counting Semaphore / Binary Semaphore) without ownership.",
+    "explanation": "Semaphores can be signaled by any thread, making them suitable for producer-consumer synchronization.",
+    "followUps": [
+      "What is the Producer-Consumer problem?",
+      "What is Priority Inversion and Priority Inheritance?"
+    ]
+  },
+  {
+    "id": "os-05",
+    "category": "os",
+    "topic": "Deadlocks",
+    "difficulty": "medium",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Explain the Banker's Algorithm for Deadlock Avoidance. Differentiate between Deadlock Prevention and Avoidance.",
+    "expectedAnswer": "Prevention eliminates one of the 4 Coffman conditions at design time. Avoidance dynamically monitors resource allocation to guarantee the system remains in a Safe State where at least one execution sequence allows all processes to finish without deadlock.",
+    "explanation": "Banker's algorithm tests whether granting requested resources leads to a safe state by simulating maximal remaining needs.",
+    "followUps": [
+      "What is a Resource Allocation Graph (RAG)?",
+      "How does cycle detection identify deadlocks?"
+    ]
+  },
+  {
+    "id": "os-06",
+    "category": "os",
+    "topic": "Inter-Process Communication (IPC)",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "What are the common mechanisms for Inter-Process Communication (IPC)? (Pipes, Sockets, Shared Memory, Message Queues).",
+    "expectedAnswer": "Shared Memory (fastest, processes map same RAM segment, requires synchronization), Pipes (unidirectional byte stream), Sockets (network/local IPC across boundaries), Message Queues (kernel-managed message buffers).",
+    "explanation": "Shared memory avoids kernel copying overhead, while pipes and message queues copy data through kernel space.",
+    "followUps": [
+      "What is an anonymous pipe vs named pipe (FIFO)?",
+      "What is a Unix Domain Socket?"
+    ]
+  },
+  {
+    "id": "os-07",
+    "category": "os",
+    "topic": "Thrashing",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "What is Thrashing in an operating system and how can it be resolved?",
+    "expectedAnswer": "Thrashing occurs when the OS spends more time swapping pages in and out of secondary storage than executing user instructions, causing CPU utilization to plummet toward zero.",
+    "explanation": "Causes: high degree of multiprogramming and insufficient physical memory for active Working Sets. Resolved by reducing multiprogramming or adding RAM.",
+    "followUps": [
+      "What is the Working Set model?",
+      "What is Page Replacement Algorithm (LRU, FIFO, Clock)?"
+    ]
+  },
+  {
+    "id": "os-08",
+    "category": "os",
+    "topic": "Kernel vs User Mode",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "What is the difference between User Mode and Kernel Mode? How does a System Call transition between them?",
+    "expectedAnswer": "Kernel Mode (Ring 0) has unrestricted access to hardware instructions and physical memory. User Mode (Ring 3) has restricted access for application safety. A System Call uses a software interrupt or syscall instruction to switch CPU privilege level to kernel mode.",
+    "explanation": "System calls validate parameters in kernel space before executing privileged hardware actions on behalf of user applications.",
+    "followUps": [
+      "What is a context switch?",
+      "What are common system calls (fork, exec, read, write)?"
+    ]
+  },
+  {
+    "id": "os-09",
+    "category": "os",
+    "topic": "Fork and Exec",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "Explain how fork(), exec(), and wait() system calls work in Unix/Linux. What is Copy-On-Write (COW)?",
+    "expectedAnswer": "fork() creates an exact child process duplicate. exec() replaces the current process address space with a new executable program. wait() suspends parent until child terminates. COW delays copying physical memory pages until child or parent modifies them.",
+    "explanation": "Copy-On-Write makes fork() extremely fast because memory pages are shared read-only until a write fault occurs.",
+    "followUps": [
+      "What is a Zombie Process?",
+      "What is an Orphan Process and who adopts it?"
+    ]
+  },
+  {
+    "id": "os-010",
+    "category": "os",
+    "topic": "Zombie and Orphan Processes",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Differentiate between a Zombie process and an Orphan process. How do you clean up zombies?",
+    "expectedAnswer": "Zombie is a terminated process whose exit status has not yet been read by its parent via wait(). Orphan is a running process whose parent terminated; it is adopted by PID 1 (init/systemd) which reaps it on exit.",
+    "explanation": "Zombies occupy a slot in the Process Table. If table fills, no new processes can be spawned. Kill the parent process to allow init to reap the zombie.",
+    "followUps": [
+      "Why does kill -9 fail to kill a zombie process?",
+      "What is SIGCHLD?"
+    ]
+  },
+  {
+    "id": "os-011",
+    "category": "os",
+    "topic": "File Systems",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "What is an Inode in a Unix file system? What information does it store?",
+    "expectedAnswer": "An Inode is a data structure storing file metadata: file type, permissions, owner, file size, timestamps, and pointers to disk blocks containing file data. It does NOT store the filename.",
+    "explanation": "Filenames are mapped to inode numbers inside directory entry files.",
+    "followUps": [
+      "What is a Hard Link vs a Soft (Symbolic) Link?",
+      "What happens to a file when its hard link count reaches zero?"
+    ]
+  },
+  {
+    "id": "os-012",
+    "category": "os",
+    "topic": "Memory Allocation",
+    "difficulty": "medium",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "What is the difference between Internal and External Fragmentation?",
+    "expectedAnswer": "Internal fragmentation occurs when allocated memory block is larger than requested data (wasted space inside allocated partition, e.g. in paging). External fragmentation occurs when total free memory exists to satisfy request but is broken into non-contiguous scattered chunks.",
+    "explanation": "Paging eliminates external fragmentation by using fixed-size blocks, but incurs small internal fragmentation on the last page.",
+    "followUps": [
+      "What is compaction?",
+      "What are First Fit, Best Fit, and Worst Fit allocation strategies?"
+    ]
+  },
+  {
+    "id": "os-013",
+    "category": "os",
+    "topic": "Belady's Anomaly",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "What is Belady's Anomaly? Which page replacement algorithms exhibit it?",
+    "expectedAnswer": "Belady's Anomaly is the phenomenon where increasing the number of page frames results in an INCREASE in page faults. It occurs in FIFO page replacement algorithm. It does not occur in stack-based algorithms like LRU or Optimal.",
+    "explanation": "FIFO does not respect locality of reference. Stack algorithms guarantee that the set of pages in N frames is always a subset of N+1 frames.",
+    "followUps": [
+      "Why is Optimal Page Replacement impossible to implement in practice?",
+      "How does LRU approximate optimal replacement?"
+    ]
+  },
+  {
+    "id": "os-014",
+    "category": "os",
+    "topic": "I/O Management",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering",
+      "Java / Backend Specialist"
+    ],
+    "questionText": "Explain Programmed I/O, Interrupt-Driven I/O, and Direct Memory Access (DMA).",
+    "expectedAnswer": "Programmed I/O polls device in busy-wait loop (wastes CPU). Interrupt-driven I/O notifies CPU when byte/word ready. DMA allows hardware controller to transfer blocks of data directly to/from RAM without CPU intervention, interrupting CPU only when entire transfer completes.",
+    "explanation": "DMA offloads high-bandwidth transfers (disks, network cards), freeing CPU for computations.",
+    "followUps": [
+      "What is zero-copy in OS (e.g. sendfile)?",
+      "How does epoll/kqueue improve upon select/poll?"
+    ]
+  },
+  {
+    "id": "os-015",
+    "category": "os",
+    "topic": "Monolithic vs Microkernel",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Differentiate between Monolithic Kernel (Linux) and Microkernel (Mach, QNX) architectures.",
+    "expectedAnswer": "Monolithic kernel runs all OS services (VFS, IPC, drivers, networking) in kernel space (high performance, large attack surface). Microkernel runs only minimal primitives in kernel space (IPC, address space, basic scheduling), running drivers and file systems as user-space servers.",
+    "explanation": "Microkernels provide isolation and crash fault tolerance at the cost of IPC message passing overhead.",
+    "followUps": [
+      "What is a Hybrid Kernel (Windows, macOS)?",
+      "What is an eBPF program in modern Linux?"
+    ]
+  },
+  {
+    "id": "os-016",
+    "category": "os",
+    "topic": "Signals",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "What are POSIX signals? Differentiate between SIGTERM and SIGKILL.",
+    "expectedAnswer": "Signals are asynchronous notifications sent to a process. SIGTERM (signal 15) is a polite termination request that can be caught, handled, and used for graceful shutdown. SIGKILL (signal 9) cannot be caught or ignored and terminates the process immediately at kernel level.",
+    "explanation": "Graceful container shutdowns send SIGTERM first, waiting for grace period before escalating to SIGKILL.",
+    "followUps": [
+      "What is SIGINT vs SIGTSTP?",
+      "What is an uncatchable signal other than SIGKILL? (SIGSTOP)"
+    ]
+  },
+  {
+    "id": "os-017",
+    "category": "os",
+    "topic": "RAID Levels",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Explain RAID 0, RAID 1, RAID 5, and RAID 10 storage configurations.",
+    "expectedAnswer": "RAID 0 (striping, high speed, no redundancy). RAID 1 (mirroring, 100% redundancy, 50% capacity). RAID 5 (block-level striping with distributed parity, tolerates 1 drive failure). RAID 10 (striped mirrors, high performance and fault tolerance).",
+    "explanation": "RAID 5 requires minimum 3 drives. RAID 10 requires minimum 4 drives.",
+    "followUps": [
+      "What is the write penalty in RAID 5?",
+      "What is hot swapping?"
+    ]
+  },
+  {
+    "id": "os-018",
+    "category": "os",
+    "topic": "Memory Leak & Detection",
+    "difficulty": "medium",
+    "companyTags": [
+      "Java / Backend Specialist",
+      "Product-Based Engineering"
+    ],
+    "questionText": "What is a memory leak? How does it differ in C/C++ versus managed runtimes like Java, and how is it detected?",
+    "expectedAnswer": "In C/C++, memory allocated on heap (malloc/new) is never freed (free/delete). In Java, objects remain strongly referenced by active roots (static fields, threadlocals, unclosed listeners) preventing GC reclamation. Detected using heap profilers, valgrind, or dump analysis.",
+    "explanation": "In managed languages, memory leaks are uncollected semantic references rather than lost memory pointers.",
+    "followUps": [
+      "What is a heap dump?",
+      "How can ThreadLocal cause memory leaks in thread-pooled web servers?"
+    ]
+  },
+  {
+    "id": "os-019",
+    "category": "os",
+    "topic": "Spinlock vs Sleep Lock",
+    "difficulty": "hard",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "What is a Spinlock and when is it preferred over a sleeping mutex?",
+    "expectedAnswer": "A spinlock repeatedly polls a lock variable in a tight loop (busy-wait) until acquired. Preferred when critical section is extremely short (< context switch time) and in multiprocessor environments where thread does not sleep.",
+    "explanation": "Spinning on a single CPU core is disastrous because the locking thread cannot run to release the lock.",
+    "followUps": [
+      "Can a spinlock be used in a single-processor system?",
+      "What is an Adaptive Mutex?"
+    ]
+  },
+  {
+    "id": "os-020",
+    "category": "os",
+    "topic": "Linux Boot Process",
+    "difficulty": "medium",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Describe the high-level stages of the Linux boot process (BIOS/UEFI, GRUB, Kernel, Init/Systemd).",
+    "expectedAnswer": "1. BIOS/UEFI runs POST and loads MBR/EFI. 2. Bootloader (GRUB) displays menu and loads kernel image (vmlinuz) and initramfs. 3. Kernel mounts root filesystem, initializes hardware drivers. 4. Kernel executes PID 1 (systemd) which starts system services.",
+    "explanation": "initramfs provides minimal drivers needed to locate and mount the real root partition.",
+    "followUps": [
+      "What is the purpose of systemd targets/runlevels?",
+      "What does dmesg command display?"
+    ]
+  }
+]

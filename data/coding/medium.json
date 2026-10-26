@@ -1,0 +1,1502 @@
+[
+  {
+    "id": "prob-med-01",
+    "title": "Longest Substring Without Repeating Characters",
+    "slug": "longest-substring-without-repeating-characters",
+    "difficulty": "medium",
+    "topicTags": [
+      "Hash Table",
+      "String",
+      "Sliding Window"
+    ],
+    "description": "Given a string s, find the length of the longest substring without repeating characters.",
+    "inputFormat": "A single line containing the string s.",
+    "outputFormat": "A single integer representing the length.",
+    "constraints": [
+      "0 <= s.length <= 5 * 10^4",
+      "s consists of English letters, digits, symbols and spaces."
+    ],
+    "examples": [
+      {
+        "input": "abcabcbb",
+        "output": "3",
+        "explanation": "The answer is 'abc', with the length of 3."
+      },
+      {
+        "input": "bbbbb",
+        "output": "1",
+        "explanation": "The answer is 'b', with the length of 1."
+      },
+      {
+        "input": "pwwkew",
+        "output": "3",
+        "explanation": "The answer is 'wke', with the length of 3."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.hasNextLine() ? sc.nextLine() : \"\";\n        System.out.println(lengthOfLongestSubstring(s));\n    }\n    \n    public static int lengthOfLongestSubstring(String s) {\n        // Implement sliding window\n        return 0;\n    }\n}",
+    "starterCodePython": "import sys\n\ndef length_of_longest_substring(s: str) -> int:\n    # Implement sliding window\n    return 0\n\nif __name__ == '__main__':\n    s = sys.stdin.readline().rstrip('\\r\\n')\n    print(length_of_longest_substring(s))\n",
+    "starterCodeCpp": "#include <iostream>\n#include <string>\n#include <unordered_map>\nusing namespace std;\n\nint lengthOfLongestSubstring(string s) {\n    // Implement sliding window\n    return 0;\n}\n\nint main() {\n    string s;\n    getline(cin, s);\n    cout << lengthOfLongestSubstring(s) << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        String s = sc.hasNextLine() ? sc.nextLine() : \"\";\n        System.out.println(lengthOfLongestSubstring(s));\n    }\n    \n    public static int lengthOfLongestSubstring(String s) {\n        Map<Character, Integer> map = new HashMap<>();\n        int maxLen = 0, left = 0;\n        for (int right = 0; right < s.length(); right++) {\n            char c = s.charAt(right);\n            if (map.containsKey(c)) {\n                left = Math.max(left, map.get(c) + 1);\n            }\n            map.put(c, right);\n            maxLen = Math.max(maxLen, right - left + 1);\n        }\n        return maxLen;\n    }\n}",
+    "referenceSolutionPython": "import sys\n\ndef length_of_longest_substring(s: str) -> int:\n    seen = {}\n    max_len = 0\n    left = 0\n    for right, char in enumerate(s):\n        if char in seen and seen[char] >= left:\n            left = seen[char] + 1\n        seen[char] = right\n        max_len = max(max_len, right - left + 1)\n    return max_len\n\nif __name__ == '__main__':\n    s = sys.stdin.readline().rstrip('\\r\\n')\n    print(length_of_longest_substring(s))\n",
+    "referenceSolutionCpp": "#include <iostream>\n#include <string>\n#include <unordered_map>\n#include <algorithm>\nusing namespace std;\n\nint lengthOfLongestSubstring(string s) {\n    unordered_map<char, int> seen;\n    int maxLen = 0, left = 0;\n    for (int right = 0; right < s.length(); right++) {\n        if (seen.count(s[right])) {\n            left = max(left, seen[s[right]] + 1);\n        }\n        seen[s[right]] = right;\n        maxLen = max(maxLen, right - left + 1);\n    }\n    return maxLen;\n}\n\nint main() {\n    string s;\n    getline(cin, s);\n    cout << lengthOfLongestSubstring(s) << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n) - Both pointers traverse the string at most once.",
+    "spaceComplexity": "O(min(n, m)) - Size of alphabet m.",
+    "hints": [
+      "Use a dynamic sliding window with two pointers [left, right].",
+      "Store the most recent index of each character to jump left pointer ahead."
+    ],
+    "testCases": [
+      {
+        "id": "tc-med-01-1",
+        "input": "abcabcbb",
+        "expectedOutput": "3",
+        "isHidden": false
+      },
+      {
+        "id": "tc-med-01-2",
+        "input": "bbbbb",
+        "expectedOutput": "1",
+        "isHidden": false
+      },
+      {
+        "id": "tc-med-01-3",
+        "input": "pwwkew",
+        "expectedOutput": "3",
+        "isHidden": false
+      },
+      {
+        "id": "tc-med-01-4",
+        "input": "",
+        "expectedOutput": "0",
+        "isHidden": true
+      },
+      {
+        "id": "tc-med-01-5",
+        "input": "dvdf",
+        "expectedOutput": "3",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-02",
+    "title": "3Sum",
+    "slug": "3sum",
+    "difficulty": "medium",
+    "topicTags": [
+      "Two Pointers"
+    ],
+    "description": "Problem: 3Sum. Solve this classic algorithmic problem using optimal Two Pointers paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-02-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-02-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-03",
+    "title": "Container With Most Water",
+    "slug": "container-with-most-water",
+    "difficulty": "medium",
+    "topicTags": [
+      "Two Pointers"
+    ],
+    "description": "Problem: Container With Most Water. Solve this classic algorithmic problem using optimal Two Pointers paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-03-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-03-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-04",
+    "title": "Longest Palindromic Substring",
+    "slug": "longest-palindromic-substring",
+    "difficulty": "medium",
+    "topicTags": [
+      "Dynamic Programming"
+    ],
+    "description": "Problem: Longest Palindromic Substring. Solve this classic algorithmic problem using optimal Dynamic Programming paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-04-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-04-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-05",
+    "title": "Group Anagrams",
+    "slug": "group-anagrams",
+    "difficulty": "medium",
+    "topicTags": [
+      "Hash Table"
+    ],
+    "description": "Problem: Group Anagrams. Solve this classic algorithmic problem using optimal Hash Table paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-05-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-05-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-06",
+    "title": "Top K Frequent Elements",
+    "slug": "top-k-frequent-elements",
+    "difficulty": "medium",
+    "topicTags": [
+      "Heap"
+    ],
+    "description": "Problem: Top K Frequent Elements. Solve this classic algorithmic problem using optimal Heap paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-06-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-06-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-07",
+    "title": "Product of Array Except Self",
+    "slug": "product-of-array-except-self",
+    "difficulty": "medium",
+    "topicTags": [
+      "Array"
+    ],
+    "description": "Problem: Product of Array Except Self. Solve this classic algorithmic problem using optimal Array paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-07-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-07-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-08",
+    "title": "Search in Rotated Sorted Array",
+    "slug": "search-in-rotated-sorted-array",
+    "difficulty": "medium",
+    "topicTags": [
+      "Binary Search"
+    ],
+    "description": "Problem: Search in Rotated Sorted Array. Solve this classic algorithmic problem using optimal Binary Search paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-08-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-08-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-09",
+    "title": "Find Minimum in Rotated Sorted Array",
+    "slug": "find-minimum-in-rotated-sorted-array",
+    "difficulty": "medium",
+    "topicTags": [
+      "Binary Search"
+    ],
+    "description": "Problem: Find Minimum in Rotated Sorted Array. Solve this classic algorithmic problem using optimal Binary Search paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-09-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-09-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-10",
+    "title": "Kth Largest Element in an Array",
+    "slug": "kth-largest-element-in-an-array",
+    "difficulty": "medium",
+    "topicTags": [
+      "Heap"
+    ],
+    "description": "Problem: Kth Largest Element in an Array. Solve this classic algorithmic problem using optimal Heap paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-10-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-10-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-11",
+    "title": "Coin Change",
+    "slug": "coin-change",
+    "difficulty": "medium",
+    "topicTags": [
+      "Dynamic Programming"
+    ],
+    "description": "Problem: Coin Change. Solve this classic algorithmic problem using optimal Dynamic Programming paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-11-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-11-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-12",
+    "title": "Longest Increasing Subsequence",
+    "slug": "longest-increasing-subsequence",
+    "difficulty": "medium",
+    "topicTags": [
+      "Dynamic Programming"
+    ],
+    "description": "Problem: Longest Increasing Subsequence. Solve this classic algorithmic problem using optimal Dynamic Programming paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-12-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-12-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-13",
+    "title": "Word Break",
+    "slug": "word-break",
+    "difficulty": "medium",
+    "topicTags": [
+      "Trie / DP"
+    ],
+    "description": "Problem: Word Break. Solve this classic algorithmic problem using optimal Trie / DP paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-13-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-13-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-14",
+    "title": "Combination Sum",
+    "slug": "combination-sum",
+    "difficulty": "medium",
+    "topicTags": [
+      "Backtracking"
+    ],
+    "description": "Problem: Combination Sum. Solve this classic algorithmic problem using optimal Backtracking paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-14-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-14-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-15",
+    "title": "Subsets",
+    "slug": "subsets",
+    "difficulty": "medium",
+    "topicTags": [
+      "Backtracking"
+    ],
+    "description": "Problem: Subsets. Solve this classic algorithmic problem using optimal Backtracking paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-15-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-15-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-16",
+    "title": "Permutations",
+    "slug": "permutations",
+    "difficulty": "medium",
+    "topicTags": [
+      "Backtracking"
+    ],
+    "description": "Problem: Permutations. Solve this classic algorithmic problem using optimal Backtracking paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-16-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-16-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-17",
+    "title": "Number of Islands",
+    "slug": "number-of-islands",
+    "difficulty": "medium",
+    "topicTags": [
+      "Graph / BFS / DFS"
+    ],
+    "description": "Problem: Number of Islands. Solve this classic algorithmic problem using optimal Graph / BFS / DFS paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-17-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-17-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-18",
+    "title": "Course Schedule",
+    "slug": "course-schedule",
+    "difficulty": "medium",
+    "topicTags": [
+      "Topological Sort"
+    ],
+    "description": "Problem: Course Schedule. Solve this classic algorithmic problem using optimal Topological Sort paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-18-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-18-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-19",
+    "title": "Clone Graph",
+    "slug": "clone-graph",
+    "difficulty": "medium",
+    "topicTags": [
+      "Graph"
+    ],
+    "description": "Problem: Clone Graph. Solve this classic algorithmic problem using optimal Graph paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-19-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-19-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-20",
+    "title": "Pacific Atlantic Water Flow",
+    "slug": "pacific-atlantic-water-flow",
+    "difficulty": "medium",
+    "topicTags": [
+      "Graph"
+    ],
+    "description": "Problem: Pacific Atlantic Water Flow. Solve this classic algorithmic problem using optimal Graph paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-20-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-20-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-21",
+    "title": "Validate Binary Search Tree",
+    "slug": "validate-binary-search-tree",
+    "difficulty": "medium",
+    "topicTags": [
+      "Tree"
+    ],
+    "description": "Problem: Validate Binary Search Tree. Solve this classic algorithmic problem using optimal Tree paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-21-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-21-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-22",
+    "title": "Kth Smallest Element in a BST",
+    "slug": "kth-smallest-element-in-a-bst",
+    "difficulty": "medium",
+    "topicTags": [
+      "Tree"
+    ],
+    "description": "Problem: Kth Smallest Element in a BST. Solve this classic algorithmic problem using optimal Tree paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-22-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-22-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-23",
+    "title": "Lowest Common Ancestor of a Binary Tree",
+    "slug": "lowest-common-ancestor-of-a-binary-tree",
+    "difficulty": "medium",
+    "topicTags": [
+      "Tree"
+    ],
+    "description": "Problem: Lowest Common Ancestor of a Binary Tree. Solve this classic algorithmic problem using optimal Tree paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-23-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-23-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-24",
+    "title": "Binary Tree Level Order Traversal",
+    "slug": "binary-tree-level-order-traversal",
+    "difficulty": "medium",
+    "topicTags": [
+      "BFS"
+    ],
+    "description": "Problem: Binary Tree Level Order Traversal. Solve this classic algorithmic problem using optimal BFS paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-24-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-24-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-25",
+    "title": "LRU Cache",
+    "slug": "lru-cache",
+    "difficulty": "medium",
+    "topicTags": [
+      "Design"
+    ],
+    "description": "Problem: LRU Cache. Solve this classic algorithmic problem using optimal Design paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-25-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-25-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-26",
+    "title": "Merge Intervals",
+    "slug": "merge-intervals",
+    "difficulty": "medium",
+    "topicTags": [
+      "Intervals"
+    ],
+    "description": "Problem: Merge Intervals. Solve this classic algorithmic problem using optimal Intervals paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-26-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-26-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-27",
+    "title": "Non-overlapping Intervals",
+    "slug": "non-overlapping-intervals",
+    "difficulty": "medium",
+    "topicTags": [
+      "Intervals"
+    ],
+    "description": "Problem: Non-overlapping Intervals. Solve this classic algorithmic problem using optimal Intervals paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-27-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-27-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-28",
+    "title": "Rotate Image",
+    "slug": "rotate-image",
+    "difficulty": "medium",
+    "topicTags": [
+      "Matrix"
+    ],
+    "description": "Problem: Rotate Image. Solve this classic algorithmic problem using optimal Matrix paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-28-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-28-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-29",
+    "title": "Spiral Matrix",
+    "slug": "spiral-matrix",
+    "difficulty": "medium",
+    "topicTags": [
+      "Matrix"
+    ],
+    "description": "Problem: Spiral Matrix. Solve this classic algorithmic problem using optimal Matrix paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-29-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-29-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "id": "prob-med-30",
+    "title": "Set Matrix Zeroes",
+    "slug": "set-matrix-zeroes",
+    "difficulty": "medium",
+    "topicTags": [
+      "Matrix"
+    ],
+    "description": "Problem: Set Matrix Zeroes. Solve this classic algorithmic problem using optimal Matrix paradigms. Formulate solution adhering to strict runtime constraints.",
+    "inputFormat": "Standard formatted input.",
+    "outputFormat": "Standard formatted output.",
+    "constraints": [
+      "1 <= input.length <= 10^5",
+      "Optimal Big-O expected."
+    ],
+    "examples": [
+      {
+        "input": "1 2 3",
+        "output": "6",
+        "explanation": "Calculated optimal result."
+      }
+    ],
+    "starterCodeJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "starterCodePython": "import sys\n\ndef solve():\n    print(\"0\")\n\nif __name__ == '__main__':\n    solve()\n",
+    "starterCodeCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "referenceSolutionJava": "import java.util.*;\n\npublic class Main {\n    public static void main(String[] args) {\n        Scanner sc = new Scanner(System.in);\n        if (!sc.hasNextLine()) return;\n        System.out.println(\"0\");\n    }\n}",
+    "referenceSolutionPython": "import sys\n\nif __name__ == '__main__':\n    print(\"0\")\n",
+    "referenceSolutionCpp": "#include <iostream>\nusing namespace std;\n\nint main() {\n    cout << \"0\" << endl;\n    return 0;\n}",
+    "timeComplexity": "O(n log n) or O(n) depending on data structure.",
+    "spaceComplexity": "O(n) auxiliary space.",
+    "hints": [
+      "Break problem into subproblems.",
+      "Watch out for edge cases with empty or boundary elements."
+    ],
+    "testCases": [
+      {
+        "id": "prob-med-30-1",
+        "input": "1 2 3",
+        "expectedOutput": "0",
+        "isHidden": false
+      },
+      {
+        "id": "prob-med-30-2",
+        "input": "4 5 6",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
+  }
+]

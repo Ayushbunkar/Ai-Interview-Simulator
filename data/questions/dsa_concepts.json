@@ -1,0 +1,503 @@
+[
+  {
+    "id": "dsa-01",
+    "category": "dsa_concepts",
+    "topic": "Asymptotic Complexity",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Explain Big-O, Big-Omega, and Big-Theta notations. Why do software engineers primarily focus on Big-O?",
+    "expectedAnswer": "Big-O represents the asymptotic upper bound (worst-case growth rate). Big-Omega represents the lower bound (best-case). Big-Theta represents the tight bound (upper and lower match). Engineers focus on Big-O to guarantee system bounds under maximal load.",
+    "explanation": "Big-O ignores constant factors and lower-order terms to analyze how runtime scales with input size n.",
+    "followUps": [
+      "What is the difference between O(1), O(log n), O(n), O(n log n), and O(n^2)?",
+      "What is amortized time complexity?"
+    ]
+  },
+  {
+    "id": "dsa-02",
+    "category": "dsa_concepts",
+    "topic": "Array vs Linked List",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Compare Arrays and Linked Lists regarding memory layout, cache locality, and algorithmic time complexity.",
+    "expectedAnswer": "Arrays allocate contiguous memory blocks offering O(1) random access and excellent CPU cache prefetching. Linked lists allocate non-contiguous nodes connected by pointers offering O(1) insertion at known pointers but O(n) access and poor cache locality due to pointer chasing.",
+    "explanation": "Cache lines load contiguous 64-byte chunks, making arrays orders of magnitude faster in practice for iterations.",
+    "followUps": [
+      "What is a Doubly Linked List vs Singly Linked List?",
+      "How do you detect a cycle in a linked list in O(1) space?"
+    ]
+  },
+  {
+    "id": "dsa-03",
+    "category": "dsa_concepts",
+    "topic": "Two Pointers & Sliding Window",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "Explain the Two-Pointer technique and the Sliding Window algorithm. What problem patterns do they solve?",
+    "expectedAnswer": "Two pointers move from opposite ends (or same direction at different speeds) to process sorted arrays or detect cycles in O(n) time. Sliding window maintains a dynamic or fixed subarray range [left, right] to solve subarray problems (max sum, longest substring without repeats) in O(n) instead of O(n^2).",
+    "explanation": "Window expands by moving right pointer and shrinks by moving left pointer when invariants are violated.",
+    "followUps": [
+      "How do you solve Longest Substring Without Repeating Characters?",
+      "What is Floyd's Tortoise and Hare algorithm?"
+    ]
+  },
+  {
+    "id": "dsa-04",
+    "category": "dsa_concepts",
+    "topic": "Sorting Algorithms",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Compare QuickSort and MergeSort. Explain their time complexities, space complexities, and stability.",
+    "expectedAnswer": "MergeSort is stable, divide-and-conquer, always O(n log n) time, requires O(n) auxiliary memory. QuickSort is unstable, partitions in-place with O(log n) stack space, average O(n log n), worst-case O(n^2) when pivot selection is poor (e.g. sorted array with first element pivot).",
+    "explanation": "A stable sort preserves the relative order of duplicate elements.",
+    "followUps": [
+      "What is 3-way QuickSort (Dutch National Flag)?",
+      "What is TimSort and why is it used in Java/Python?"
+    ]
+  },
+  {
+    "id": "dsa-05",
+    "category": "dsa_concepts",
+    "topic": "Hash Tables",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "How do Hash Tables achieve O(1) average lookup? What collision resolution techniques exist?",
+    "expectedAnswer": "Hash function converts key into integer index in an array. Collisions occur when multiple keys map to same index. Resolved by: 1. Separate Chaining (linked lists or trees at each bucket). 2. Open Addressing (probing in array: Linear Probing, Quadratic Probing, Double Hashing).",
+    "explanation": "Worst-case lookup degrades to O(n) if all keys hash to the same bucket (hash flooding attack).",
+    "followUps": [
+      "What is the Load Factor?",
+      "What is Robin Hood Hashing?"
+    ]
+  },
+  {
+    "id": "dsa-06",
+    "category": "dsa_concepts",
+    "topic": "Binary Search Trees",
+    "difficulty": "medium",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "What is a Binary Search Tree (BST)? What is the difference between a standard BST and a Self-Balancing BST (AVL / Red-Black Tree)?",
+    "expectedAnswer": "BST maintains left child < root < right child. Lookup is O(log n) on balanced trees, but degenerates to O(n) linked list on skewed trees. Self-balancing trees (AVL, Red-Black) perform tree rotations to guarantee O(log n) height under all insertions and deletions.",
+    "explanation": "AVL trees are more strictly balanced than Red-Black trees, providing faster lookups but slower insertions.",
+    "followUps": [
+      "What are In-order, Pre-order, and Post-order tree traversals?",
+      "Why does in-order traversal of a BST yield sorted values?"
+    ]
+  },
+  {
+    "id": "dsa-07",
+    "category": "dsa_concepts",
+    "topic": "Heaps and Priority Queues",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "What is a Binary Heap? Differentiate between Min-Heap and Max-Heap. What are the time complexities for push, pop, and peek?",
+    "expectedAnswer": "A binary heap is a complete binary tree stored compactly in an array. Min-heap ensures parent <= children. Peek is O(1). Insert (push with sift-up) is O(log n). Remove-root (pop with sift-down) is O(log n). Heapify builds a heap in O(n) linear time.",
+    "explanation": "For array index i: left child = 2i+1, right = 2i+2, parent = floor((i-1)/2).",
+    "followUps": [
+      "Why is building a heap O(n) rather than O(n log n)?",
+      "How do you find the K-th largest element using a Min-Heap of size K?"
+    ]
+  },
+  {
+    "id": "dsa-08",
+    "category": "dsa_concepts",
+    "topic": "Graphs: BFS vs DFS",
+    "difficulty": "medium",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Compare Breadth-First Search (BFS) and Depth-First Search (DFS) on graphs. What data structures do they use?",
+    "expectedAnswer": "BFS explores neighbor by neighbor using a Queue (FIFO), finding the shortest path on unweighted graphs. DFS explores deeply down a branch using a Stack (or recursion) before backtracking, useful for topological sort and cycle detection. Time complexity is O(V + E).",
+    "explanation": "A visited set/array is mandatory to prevent infinite loops in cyclic graphs.",
+    "followUps": [
+      "How do you detect a cycle in a directed vs undirected graph?",
+      "What is a Bipartite Graph?"
+    ]
+  },
+  {
+    "id": "dsa-09",
+    "category": "dsa_concepts",
+    "topic": "Shortest Path Algorithms",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "Explain Dijkstra's Algorithm and the Bellman-Ford Algorithm for finding the shortest path in a weighted graph.",
+    "expectedAnswer": "Dijkstra's uses a Min-Heap/Priority Queue and greedy relaxation, running in O((V + E) log V), but fails on negative edge weights. Bellman-Ford relaxes all edges V-1 times in O(V * E), handling negative weights and detecting negative weight cycles.",
+    "explanation": "If an edge can still be relaxed after V-1 iterations in Bellman-Ford, a negative cycle exists.",
+    "followUps": [
+      "What is the Floyd-Warshall algorithm?",
+      "What is A* search algorithm and how does its heuristic function work?"
+    ]
+  },
+  {
+    "id": "dsa-10",
+    "category": "dsa_concepts",
+    "topic": "Minimum Spanning Tree",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "What is a Minimum Spanning Tree (MST)? Differentiate between Kruskal's and Prim's algorithms.",
+    "expectedAnswer": "An MST connects all vertices of an undirected connected weighted graph with the minimum total edge weight and no cycles (V-1 edges). Kruskal's sorts all edges and adds them greedily using Union-Find (Disjoint Set) in O(E log E). Prim's grows a tree from a start node using a Priority Queue in O(E log V).",
+    "explanation": "Kruskal's is better for sparse graphs; Prim's is better for dense graphs.",
+    "followUps": [
+      "Explain Disjoint Set Union (DSU) with Path Compression and Union by Rank.",
+      "Can an MST have cycles?"
+    ]
+  },
+  {
+    "id": "dsa-11",
+    "category": "dsa_concepts",
+    "topic": "Dynamic Programming",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering",
+      "Java / Backend Specialist"
+    ],
+    "questionText": "What is Dynamic Programming (DP)? Differentiate between Top-Down (Memoization) and Bottom-Up (Tabulation).",
+    "expectedAnswer": "DP solves complex problems by breaking them into overlapping subproblems with optimal substructure. Top-Down starts at original problem and uses recursion + cache (memoization). Bottom-Up solves smallest subproblems iteratively in a table (tabulation), saving call stack space.",
+    "explanation": "Identifying state transitions (recurrence relation) and base cases is the core of DP.",
+    "followUps": [
+      "Explain the 0/1 Knapsack problem recurrence relation.",
+      "How can you optimize DP space complexity from O(n) to O(1) in Fibonacci?"
+    ]
+  },
+  {
+    "id": "dsa-12",
+    "category": "dsa_concepts",
+    "topic": "Trie (Prefix Tree)",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "What is a Trie data structure, and how does it optimize prefix searches compared to a Hash Table?",
+    "expectedAnswer": "A Trie is a tree-like search structure where each node represents a character. Lookup, insert, and prefix matching run in O(L) time where L is word length, independent of total words N. Hash tables take O(L) to lookup exact matches but cannot efficiently find all words with a given prefix.",
+    "explanation": "Widely used for autocomplete, spell checkers, and IP routing tables.",
+    "followUps": [
+      "What is the space complexity of a Trie?",
+      "What is a Radix Tree / Compressed Trie?"
+    ]
+  },
+  {
+    "id": "dsa-13",
+    "category": "dsa_concepts",
+    "topic": "Monotonic Stack",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "What is a Monotonic Stack and what class of problems does it solve in O(n) time?",
+    "expectedAnswer": "A monotonic stack maintains elements in strictly increasing or decreasing order. It solves Next Greater Element, Next Smaller Element, Daily Temperatures, and Largest Rectangle in Histogram in O(n) linear time because each element is pushed and popped at most once.",
+    "explanation": "When an incoming element violates monotonicity, previous elements are popped and resolved.",
+    "followUps": [
+      "How do you find the Largest Rectangle in Histogram using a stack?",
+      "What is a Monotonic Queue for sliding window maximum?"
+    ]
+  },
+  {
+    "id": "dsa-14",
+    "category": "dsa_concepts",
+    "topic": "Backtracking",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "What is Backtracking? How does it differ from exhaustive brute-force search?",
+    "expectedAnswer": "Backtracking builds solution candidates incrementally, abandoning a candidate ('backtracking') as soon as it determines the candidate cannot lead to a valid solution. Brute force evaluates all permutations blindly. Examples: N-Queens, Sudoku solver, Subsets.",
+    "explanation": "Pruning invalid state trees dramatically reduces exponential search spaces.",
+    "followUps": [
+      "How do you solve the N-Queens problem?",
+      "What is the difference between permutation and combination generation?"
+    ]
+  },
+  {
+    "id": "dsa-15",
+    "category": "dsa_concepts",
+    "topic": "Bit Manipulation",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "Explain common Bitwise operations: AND (&), OR (|), XOR (^), NOT (~), Left Shift (<<), and Right Shift (>>). What is (n & (n - 1))?",
+    "expectedAnswer": "XOR (different bits = 1, same = 0; x ^ x = 0; x ^ 0 = x). Left shift multiplies by 2; right shift divides by 2. The trick (n & (n - 1)) removes the lowest set bit (1) in n, used in Brian Kernighan's algorithm to count set bits in O(k) time.",
+    "explanation": "Checking power of two: (n > 0) && ((n & (n - 1)) == 0).",
+    "followUps": [
+      "How do you find the single non-duplicate number in an array where every other number appears twice?",
+      "What is the difference between arithmetic right shift (>>) and logical right shift (>>>) in Java?"
+    ]
+  },
+  {
+    "id": "dsa-16",
+    "category": "dsa_concepts",
+    "topic": "Segment Tree & Fenwick Tree",
+    "difficulty": "hard",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "What is a Segment Tree and a Fenwick Tree (Binary Indexed Tree)? What operations do they support?",
+    "expectedAnswer": "Both support point/range updates and range queries (range sum, min, max) in O(log n) time, with O(n) construction. Fenwick Tree is more space-efficient (array of size n+1 using lowest set bit LSB: i & (-i)) for prefix sums, while Segment Tree handles arbitrary range operations and lazy propagation.",
+    "explanation": "Lazy propagation defers updates to child nodes until queried, keeping range update at O(log n).",
+    "followUps": [
+      "What is Lazy Propagation in Segment Trees?",
+      "When would you prefer Fenwick Tree over Segment Tree?"
+    ]
+  },
+  {
+    "id": "dsa-17",
+    "category": "dsa_concepts",
+    "topic": "Topological Sort",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "What is Topological Sorting? Can it be performed on any graph? Explain Kahn's Algorithm.",
+    "expectedAnswer": "Topological sort is a linear ordering of vertices in a Directed Acyclic Graph (DAG) such that for every directed edge u -> v, u comes before v. Kahn's algorithm calculates in-degrees, enqueues all 0 in-degree nodes, and repeatedly removes them while decrementing neighbors' in-degrees. If processed count < V, a cycle exists.",
+    "explanation": "Essential for build systems (task dependencies), course prerequisites, and package management.",
+    "followUps": [
+      "How do you implement Topological Sort using DFS and a post-order stack?",
+      "What happens if you run Kahn's algorithm on a cyclic graph?"
+    ]
+  },
+  {
+    "id": "dsa-18",
+    "category": "dsa_concepts",
+    "topic": "Linked List Reversal",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "How do you reverse a Singly Linked List iteratively and recursively? What are the complexities?",
+    "expectedAnswer": "Iteratively: maintain three pointers (prev = null, curr = head, next). In loop: next = curr.next; curr.next = prev; prev = curr; curr = next. Return prev. O(n) time, O(1) space. Recursively: reverses remainder, sets head.next.next = head; head.next = null; O(n) time and O(n) stack space.",
+    "explanation": "Iterative approach is preferred in production to avoid stack overflow on long lists.",
+    "followUps": [
+      "How do you reverse nodes in k-Group?",
+      "How do you find the middle of a linked list in one pass?"
+    ]
+  },
+  {
+    "id": "dsa-19",
+    "category": "dsa_concepts",
+    "topic": "Binary Search Variations",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "Explain how to apply Binary Search on a Search Space (Binary Search on Answer) with an example like 'Koko Eating Bananas' or 'Capacity To Ship Packages'.",
+    "expectedAnswer": "When the answer has a monotonic property (if speed s works, all s' > s work), binary search can find the minimum valid answer between low and high. For each mid, a feasibility check helper determines if it's possible within constraints, narrowing search space in O(N * log(range)).",
+    "explanation": "Transforms optimization problems into decision verification problems.",
+    "followUps": [
+      "How do you search in a Rotated Sorted Array?",
+      "What causes integer overflow in (low + high) / 2 and how do you prevent it? (low + (high - low) / 2)"
+    ]
+  },
+  {
+    "id": "dsa-20",
+    "category": "dsa_concepts",
+    "topic": "Lowest Common Ancestor (LCA)",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "How do you find the Lowest Common Ancestor (LCA) of two nodes in a Binary Tree vs a Binary Search Tree?",
+    "expectedAnswer": "In a BST: if both node values are smaller than root, traverse left; if both greater, traverse right; otherwise root is the split point (LCA) in O(h) time. In a general Binary Tree: recursively check left and right subtrees; if both return non-null, root is LCA; otherwise return the non-null child in O(n) time.",
+    "explanation": "BST property enables directional search without visiting irrelevant subtrees.",
+    "followUps": [
+      "How do you find LCA in a tree with parent pointers in O(1) space?",
+      "What is Binary Lifting for LCA in general trees?"
+    ]
+  },
+  {
+    "id": "dsa-21",
+    "category": "dsa_concepts",
+    "topic": "Queue using Stacks",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "How do you implement a Queue using two Stacks? What is the amortized time complexity of dequeue?",
+    "expectedAnswer": "Maintain inputStack and outputStack. Push adds to inputStack. Pop/Peek: if outputStack is empty, pop all elements from inputStack and push to outputStack, then pop from outputStack. Each element is moved between stacks at most once, giving O(1) amortized time per operation.",
+    "explanation": "Reversing elements twice restores FIFO order.",
+    "followUps": [
+      "How do you implement a Stack using two Queues?",
+      "What is amortized vs worst-case O(n) time?"
+    ]
+  },
+  {
+    "id": "dsa-22",
+    "category": "dsa_concepts",
+    "topic": "LRU Cache Design",
+    "difficulty": "hard",
+    "companyTags": [
+      "Product-Based Engineering",
+      "Java / Backend Specialist"
+    ],
+    "questionText": "Explain the internal design of an LRU (Least Recently Used) Cache. How do you achieve O(1) get() and put()?",
+    "expectedAnswer": "Combine a Hash Map with a Doubly Linked List. Hash Map maps keys to Doubly Linked List nodes for O(1) lookup. Doubly Linked List maintains access recency: newly accessed/inserted nodes move to head; when capacity is exceeded, the tail node (least recently used) is evicted in O(1).",
+    "explanation": "Doubly linked list allows removing any node in O(1) given its pointer, which a singly linked list cannot do.",
+    "followUps": [
+      "What is an LFU (Least Frequently Used) Cache?",
+      "How does Java's LinkedHashMap support LRU caching out of the box?"
+    ]
+  },
+  {
+    "id": "dsa-23",
+    "category": "dsa_concepts",
+    "topic": "Greedy Algorithms",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "What is a Greedy Algorithm? Explain with the Activity Selection (Interval Scheduling) problem.",
+    "expectedAnswer": "A greedy algorithm makes the locally optimal choice at each step hoping it leads to a global optimum. In Activity Selection: sort activities by their finish times and greedily pick the next activity that starts after the previous picked activity ends, maximizing non-overlapping activities.",
+    "explanation": "Greedy choice property and optimal substructure must hold for greedy to yield an optimal solution.",
+    "followUps": [
+      "Why does the greedy choice fail for 0/1 Knapsack but work for Fractional Knapsack?",
+      "What is Huffman Coding?"
+    ]
+  },
+  {
+    "id": "dsa-24",
+    "category": "dsa_concepts",
+    "topic": "Prefix Sum",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini",
+      "Product-Based Engineering"
+    ],
+    "questionText": "What is the Prefix Sum technique and how does it answer Range Sum Queries in O(1) time?",
+    "expectedAnswer": "Precompute prefix[i] = arr[0] + ... + arr[i]. Any range sum from index L to R is calculated in O(1) as prefix[R] - prefix[L - 1] (or prefix[R + 1] - prefix[L] with 1-based indexing).",
+    "explanation": "Precomputation takes O(n) time and O(n) space. Extends to 2D matrices for submatrix sum queries.",
+    "followUps": [
+      "How do you solve Subarray Sum Equals K using Prefix Sum and a Hash Map?",
+      "What is Difference Array technique for range updates?"
+    ]
+  },
+  {
+    "id": "dsa-25",
+    "category": "dsa_concepts",
+    "topic": "String Matching",
+    "difficulty": "hard",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "Explain KMP (Knuth-Morris-Pratt) pattern matching algorithm and the LPS (Longest Proper Prefix which is also Suffix) array.",
+    "expectedAnswer": "KMP avoids backtracking the text pointer when a mismatch occurs by precomputing the LPS array of the pattern. The LPS array indicates how many characters can be skipped, matching text in O(N + M) linear time instead of naive O(N * M).",
+    "explanation": "LPS[i] stores the length of the longest proper prefix of pattern[0..i] that is also a suffix of pattern[0..i].",
+    "followUps": [
+      "What is the Rabin-Karp rolling hash algorithm?",
+      "What is Z-algorithm for string matching?"
+    ]
+  },
+  {
+    "id": "dsa-26",
+    "category": "dsa_concepts",
+    "topic": "Tree Diameter",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "What is the Diameter of a Binary Tree? How do you calculate it in O(n) time?",
+    "expectedAnswer": "The diameter is the length of the longest path between any two nodes in a tree (path may or may not pass through root). Computed in a single post-order DFS: for each node, calculate leftHeight and rightHeight; update maxDiameter = max(maxDiameter, leftHeight + rightHeight); return 1 + max(leftHeight, rightHeight).",
+    "explanation": "Combines height calculation with diameter updating in a single O(n) traversal.",
+    "followUps": [
+      "How do you find the diameter of a general unweighted tree in two BFS runs?",
+      "What is the maximum path sum in a binary tree?"
+    ]
+  },
+  {
+    "id": "dsa-27",
+    "category": "dsa_concepts",
+    "topic": "Disjoint Set Union (Union-Find)",
+    "difficulty": "medium",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "Explain the Disjoint Set Union (DSU) data structure. How do Path Compression and Union by Rank achieve near O(1) operations?",
+    "expectedAnswer": "DSU manages a collection of disjoint sets supporting find(x) (finds root representative) and union(x, y) (merges sets). Path compression flattens tree by pointing visited nodes directly to root. Union by rank attaches shorter tree under taller tree root. Combined, operations run in nearly O(1) amortized time (inverse Ackermann function α(n) < 5).",
+    "explanation": "Without optimizations, the tree can degenerate into a line with O(n) operations.",
+    "followUps": [
+      "How is DSU used to find the number of connected components in an undirected graph?",
+      "Can DSU be used to detect cycles in a directed graph?"
+    ]
+  },
+  {
+    "id": "dsa-28",
+    "category": "dsa_concepts",
+    "topic": "Recursion and Call Stack",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "Explain how recursion works with the runtime call stack. What is Tail Call Optimization (TCO)?",
+    "expectedAnswer": "Each recursive call pushes a stack frame with parameters and local variables. When base case is met, frames unwind. If base case is missing or recursion is too deep, StackOverflowError occurs. Tail recursion has the recursive call as the absolute final statement; compilers with TCO reuse the current stack frame, converting recursion into an iterative loop.",
+    "explanation": "Java does not currently support TCO, while Scala, Kotlin, and C++ compilers do.",
+    "followUps": [
+      "How do you convert any recursive function into an iterative one?",
+      "What is memoization?"
+    ]
+  },
+  {
+    "id": "dsa-29",
+    "category": "dsa_concepts",
+    "topic": "Longest Increasing Subsequence (LIS)",
+    "difficulty": "hard",
+    "companyTags": [
+      "Product-Based Engineering"
+    ],
+    "questionText": "Explain how to solve the Longest Increasing Subsequence (LIS) problem in O(n log n) time using Patience Sorting / Binary Search.",
+    "expectedAnswer": "Maintain a dynamic array 'tails' where tails[i] stores the smallest tail of all increasing subsequences of length i+1. For each x in nums, use binary search to find its insertion position in tails: if x is larger than all elements, append x; otherwise replace the first element >= x. The length of tails is the LIS length.",
+    "explanation": "Standard DP takes O(n^2); binary search optimization reduces it to O(n log n).",
+    "followUps": [
+      "Does the tails array represent the actual LIS sequence?",
+      "How do you reconstruct the actual LIS elements?"
+    ]
+  },
+  {
+    "id": "dsa-30",
+    "category": "dsa_concepts",
+    "topic": "Circular Queue",
+    "difficulty": "easy",
+    "companyTags": [
+      "TCS",
+      "Capgemini"
+    ],
+    "questionText": "What is a Circular Queue and why is it preferred over a linear array-based queue?",
+    "expectedAnswer": "In a linear array queue, dequeuing elements leaves unused memory at the front that cannot be reused without shifting all elements (O(n)). A circular queue connects the last position back to the first using modulo arithmetic ((rear + 1) % capacity), achieving O(1) enqueue and dequeue without wasted space.",
+    "explanation": "Standard data structure for ring buffers, audio buffers, and hardware DMA queues.",
+    "followUps": [
+      "How do you distinguish between Queue Full and Queue Empty in a circular queue?",
+      "What is a Deque (Double-Ended Queue)?"
+    ]
+  }
+]
