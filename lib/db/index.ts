@@ -1,6 +1,7 @@
 import { Pool } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-serverless";
 import * as schema from "./schema";
+import { getActiveDatabaseUrl } from "../config/cloud-fallback";
 
 function loadLocalEnvIfMissing() {
   if (typeof window !== "undefined") return;
@@ -30,7 +31,7 @@ function loadLocalEnvIfMissing() {
 }
 loadLocalEnvIfMissing();
 
-const connectionString = process.env.DATABASE_URL || "";
+const connectionString = getActiveDatabaseUrl();
 
 export const pool = new Pool({ connectionString });
 export const sqliteClient = pool; // backwards-compatible alias
@@ -40,7 +41,8 @@ let initialized = false;
 
 export async function ensureDbInitialized() {
   if (initialized) return;
-  if (!process.env.DATABASE_URL) {
+  const activeConn = getActiveDatabaseUrl();
+  if (!activeConn) {
     // Neon database URL is not configured. Running in offline/fallback mode.
     initialized = true;
     return;

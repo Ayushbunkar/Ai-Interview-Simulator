@@ -1,12 +1,14 @@
 import { InterviewAIProvider } from "./interface";
 import { GroqAIProvider } from "./groq-provider";
 import { LocalDevAIProvider } from "./local-dev-provider";
+import { getActiveGroqKey } from "../config/cloud-fallback";
 
 let groqInstance: GroqAIProvider | null = null;
 let localInstance: LocalDevAIProvider | null = null;
 
 export function getAIProvider(): InterviewAIProvider {
-  if (process.env.GROQ_API_KEY && process.env.GROQ_API_KEY.trim().length > 0) {
+  const activeKey = getActiveGroqKey();
+  if (activeKey && activeKey.trim().length > 0) {
     if (!groqInstance) {
       groqInstance = new GroqAIProvider();
     }
@@ -20,5 +22,6 @@ export function getAIProvider(): InterviewAIProvider {
 }
 
 export function isLiveAIConfigured(): boolean {
-  return Boolean(process.env.GROQ_API_KEY && process.env.GROQ_API_KEY.trim().length > 0);
+  const activeKey = getActiveGroqKey();
+  return Boolean(activeKey && activeKey.trim().length > 0);
 }

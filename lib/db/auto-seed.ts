@@ -1,4 +1,5 @@
 import { pool } from "./index";
+import { getActiveDatabaseUrl } from "../config/cloud-fallback";
 
 import backendApi from "@/data/questions/backend_api.json";
 import behavioral from "@/data/questions/behavioral.json";
@@ -14,7 +15,8 @@ import mediumCoding from "@/data/coding/medium.json";
 import hardCoding from "@/data/coding/hard.json";
 
 export async function autoSeedIfEmpty() {
-  if (!process.env.DATABASE_URL) return;
+  const activeConn = getActiveDatabaseUrl();
+  if (!activeConn) return;
   try {
     const qCountRes = await pool.query("SELECT COUNT(*) as count FROM questions;");
     const count = parseInt(qCountRes.rows[0]?.count || "0", 10);

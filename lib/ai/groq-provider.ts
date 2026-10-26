@@ -4,6 +4,7 @@ import { InterviewAIProvider, AIContext, EvaluateAnswerParams, CandidateQuestion
 import { AnswerEvaluation, ClarificationResponse, RubricScoreItem } from "../types";
 import { TECHNICAL_ROUND_RUBRIC, BEHAVIORAL_ROUND_RUBRIC, calculateWeightedScore } from "../rubric";
 import { executeAIRequest } from "../reliability/ai-request-manager";
+import { getActiveGroqKey } from "../config/cloud-fallback";
 
 const RubricItemSchema = z.preprocess((val: any) => {
   if (typeof val === "string") {
@@ -56,7 +57,7 @@ export class GroqAIProvider implements InterviewAIProvider {
   private model: string;
 
   constructor() {
-    const apiKey = process.env.GROQ_API_KEY;
+    const apiKey = getActiveGroqKey();
     this.model = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
     if (apiKey && apiKey.trim().length > 0) {
       this.client = new Groq({ apiKey });
@@ -64,12 +65,13 @@ export class GroqAIProvider implements InterviewAIProvider {
   }
 
   isConfigured(): boolean {
-    return Boolean(this.client && process.env.GROQ_API_KEY && process.env.GROQ_API_KEY.trim().length > 0);
+    const apiKey = getActiveGroqKey();
+    return Boolean(this.client && apiKey && apiKey.trim().length > 0);
   }
 
   private getGroqClient(): Groq {
     if (!this.client) {
-      const apiKey = process.env.GROQ_API_KEY;
+      const apiKey = getActiveGroqKey();
       if (!apiKey) throw new Error("GROQ_API_KEY is not configured.");
       this.client = new Groq({ apiKey });
     }

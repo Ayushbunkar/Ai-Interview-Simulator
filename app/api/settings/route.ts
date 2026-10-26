@@ -4,6 +4,7 @@ import { getCompilerProvider } from "@/lib/compiler";
 import { db, ensureDbInitialized } from "@/lib/db";
 import { appSettings, interviewSessions, interviewReports, conversationMessages, candidateAnswers, codeSubmissions, executionResults } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
+import { getActiveGroqKey, getActiveOnlineCompilerKey, getActiveOnlineCompilerUrl } from "@/lib/config/cloud-fallback";
 
 export const dynamic = "force-dynamic";
 
@@ -13,8 +14,8 @@ export async function GET() {
     const compiler = getCompilerProvider();
 
     // Check safe status without exposing secret keys
-    const groqKey = process.env.GROQ_API_KEY || "";
-    const compilerKey = process.env.ONLINECOMPILER_API_KEY || "";
+    const groqKey = getActiveGroqKey();
+    const compilerKey = getActiveOnlineCompilerKey();
 
     const settingsRows = await db.select().from(appSettings);
     const settingsMap = Object.fromEntries(settingsRows.map(r => [r.key, r.value]));
@@ -22,13 +23,13 @@ export async function GET() {
     return NextResponse.json({
       ai: {
         provider: "Groq",
-        model: process.env.GROQ_MODEL || "llama-3.3-70b-versatile",
+        model: process.env.GROQ_MODEL || "openai/gpt-oss-120b",
         configured: Boolean(groqKey && groqKey.trim().length > 0),
         maskedKey: groqKey ? `${groqKey.substring(0, 4)}...${groqKey.substring(groqKey.length - 4)}` : null,
       },
       compiler: {
         provider: "OnlineCompiler.io",
-        url: process.env.ONLINECOMPILER_API_URL || "https://api.onlinecompiler.io/api/judge0",
+        url: getActiveOnlineCompilerUrl(),
         configured: compiler.isConfigured(),
         maskedKey: compilerKey ? `${compilerKey.substring(0, 4)}...${compilerKey.substring(compilerKey.length - 4)}` : null,
       },

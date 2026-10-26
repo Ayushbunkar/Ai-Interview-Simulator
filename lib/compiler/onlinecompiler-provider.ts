@@ -1,5 +1,6 @@
 import { CodeExecutionProvider, ExecutionRequest, ExecutionResponse } from "./interface";
 import { COMPILER_UNREACHABLE_MESSAGE, validateExecutionPayload } from "../reliability/compiler-safeguards";
+import { getActiveOnlineCompilerKey, getActiveOnlineCompilerUrl } from "../config/cloud-fallback";
 
 const LANGUAGE_ID_MAP: Record<"java" | "python" | "cpp", number> = {
   java: 91,    // OpenJDK 25 / standard Java
@@ -16,8 +17,8 @@ export class OnlineCompilerProvider implements CodeExecutionProvider {
   private baseUrl: string;
 
   constructor() {
-    this.apiKey = process.env.ONLINECOMPILER_API_KEY || "";
-    this.baseUrl = (process.env.ONLINECOMPILER_API_URL || "https://api.onlinecompiler.io/api/judge0").replace(/\/+$/, "");
+    this.apiKey = getActiveOnlineCompilerKey();
+    this.baseUrl = getActiveOnlineCompilerUrl().replace(/\/+$/, "");
   }
 
   isConfigured(): boolean {
