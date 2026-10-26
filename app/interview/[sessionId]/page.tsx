@@ -28,6 +28,12 @@ import {
   ArrowRight,
   Lightbulb,
   MessageSquare,
+  RotateCcw,
+  FileText,
+  ExternalLink,
+  ChevronDown,
+  ChevronUp,
+  Layers,
 } from "lucide-react";
 import { ROUND_NAMES } from "@/lib/interview/engine";
 import { RoundNumber, VoiceState } from "@/lib/types";
@@ -109,7 +115,9 @@ export default function InterviewRoomPage() {
   const [isSubmittingCode, setIsSubmittingCode] = useState(false);
   const [runResult, setRunResult] = useState<any | null>(null);
   const [submitResult, setSubmitResult] = useState<any | null>(null);
-  const [activeCodingTab, setActiveCodingTab] = useState<"problem" | "console">("problem");
+  const [activeLeftTab, setActiveLeftTab] = useState<"problem" | "voice" | "hints">("problem");
+  const [activeConsoleTab, setActiveConsoleTab] = useState<"terminal" | "tests">("terminal");
+  const [revealedHints, setRevealedHints] = useState<number[]>([]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const voiceControllerRef = useRef<VoiceSessionController | null>(null);
@@ -357,7 +365,7 @@ export default function InterviewRoomPage() {
     if (!codingProblem || isRunningCode) return;
     setIsRunningCode(true);
     setRunResult(null);
-    setActiveCodingTab("console");
+    setActiveConsoleTab("terminal");
 
     try {
       const res = await fetch("/api/coding/run", {
@@ -367,7 +375,7 @@ export default function InterviewRoomPage() {
           language: codingLanguage,
           code,
           problemSlug: codingProblem.slug,
-          stdin: codingProblem.visibleTestCases[0]?.input || "",
+          stdin: codingProblem.visibleTestCases?.[0]?.input || "",
         }),
       });
 
@@ -385,7 +393,7 @@ export default function InterviewRoomPage() {
     if (!codingProblem || isSubmittingCode) return;
     setIsSubmittingCode(true);
     setSubmitResult(null);
-    setActiveCodingTab("console");
+    setActiveConsoleTab("tests");
 
     try {
       const res = await fetch("/api/coding/submit", {
@@ -413,6 +421,16 @@ export default function InterviewRoomPage() {
     } finally {
       setIsSubmittingCode(false);
     }
+  };
+
+  const handleResetCode = () => {
+    if (codingProblem?.starterCode?.[codingLanguage]) {
+      setCode(codingProblem.starterCode[codingLanguage]);
+    }
+  };
+
+  const toggleHint = (idx: number) => {
+    setRevealedHints(prev => prev.includes(idx) ? prev.filter(i => i !== idx) : [...prev, idx]);
   };
 
   // Explain Approach Aloud or via Text Before Coding
@@ -559,7 +577,11 @@ export default function InterviewRoomPage() {
 
   return (
     <ErrorBoundary fallbackTitle="Interview Room Interface Recovery">
-      <div className="flex flex-col min-h-[calc(100vh-4rem)] max-w-7xl mx-auto p-3 sm:p-5 gap-4 pb-12">
+      <div className={`flex flex-col mx-auto p-2 sm:p-4 gap-3 ${
+        isCodingRound
+          ? "h-[calc(100vh-4.25rem)] max-w-[1720px] overflow-hidden"
+          : "min-h-[calc(100vh-4rem)] max-w-5xl pb-12"
+      }`}>
       {/* Top Header Bar: Round status, timer, pause, end */}
       <header className="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5 rounded-2xl glass-panel shadow-lg shadow-black/20">
         <div className="flex items-center gap-3">
@@ -687,11 +709,491 @@ export default function InterviewRoomPage() {
         </div>
       )}
 
-      {/* Main Interview Body: Split Layout if Round 3 (Coding), Single Column otherwise */}
-      <div className={`grid gap-5 ${isCodingRound ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"}`}>
-        {/* Left Column: Stage, Question, Controls & History */}
-        <div className="flex flex-col gap-4">
-          {/* Active Question Spotlight Card (Pinned prominently at the top of the interview stage) */}
+      {/* Main Interview Body: Specialized Split-Pane IDE for Round 3 (Coding), Clean Conversational Stage for Rounds 1, 2, 4 */}
+      {isCodingRound ? (
+        /* Full-width Split-Pane Coding Arena */
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 flex-1 min-h-0 h-[calc(100vh-160px)]">
+          {/* Left Column: Problem, Chat & Hints Tabs */}
+          <div className="lg:col-span-5 flex flex-col rounded-2xl border border-border bg-card overflow-hidden shadow-sm h-full">
+            {/* Left Header Tabs */}
+            <div className="flex items-center justify-between border-b border-border bg-muted/40 px-3 py-2 text-xs shrink-0">
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => setActiveLeftTab("problem")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                    activeLeftTab === "problem"
+                      ? "bg-background text-foreground shadow-sm border border-border"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  }`}
+                >
+                  <Code2 className="h-3.5 w-3.5 text-blue-400" />
+                  <span>Problem</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveLeftTab("voice")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                    activeLeftTab === "voice"
+                      ? "bg-background text-foreground shadow-sm border border-border"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  }`}
+                >
+                  <Bot className="h-3.5 w-3.5 text-indigo-400" />
+                  <span>Interviewer & Voice</span>
+                  {messages.length > 0 && (
+                    <span className="rounded-full bg-blue-500/20 text-blue-400 px-1.5 py-0.2 text-[10px]">
+                      {messages.length}
+                    </span>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveLeftTab("hints")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition ${
+                    activeLeftTab === "hints"
+                      ? "bg-background text-foreground shadow-sm border border-border"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  }`}
+                >
+                  <Lightbulb className="h-3.5 w-3.5 text-amber-400" />
+                  <span>Hints ({codingProblem?.hints?.length || 0})</span>
+                </button>
+              </div>
+
+              {codingProblem && (
+                <Link
+                  href={`/coding?slug=${codingProblem.slug}&sessionId=${sessionId}`}
+                  target="_blank"
+                  className="flex items-center gap-1 text-[11px] text-blue-400 hover:text-blue-300 transition"
+                  title="Open Dedicated Fullscreen Coding Arena"
+                >
+                  <span>Arena</span>
+                  <ExternalLink className="h-3 w-3" />
+                </Link>
+              )}
+            </div>
+
+            {/* Left Body Content */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
+              {activeLeftTab === "problem" && (
+                codingProblem ? (
+                  <div className="space-y-4">
+                    <div className="space-y-2 border-b border-border pb-3">
+                      <div className="flex items-center gap-2">
+                        <h2 className="text-base font-bold text-foreground">{codingProblem.title}</h2>
+                        <span
+                          className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                            codingProblem.difficulty === "easy"
+                              ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                              : codingProblem.difficulty === "medium"
+                              ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                              : "bg-red-500/20 text-red-400 border border-red-500/30"
+                          }`}
+                        >
+                          {codingProblem.difficulty}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {codingProblem.topicTags?.map((tag: string) => (
+                          <span key={tag} className="rounded bg-muted px-2 py-0.5 text-[10px] text-muted-foreground font-mono">
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <h3 className="text-xs font-semibold text-foreground">Problem Description</h3>
+                      <p className="text-xs text-muted-foreground whitespace-pre-line leading-relaxed">
+                        {codingProblem.description}
+                      </p>
+                    </div>
+
+                    {codingProblem.examples && codingProblem.examples.length > 0 && (
+                      <div className="space-y-2.5">
+                        <h3 className="text-xs font-semibold text-foreground">Examples</h3>
+                        {codingProblem.examples.map((ex: any, idx: number) => (
+                          <div key={idx} className="rounded-lg bg-muted/40 border border-border/80 p-3 font-mono space-y-1 text-[11px]">
+                            <div className="font-semibold text-foreground/80">Example {idx + 1}:</div>
+                            <div><span className="text-blue-400 font-semibold">Input:</span> {ex.input}</div>
+                            <div><span className="text-emerald-400 font-semibold">Output:</span> {ex.output}</div>
+                            {ex.explanation && (
+                              <div className="text-muted-foreground font-sans text-[11px] pt-0.5">
+                                <span className="font-semibold text-foreground/70 font-mono">Explanation:</span> {ex.explanation}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {codingProblem.constraints && codingProblem.constraints.length > 0 && (
+                      <div className="space-y-1.5">
+                        <h3 className="text-xs font-semibold text-foreground">Constraints</h3>
+                        <ul className="list-disc pl-4 space-y-1 font-mono text-[11px] text-muted-foreground">
+                          {codingProblem.constraints.map((c: string, idx: number) => (
+                            <li key={idx}>{c}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="py-12 text-center text-muted-foreground space-y-2">
+                    <Code2 className="h-8 w-8 mx-auto text-blue-400 animate-pulse" />
+                    <p className="font-medium text-xs">Loading coding challenge...</p>
+                  </div>
+                )
+              )}
+
+              {activeLeftTab === "voice" && (
+                <div className="space-y-3">
+                  {/* Spotlight Interviewer Question */}
+                  <div className="rounded-xl border border-blue-500/30 bg-blue-950/20 p-3.5 space-y-2 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-blue-400 flex items-center gap-1.5">
+                        <Bot className="h-3.5 w-3.5" />
+                        AI Technical Interviewer
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const lastQ = [...messages].reverse().find(m => m.sender === "interviewer");
+                          if (lastQ) voiceControllerRef.current?.replayCurrentQuestion(lastQ.content);
+                        }}
+                        className="text-[11px] text-blue-300 hover:text-white flex items-center gap-1"
+                      >
+                        <Volume2 className="h-3 w-3" />
+                        Replay
+                      </button>
+                    </div>
+                    <p className="text-foreground leading-relaxed">
+                      {(() => {
+                        const qMsg = [...messages].reverse().find(m => m.sender === "interviewer" && m.messageType === "question");
+                        return qMsg?.content || "Candidate, please implement the algorithmic solution in the code editor on the right.";
+                      })()}
+                    </p>
+                  </div>
+
+                  {/* Voice Controls */}
+                  {voiceControllerRef.current && (
+                    <VoiceControls
+                      voiceState={voiceState}
+                      isVoiceMode={isVoiceMode}
+                      onToggleVoiceMode={() => {
+                        const next = !isVoiceMode;
+                        setIsVoiceMode(next);
+                        voiceControllerRef.current?.setVoiceMode(next);
+                      }}
+                      onStartListening={() => voiceControllerRef.current?.startListening()}
+                      onStopListening={() => voiceControllerRef.current?.stopListening()}
+                      onStopSpeaking={() => voiceControllerRef.current?.stopSpeaking()}
+                      onReplayQuestion={() => {
+                        const lastQ = [...messages].reverse().find(m => m.sender === "interviewer");
+                        if (lastQ) voiceControllerRef.current?.replayCurrentQuestion(lastQ.content);
+                      }}
+                      onInterrupt={() => {
+                        voiceControllerRef.current?.interruptInterviewer();
+                        setIsClarifyOpen(true);
+                      }}
+                      onStartWhisperRecording={handleStartWhisperRecording}
+                      onStopWhisperRecording={handleStopWhisperRecording}
+                      isWhisperRecording={isWhisperRecording}
+                      isTranscribingAudio={isTranscribingAudio}
+                      synthesizer={voiceControllerRef.current.getSpeechSynthesizer()}
+                      errorMessage={voiceError}
+                    />
+                  )}
+
+                  {/* Live Transcript / Answer Box */}
+                  <LiveTranscriptPanel
+                    voiceState={voiceState}
+                    interimTranscript={interimTranscript}
+                    finalTranscript={finalTranscript}
+                    onSubmit={handleSubmitAnswer}
+                    submitting={submitting}
+                    manualText={manualText}
+                    setManualText={setManualText}
+                    errorMessage={error}
+                    onCancelSubmission={handleCancelSubmission}
+                    isTranscribingAudio={isTranscribingAudio}
+                  />
+
+                  {/* Collapsible History */}
+                  <div className="pt-2 border-t border-border space-y-2">
+                    <span className="text-[11px] font-semibold text-muted-foreground">Recent Dialogue</span>
+                    <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                      {messages.slice(-4).map((msg) => (
+                        <div key={msg.id} className={`p-2 rounded-lg text-[11px] leading-snug ${
+                          msg.sender === "candidate" ? "bg-blue-600/20 text-blue-200 border border-blue-500/30" : "bg-muted text-foreground"
+                        }`}>
+                          <strong className="block text-[10px] opacity-75">{msg.sender === "candidate" ? "You" : "Interviewer"}:</strong>
+                          {msg.content}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeLeftTab === "hints" && (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-foreground text-xs flex items-center gap-1.5">
+                        <Lightbulb className="h-3.5 w-3.5 text-amber-400" />
+                        Guided Problem Hints
+                      </h3>
+                      <button
+                        type="button"
+                        onClick={handleExplainApproach}
+                        className="rounded-lg bg-purple-600/20 border border-purple-500/30 px-2 py-1 text-[11px] font-semibold text-purple-300 hover:bg-purple-600/30"
+                      >
+                        Explain Approach
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      Try to solve the problem before unlocking hints.
+                    </p>
+                  </div>
+
+                  {codingProblem?.hints && codingProblem.hints.length > 0 ? (
+                    <div className="space-y-2">
+                      {codingProblem.hints.map((hint: string, idx: number) => {
+                        const isRevealed = revealedHints.includes(idx);
+                        return (
+                          <div key={idx} className="rounded-xl border border-border bg-muted/40 p-3 space-y-1.5">
+                            <div className="flex items-center justify-between">
+                              <span className="font-semibold text-foreground text-[11px]">Hint {idx + 1}</span>
+                              <button
+                                type="button"
+                                onClick={() => toggleHint(idx)}
+                                className="text-[10px] font-medium text-amber-400 hover:underline"
+                              >
+                                {isRevealed ? "Hide Hint" : "Reveal Hint"}
+                              </button>
+                            </div>
+                            {isRevealed && (
+                              <p className="text-muted-foreground text-xs leading-relaxed animate-in fade-in">
+                                {hint}
+                              </p>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-muted-foreground text-xs">No explicit hints available for this problem.</p>
+                  )}
+
+                  {codingProblem?.timeComplexity && (
+                    <div className="rounded-xl border border-border bg-card p-3 space-y-1 text-[11px]">
+                      <div className="font-semibold text-foreground">Target Complexity Benchmarks:</div>
+                      <div>Time: <span className="font-mono text-emerald-400">{codingProblem.timeComplexity}</span></div>
+                      <div>Space: <span className="font-mono text-emerald-400">{codingProblem.spaceComplexity || "O(1)"}</span></div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right Column: Code Editor & Live Console Output */}
+          <div className="lg:col-span-7 flex flex-col rounded-2xl border border-border bg-card overflow-hidden shadow-sm h-full">
+            {/* Editor Toolbar */}
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border bg-muted/40 px-3 py-2 text-xs shrink-0">
+              <div className="flex items-center gap-2">
+                <select
+                  value={codingLanguage}
+                  onChange={(e) => {
+                    const l = e.target.value as "java" | "python" | "cpp";
+                    setCodingLanguage(l);
+                    if (codingProblem?.starterCode?.[l]) {
+                      setCode(codingProblem.starterCode[l]);
+                    }
+                  }}
+                  className="rounded-lg border border-input bg-background px-2.5 py-1 text-xs font-semibold text-emerald-400 focus:outline-none"
+                >
+                  <option value="java">Java (OpenJDK 25)</option>
+                  <option value="python">Python 3.14</option>
+                  <option value="cpp">C++ (GCC 15)</option>
+                </select>
+
+                <button
+                  type="button"
+                  onClick={handleResetCode}
+                  className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition"
+                  title="Reset to starter template"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" />
+                </button>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleExplainApproach}
+                  disabled={isExplainingApproach}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 text-xs font-medium transition"
+                  title="Explain algorithmic approach before coding"
+                >
+                  <Lightbulb className="h-3.5 w-3.5 text-purple-400" />
+                  <span className="hidden sm:inline">{isExplainingApproach ? "Explaining..." : "Explain Approach"}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleRunCode}
+                  disabled={isRunningCode || isSubmittingCode}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 text-xs font-semibold transition disabled:opacity-50"
+                  title="Run code against sample test cases"
+                >
+                  <Play className="h-3.5 w-3.5 text-emerald-400" />
+                  <span>{isRunningCode ? "Running..." : "Run Code"}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleSubmitCode}
+                  disabled={isSubmittingCode || isRunningCode}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm transition disabled:opacity-50"
+                  title="Submit code for full evaluation"
+                >
+                  <CheckCircle2 className="h-3.5 w-3.5" />
+                  <span>{isSubmittingCode ? "Testing..." : "Submit Solution"}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Monaco Editor (Fill middle available space) */}
+            <div className="flex-1 min-h-[260px] relative bg-[#1e1e1e] overflow-hidden">
+              <Editor
+                height="100%"
+                language={codingLanguage === "cpp" ? "cpp" : codingLanguage}
+                theme="vs-dark"
+                value={code}
+                onChange={(v) => setCode(v || "")}
+                options={{
+                  fontSize: 13,
+                  minimap: { enabled: false },
+                  scrollBeyondLastLine: false,
+                  automaticLayout: true,
+                  lineNumbers: "on",
+                  tabSize: 2,
+                  fontFamily: "'JetBrains Mono', 'Fira Code', Menlo, Monaco, Consolas, monospace",
+                }}
+              />
+            </div>
+
+            {/* Bottom Output / Tests Drawer */}
+            <div className="h-44 border-t border-border bg-slate-950 flex flex-col shrink-0 overflow-hidden">
+              <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900/80 px-3 py-1.5 text-xs text-slate-300 shrink-0">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setActiveConsoleTab("terminal")}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-semibold transition ${
+                      activeConsoleTab === "terminal" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-slate-200"
+                    }`}
+                  >
+                    <Terminal className="h-3 w-3 text-emerald-400" />
+                    <span>Console Output</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setActiveConsoleTab("tests")}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-semibold transition ${
+                      activeConsoleTab === "tests" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-slate-200"
+                    }`}
+                  >
+                    <CheckCircle2 className="h-3 w-3 text-blue-400" />
+                    <span>Test Cases {submitResult ? `(${submitResult.passedCount ?? 0}/${submitResult.totalCount ?? 0})` : ""}</span>
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                  {runResult?.time && <span>Time: {runResult.time}s</span>}
+                  {submitResult?.status && (
+                    <span className={`px-2 py-0.5 rounded uppercase font-bold text-[10px] ${
+                      submitResult.status === "accepted" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"
+                    }`}>
+                      {submitResult.status}
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Console Drawer Body */}
+              <div className="flex-1 overflow-y-auto p-3 font-mono text-xs text-slate-200 space-y-2">
+                {activeConsoleTab === "terminal" && (
+                  <>
+                    {!runResult && !submitResult && !isRunningCode && (
+                      <p className="text-slate-500 text-[11px] italic">
+                        Click &apos;Run Code&apos; to execute against sample tests, or &apos;Submit Solution&apos; to run full evaluation.
+                      </p>
+                    )}
+
+                    {runResult?.stdout && (
+                      <div>
+                        <span className="text-emerald-400 font-semibold block text-[11px]">Standard Output:</span>
+                        <pre className="whitespace-pre-wrap mt-0.5 text-slate-100 bg-slate-900/60 p-2 rounded border border-slate-800">{runResult.stdout}</pre>
+                      </div>
+                    )}
+
+                    {runResult?.compileOutput && (
+                      <div>
+                        <span className="text-red-400 font-semibold block text-[11px]">Compiler Message:</span>
+                        <pre className="whitespace-pre-wrap mt-0.5 text-red-300 bg-red-950/30 p-2 rounded border border-red-500/30">{runResult.compileOutput}</pre>
+                      </div>
+                    )}
+
+                    {runResult?.error && (
+                      <div className="text-red-400 p-2 rounded bg-red-950/20 border border-red-500/30">
+                        {runResult.error}
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {activeConsoleTab === "tests" && (
+                  <div className="space-y-2">
+                    {submitResult?.results ? (
+                      submitResult.results.map((r: any, idx: number) => (
+                        <div key={idx} className={`p-2 rounded border text-[11px] space-y-1 ${
+                          r.passed ? "bg-emerald-950/20 border-emerald-500/30" : "bg-red-950/20 border-red-500/30"
+                        }`}>
+                          <div className="flex items-center justify-between font-semibold">
+                            <span className={r.passed ? "text-emerald-400" : "text-red-400"}>
+                              Test Case {idx + 1}: {r.passed ? "PASSED" : "FAILED"}
+                            </span>
+                          </div>
+                          <div><span className="text-slate-400">Input:</span> {r.input}</div>
+                          <div><span className="text-slate-400">Expected:</span> {r.expected}</div>
+                          <div><span className="text-slate-400">Actual:</span> {r.actual}</div>
+                        </div>
+                      ))
+                    ) : codingProblem?.visibleTestCases ? (
+                      codingProblem.visibleTestCases.map((tc: any, idx: number) => (
+                        <div key={idx} className="p-2 rounded bg-slate-900/60 border border-slate-800 text-[11px] space-y-1">
+                          <span className="text-slate-400 font-semibold">Sample Test Case {idx + 1}:</span>
+                          <div><span className="text-blue-400">Input:</span> {tc.input}</div>
+                          <div><span className="text-emerald-400">Expected:</span> {tc.expectedOutput}</div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-slate-500 text-[11px]">No test case results yet.</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* Single-Column Conversational Interview Stage (Rounds 1, 2, 4) */
+        <div className="flex flex-col gap-4 max-w-4xl mx-auto w-full">
+          {/* Active Question Spotlight Card */}
           <div className="rounded-2xl border border-blue-500/30 bg-gradient-to-b from-blue-950/20 via-[#0e1424] to-[#0c101a] p-5 sm:p-6 shadow-xl shadow-blue-950/20 space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-border/60 pb-3.5">
               <div className="flex flex-wrap items-center gap-2">
@@ -763,7 +1265,7 @@ export default function InterviewRoomPage() {
               })()}
             </div>
 
-            {/* Active Clarification Callout (if candidate recently asked a clarification) */}
+            {/* Active Clarification Callout */}
             {(() => {
               const clarifyMsg = [...messages].reverse().find(m => m.sender === "interviewer" && m.messageType === "clarification");
               if (!clarifyMsg) return null;
@@ -774,6 +1276,21 @@ export default function InterviewRoomPage() {
                     Interviewer Clarification / Guidance:
                   </div>
                   <div className="whitespace-pre-wrap leading-relaxed">{clarifyMsg.content}</div>
+                </div>
+              );
+            })()}
+
+            {/* Feedback / Evaluation Callout */}
+            {(() => {
+              const feedbackMsg = [...messages].reverse().find(m => m.sender === "interviewer" && m.messageType === "feedback");
+              if (!feedbackMsg) return null;
+              return (
+                <div className="rounded-xl border border-indigo-500/30 bg-indigo-950/20 p-3 sm:p-4 text-xs text-indigo-200 space-y-1.5 animate-in fade-in">
+                  <div className="font-semibold text-indigo-300 flex items-center gap-1.5">
+                    <Sparkles className="h-4 w-4 text-indigo-400" />
+                    <span>Interviewer Assessment & Coaching:</span>
+                  </div>
+                  <p className="leading-relaxed whitespace-pre-wrap text-foreground/90">{feedbackMsg.content}</p>
                 </div>
               );
             })()}
@@ -835,7 +1352,7 @@ export default function InterviewRoomPage() {
             <button
               type="button"
               onClick={() => setShowHistory(!showHistory)}
-              className="w-full flex items-center justify-between p-3.5 bg-muted/30 hover:bg-muted/50 text-xs font-semibold text-foreground transition"
+              className="w-full flex items-center justify-between p-3.5 bg-muted/30 hover:bg-muted/50 text-xs font-semibold text-foreground transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-2">
                 <MessageSquare className="h-4 w-4 text-blue-500" />
@@ -893,182 +1410,7 @@ export default function InterviewRoomPage() {
             )}
           </div>
         </div>
-
-        {/* Right Column (Round 3 ONLY): Monaco Code Editor & Compiler Output */}
-        {isCodingRound && (
-          <div className="flex flex-col h-full rounded-xl border border-border bg-card overflow-hidden shadow-sm">
-            {/* Header: Tabs & Language Selector */}
-            <div className="flex items-center justify-between p-3 border-b border-border bg-muted/40">
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => setActiveCodingTab("problem")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                    activeCodingTab === "problem"
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground hover:bg-muted"
-                  }`}
-                >
-                  Problem & Instructions
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveCodingTab("console")}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                    activeCodingTab === "console"
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground hover:bg-muted"
-                  }`}
-                >
-                  Compiler Console & Tests
-                </button>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <select
-                  value={codingLanguage}
-                  onChange={(e) => {
-                    const l = e.target.value as "java" | "python" | "cpp";
-                    setCodingLanguage(l);
-                    if (codingProblem?.starterCode?.[l]) {
-                      setCode(codingProblem.starterCode[l]);
-                    }
-                  }}
-                  className="rounded-lg border border-input bg-background px-2.5 py-1 text-xs font-medium"
-                >
-                  <option value="java">Java (OpenJDK 25)</option>
-                  <option value="python">Python 3.14</option>
-                  <option value="cpp">C++ (GCC 15)</option>
-                </select>
-
-                <button
-                  type="button"
-                  onClick={handleExplainApproach}
-                  disabled={isExplainingApproach}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 text-xs font-medium transition-colors"
-                  title="Explain algorithmic approach and complexity before writing code"
-                >
-                  <Lightbulb className="h-3.5 w-3.5 text-purple-400" />
-                  <span>Explain Approach</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleRunCode}
-                  disabled={isRunningCode || isSubmittingCode}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-background hover:bg-muted text-xs font-medium transition-colors disabled:opacity-50"
-                >
-                  <Play className="h-3.5 w-3.5 text-emerald-500" />
-                  {isRunningCode ? "Running..." : "Run Code"}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleSubmitCode}
-                  disabled={isSubmittingCode || isRunningCode}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
-                >
-                  <CheckCircle2 className="h-3.5 w-3.5" />
-                  {isSubmittingCode ? "Testing..." : "Submit Code"}
-                </button>
-              </div>
-            </div>
-
-            {/* Coding Pane Content: Problem Description OR Console */}
-            {activeCodingTab === "problem" && codingProblem && (
-              <div className="p-4 border-b border-border bg-muted/20 text-xs overflow-y-auto max-h-48 space-y-2">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-bold text-sm text-foreground">{codingProblem.title}</h3>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-blue-500/10 text-blue-500">
-                    {codingProblem.difficulty}
-                  </span>
-                </div>
-                <p className="text-muted-foreground whitespace-pre-wrap">{codingProblem.description}</p>
-                <div className="flex flex-wrap gap-2 pt-1">
-                  {codingProblem.constraints?.map((c: string, i: number) => (
-                    <span key={i} className="px-2 py-0.5 rounded bg-muted text-[10px] font-mono text-muted-foreground">
-                      {c}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Monaco Editor Pane */}
-            <div className="flex-1 min-h-[300px]">
-              <Editor
-                height="100%"
-                language={codingLanguage === "cpp" ? "cpp" : codingLanguage}
-                theme="vs-dark"
-                value={code}
-                onChange={(v) => setCode(v || "")}
-                options={{
-                  fontSize: 13,
-                  minimap: { enabled: false },
-                  scrollBeyondLastLine: false,
-                  automaticLayout: true,
-                  lineNumbers: "on",
-                  tabSize: 2,
-                }}
-              />
-            </div>
-
-            {/* Console Output Drawer */}
-            {activeCodingTab === "console" && (
-              <div className="p-3 border-t border-border bg-slate-950 text-slate-100 font-mono text-xs max-h-48 overflow-y-auto space-y-2">
-                <div className="flex items-center justify-between text-[11px] text-slate-400 border-b border-slate-800 pb-1">
-                  <span>Execution Output</span>
-                  {runResult?.time && <span>Duration: {runResult.time}s</span>}
-                </div>
-
-                {runResult?.configured === false && (
-                  <div className="p-2.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-sans">
-                    <strong>Code Execution Disabled:</strong> OnlineCompiler API is not configured. Set <code className="text-amber-200 bg-amber-950/60 px-1 py-0.5 rounded">ONLINECOMPILER_API_KEY</code> in Settings or <code className="text-amber-200 bg-amber-950/60 px-1 py-0.5 rounded">.env.local</code> to execute code live. Fake compiler results are never generated.
-                  </div>
-                )}
-
-                {submitResult?.configured === false && (
-                  <div className="p-2.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-sans">
-                    <strong>Evaluation Disabled:</strong> Real test-case execution requires <code className="text-amber-200 bg-amber-950/60 px-1 py-0.5 rounded">ONLINECOMPILER_API_KEY</code>.
-                  </div>
-                )}
-
-                {runResult?.stdout && (
-                  <div>
-                    <span className="text-emerald-400 font-semibold">Standard Output:</span>
-                    <pre className="whitespace-pre-wrap mt-1">{runResult.stdout}</pre>
-                  </div>
-                )}
-
-                {runResult?.compileOutput && (
-                  <div>
-                    <span className="text-red-400 font-semibold">Compiler Output:</span>
-                    <pre className="whitespace-pre-wrap mt-1 text-red-300">{runResult.compileOutput}</pre>
-                  </div>
-                )}
-
-                {submitResult && (
-                  <div className="p-2 rounded bg-slate-900 border border-slate-800 space-y-1">
-                    <div className="flex items-center gap-2">
-                      <span className="font-bold uppercase tracking-wider text-xs">
-                        {submitResult.status === "accepted" ? (
-                          <span className="text-emerald-400 flex items-center gap-1">
-                            <CheckCircle2 className="h-3.5 w-3.5" /> Accepted ({submitResult.passedCount}/{submitResult.totalCount} tests passed)
-                          </span>
-                        ) : (
-                          <span className="text-red-400 flex items-center gap-1">
-                            <XCircle className="h-3.5 w-3.5" /> {submitResult.status} ({submitResult.passedCount}/{submitResult.totalCount} tests passed)
-                          </span>
-                        )}
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+      )}
 
       {/* Interruption / Clarification Modal */}
       {isClarifyOpen && (
