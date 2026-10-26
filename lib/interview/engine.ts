@@ -893,6 +893,84 @@ export async function completeRound(sessionId: string, roundNumber: RoundNumber)
     );
 }
 
+export async function advanceToNextRound(sessionId: string, targetRoundNumber?: RoundNumber) {
+  await ensureDbInitialized();
+  const [session] = await db
+    .select()
+    .from(interviewSessions)
+    .where(eq(interviewSessions.id, sessionId));
+
+  if (!session) throw new Error("Interview session not found");
+  const currentRound = session.currentRound as RoundNumber;
+
+  const nextRound = (targetRoundNumber || Math.min(4, currentRound + 1)) as RoundNumber;
+  if (nextRound === currentRound && currentRound === 4) {
+    return await finishSession(sessionId);
+  }
+
+  // Complete current round
+  await completeRound(sessionId, currentRound);
+
+  // Update session to next round
+  await db
+    .update(interviewSessions)
+    .set({
+      currentRound: nextRound,
+      currentQuestionIndex: 0,
+    })
+    .where(eq(interviewSessions.id, sessionId));
+
+  await db
+    .update(interviewRounds)
+    .set({
+      status: "in_progress",
+      startedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(interviewRounds.sessionId, sessionId),
+        eq(interviewRounds.roundNumber, nextRound)
+      )
+    );
+
+  let interviewerReply = "";
+  if (nextRound === 3) {
+    const [problem] = await db.select().from(codingProblems).limit(1);
+    interviewerReply = `We are now transitioning to Round 3: Coding Interview.\n\n` +
+      `Your coding challenge is: **${problem.title}** (${problem.difficulty.toUpperCase()}).\n\n` +
+      `${problem.description}\n\n` +
+      `Explain your algorithmic approach aloud and write your code in the editor pane when ready.`;
+
+    await db.insert(conversationMessages).values({
+      id: "msg-" + Math.random().toString(36).substring(2, 10),
+      sessionId,
+      roundNumber: 3,
+      sender: "interviewer",
+      messageType: "question",
+      content: interviewerReply,
+      metadata: JSON.stringify({ problemId: problem.id, problemSlug: problem.slug }),
+      timestamp: new Date(),
+    });
+  } else {
+    const nextQ = await getNextQuestionForRound(sessionId, nextRound, 0);
+    interviewerReply = `Proceeding to Round ${nextRound}: ${ROUND_NAMES[nextRound]}.\n\n` +
+      `Question 1:\n${nextQ.questionText}`;
+
+    await db.insert(conversationMessages).values({
+      id: "msg-" + Math.random().toString(36).substring(2, 10),
+      sessionId,
+      roundNumber: nextRound,
+      sender: "interviewer",
+      messageType: "question",
+      content: interviewerReply,
+      metadata: JSON.stringify({ questionId: nextQ.id, questionIndex: 0 }),
+      timestamp: new Date(),
+    });
+  }
+
+  return { success: true, nextRound, interviewerReply };
+}
+
 export async function finishSession(sessionId: string) {
   await ensureDbInitialized();
 

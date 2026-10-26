@@ -497,6 +497,34 @@ export default function InterviewRoomPage() {
     }
   };
 
+  // Advance to Next Round or Target Round
+  const handleAdvanceRound = async (targetRound?: number) => {
+    try {
+      setLoading(true);
+      voiceControllerRef.current?.stopSpeaking();
+      voiceControllerRef.current?.stopListening();
+
+      const res = await fetch(`/api/interviews/${sessionId}/advance-round`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ targetRound }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to advance round");
+
+      if (data.reportId) {
+        router.push(`/reports/${data.reportId}`);
+        return;
+      }
+
+      await fetchSession();
+    } catch (err: any) {
+      setError(err.message || "Failed to advance round");
+      setLoading(false);
+    }
+  };
+
   const formatTimer = (totalSeconds: number) => {
     const mins = Math.floor(totalSeconds / 60);
     const secs = totalSeconds % 60;
@@ -553,17 +581,28 @@ export default function InterviewRoomPage() {
           </div>
         </div>
 
-        {/* Round Progress Tracker */}
+        {/* Round Progress Tracker (Clickable to jump to round) */}
         <div className="hidden md:flex items-center gap-2">
           {rounds.map((r) => (
-            <div
+            <button
               key={r.roundNumber}
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium border transition-colors ${
+              type="button"
+              onClick={() => {
+                if (r.roundNumber !== session?.currentRound) {
+                  handleAdvanceRound(r.roundNumber);
+                }
+              }}
+              title={
                 r.roundNumber === session?.currentRound
-                  ? "bg-blue-600 text-white border-blue-500 shadow-sm"
+                  ? "Current active round"
+                  : `Jump to Round ${r.roundNumber}: ${r.roundName}`
+              }
+              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium border transition-all ${
+                r.roundNumber === session?.currentRound
+                  ? "bg-blue-600 text-white border-blue-500 shadow-sm cursor-default"
                   : r.status === "completed"
-                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-                  : "bg-muted text-muted-foreground border-border"
+                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20 cursor-pointer"
+                  : "bg-muted text-muted-foreground border-border hover:bg-muted/80 hover:text-foreground cursor-pointer"
               }`}
             >
               {r.status === "completed" ? (
@@ -572,11 +611,11 @@ export default function InterviewRoomPage() {
                 <span className="font-semibold">{r.roundNumber}</span>
               )}
               <span className="hidden lg:inline">{r.roundName.split(" ")[0]}</span>
-            </div>
+            </button>
           ))}
         </div>
 
-        {/* Controls: Timer, Pause, End */}
+        {/* Controls: Timer, Pause, Next Round, End */}
         <div className="flex items-center gap-2">
           <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono font-semibold ${
             isPaused
@@ -601,6 +640,18 @@ export default function InterviewRoomPage() {
             {isPaused ? <Play className="h-3.5 w-3.5 text-emerald-400 fill-emerald-400" /> : <Pause className="h-3.5 w-3.5" />}
             {isPaused ? "Resume" : "Pause"}
           </button>
+
+          {session?.currentRound && session.currentRound < 4 && (
+            <button
+              type="button"
+              onClick={() => handleAdvanceRound()}
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 text-xs font-medium transition-all"
+              title="Finish current round and advance to next round"
+            >
+              <span>Next Round</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          )}
 
           <button
             type="button"
