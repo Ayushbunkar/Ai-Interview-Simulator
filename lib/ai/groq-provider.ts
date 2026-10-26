@@ -37,7 +37,7 @@ export class GroqAIProvider implements InterviewAIProvider {
 
   constructor() {
     const apiKey = process.env.GROQ_API_KEY;
-    this.model = process.env.GROQ_MODEL || "llama-3.3-70b-versatile";
+    this.model = process.env.GROQ_MODEL || "openai/gpt-oss-120b";
     if (apiKey && apiKey.trim().length > 0) {
       this.client = new Groq({ apiKey });
     }

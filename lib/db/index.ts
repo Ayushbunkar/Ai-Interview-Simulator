@@ -2,7 +2,8 @@ import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
 import * as schema from "./schema";
 
-const dbUrl = process.env.DATABASE_URL || "file:interviewforge.db";
+const defaultDbUrl = process.env.VERCEL ? "file:/tmp/interviewforge.db" : "file:interviewforge.db";
+const dbUrl = process.env.DATABASE_URL || defaultDbUrl;
 const authToken = process.env.DATABASE_AUTH_TOKEN;
 
 export const sqliteClient = createClient({
@@ -211,6 +212,10 @@ export async function ensureDbInitialized() {
         updated_at INTEGER NOT NULL
       );
     `);
+
+    // Auto-seed question bank and coding challenges if DB is newly created
+    const { autoSeedIfEmpty } = await import("./auto-seed");
+    await autoSeedIfEmpty();
 
     initialized = true;
   } catch (err) {
