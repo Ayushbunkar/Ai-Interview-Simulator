@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { ensureDbInitialized, db } from "@/lib/db";
 import { resumeProfiles } from "@/lib/db/schema";
 import { extractTextFromDocument, parseResumeStructured } from "@/lib/intelligence/resume-parser";
+import { calculateATSScore } from "@/lib/intelligence/ats-calculator";
 
 export async function POST(req: NextRequest) {
   try {
@@ -105,6 +106,13 @@ export async function POST(req: NextRequest) {
       updatedAt: now,
     });
 
+    const atsAnalysis = calculateATSScore({
+      rawResumeText,
+      profile: parseResult.profile,
+      targetRole,
+      jobDescription: rawJobDescription,
+    });
+
     return NextResponse.json({
       success: true,
       profileId,
@@ -112,6 +120,7 @@ export async function POST(req: NextRequest) {
       skillClassifications: parseResult.skillClassifications,
       rawResumeText,
       detectedStack: flattenedSkills.slice(0, 6),
+      atsAnalysis,
     });
   } catch (error: any) {
     console.error("Resume parse error:", error);

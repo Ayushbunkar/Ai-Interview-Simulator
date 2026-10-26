@@ -14,9 +14,21 @@ import {
   HelpCircle,
   Play,
   CheckCircle2,
+  Upload,
+  Trash2,
+  CheckCircle,
+  Zap,
+  Award,
+  Target,
+  AlertTriangle,
+  TrendingUp,
+  Layers,
+  ChevronDown,
+  ChevronUp,
+  Check,
+  FolderGit2,
 } from "lucide-react";
 import { CompanyProfile, InterviewMode, InterviewModeVariant, ExtractedProject } from "@/lib/types";
-import { Upload, Trash2, CheckCircle, Zap } from "lucide-react";
 
 function InterviewSetupContent() {
   const router = useRouter();
@@ -38,6 +50,9 @@ function InterviewSetupContent() {
   const [jobDescription, setJobDescription] = useState("");
   const [resumeProfileId, setResumeProfileId] = useState<string | null>(null);
   const [extractedInfo, setExtractedInfo] = useState<{ skills: string[]; projects: ExtractedProject[]; technologies: string[] } | null>(null);
+  const [extractedProfile, setExtractedProfile] = useState<any | null>(null);
+  const [atsAnalysis, setAtsAnalysis] = useState<any | null>(null);
+  const [showFullDetails, setShowFullDetails] = useState<boolean>(true);
   const [savedResume, setSavedResume] = useState<{ id: string; candidateName?: string; extractedSkills: string[]; rawResumeText: string } | null>(null);
   const [parsingResume, setParsingResume] = useState(false);
 
@@ -57,14 +72,7 @@ function InterviewSetupContent() {
     if (savedResume) {
       setResumeProfileId(savedResume.id);
       setResumeText(savedResume.rawResumeText);
-      setExtractedInfo({
-        skills: savedResume.extractedSkills,
-        projects: (savedResume as any).extractedProjects || [],
-        technologies: savedResume.extractedSkills,
-      });
-      if (savedResume.candidateName) {
-        // Can prefill role if desired
-      }
+      handleAnalyzeResumeText(savedResume.rawResumeText);
     }
   };
   const [selectedTopics, setSelectedTopics] = useState<string[]>([
@@ -137,10 +145,53 @@ function InterviewSetupContent() {
       if (!res.ok) throw new Error(data.error || "Failed to parse resume document");
 
       setResumeProfileId(data.profileId);
-      setExtractedInfo(data.extracted);
+      setExtractedInfo({
+        skills: data.detectedStack || [],
+        projects: data.profile?.projects || [],
+        technologies: data.detectedStack || [],
+      });
+      setExtractedProfile(data.profile);
+      setAtsAnalysis(data.atsAnalysis);
       setResumeText(data.rawResumeText);
     } catch (err: any) {
       setError(err.message || "Failed to upload and parse resume.");
+    } finally {
+      setParsingResume(false);
+    }
+  };
+
+  const handleAnalyzeResumeText = async (textToAnalyze?: string) => {
+    const text = (textToAnalyze || resumeText).trim();
+    if (!text || parsingResume) return;
+
+    setParsingResume(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/resume/parse", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          rawResumeText: text,
+          rawJobDescription: jobDescription.trim(),
+          targetRole,
+          experienceLevel: difficulty,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to analyze resume text");
+
+      setResumeProfileId(data.profileId);
+      setExtractedInfo({
+        skills: data.detectedStack || [],
+        projects: data.profile?.projects || [],
+        technologies: data.detectedStack || [],
+      });
+      setExtractedProfile(data.profile);
+      setAtsAnalysis(data.atsAnalysis);
+      setResumeText(data.rawResumeText);
+    } catch (err: any) {
+      setError(err.message || "Failed to analyze resume text.");
     } finally {
       setParsingResume(false);
     }
@@ -156,6 +207,8 @@ function InterviewSetupContent() {
     }
     setResumeProfileId(null);
     setExtractedInfo(null);
+    setExtractedProfile(null);
+    setAtsAnalysis(null);
     setResumeText("");
     setJobDescription("");
   };
@@ -552,46 +605,329 @@ function InterviewSetupContent() {
                   rows={4}
                   value={resumeText}
                   onChange={e => setResumeText(e.target.value)}
-                  placeholder="Or paste resume summary / key project descriptions here..."
+                  placeholder="Or paste resume summary / key project descriptions here (e.g. 'Built an e-commerce backend using Spring Boot, PostgreSQL, and Redis caching. Handled 1000 orders/min with optimistic locking.')..."
                   className="w-full rounded-lg border border-gray-800 bg-gray-950 p-2.5 text-xs text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
                 />
+                <div className="flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={() => handleAnalyzeResumeText()}
+                    disabled={parsingResume || !resumeText.trim()}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition disabled:opacity-50"
+                  >
+                    <Sparkles className="h-3.5 w-3.5 text-purple-200" />
+                    <span>{parsingResume ? "Analyzing & Scoring..." : "Analyze & Calculate ATS Score"}</span>
+                  </button>
+                  <span className="text-[10px] text-gray-500">
+                    {resumeText ? `${resumeText.trim().split(/\s+/).length} words` : "No text pasted"}
+                  </span>
+                </div>
               </div>
             </div>
 
             {/* Pasted Job Description */}
             <div>
               <label className="text-[11px] font-semibold text-gray-300 mb-1 block">
-                Target Job Description (Optional)
+                Target Job Description (Optional — for Keyword Match & ATS Alignment)
               </label>
               <textarea
                 rows={2}
                 value={jobDescription}
                 onChange={e => setJobDescription(e.target.value)}
-                placeholder="Paste the target job description to emphasize required company competencies and stack requirements..."
+                placeholder="Paste the target job description to match skills, emphasize required competencies, and tune the ATS score..."
                 className="w-full rounded-lg border border-gray-800 bg-gray-950 p-2.5 text-xs text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
               />
             </div>
 
-            {/* Extracted Intelligence Badge Card */}
-            {extractedInfo && (
-              <div className="rounded-lg border border-purple-500/30 bg-purple-500/10 p-3.5 space-y-2">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-purple-300">
-                  <CheckCircle className="h-3.5 w-3.5 text-purple-400" />
-                  <span>Verified Resume Intelligence Extracted (Zero-Fabrication Guarantee)</span>
+            {/* ATS Score & Compatibility Card */}
+            {atsAnalysis && (
+              <div className="rounded-xl border border-purple-500/40 bg-gradient-to-br from-purple-950/40 via-gray-900/60 to-purple-900/20 p-5 space-y-4 shadow-lg">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-800 pb-3">
+                  <div className="flex items-center gap-2.5">
+                    <div className="h-9 w-9 rounded-lg bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                      <Award className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-sm font-bold text-white">ATS Compatibility Score</h4>
+                        <span
+                          className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                            atsAnalysis.overallScore >= 80
+                              ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                              : atsAnalysis.overallScore >= 65
+                              ? "bg-blue-500/20 text-blue-300 border border-blue-500/40"
+                              : atsAnalysis.overallScore >= 50
+                              ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                              : "bg-red-500/20 text-red-300 border border-red-500/40"
+                          }`}
+                        >
+                          {atsAnalysis.rating}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-gray-400">
+                        Evaluated against {targetRole || "Software Engineer"} hiring benchmarks & parsing standards.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-baseline gap-1 self-start sm:self-auto">
+                    <span
+                      className={`text-3xl font-black ${
+                        atsAnalysis.overallScore >= 80
+                          ? "text-emerald-400"
+                          : atsAnalysis.overallScore >= 65
+                          ? "text-blue-400"
+                          : atsAnalysis.overallScore >= 50
+                          ? "text-amber-400"
+                          : "text-red-400"
+                      }`}
+                    >
+                      {atsAnalysis.overallScore}%
+                    </span>
+                    <span className="text-xs text-gray-500 font-semibold">/ 100</span>
+                  </div>
                 </div>
-                {extractedInfo.skills.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5">
-                    {extractedInfo.skills.map(s => (
-                      <span key={s} className="rounded-md bg-purple-900/40 border border-purple-700/50 px-2 py-0.5 text-[10px] text-purple-200">
-                        {s}
-                      </span>
-                    ))}
+
+                {/* Score Progress Bar */}
+                <div className="h-2 w-full rounded-full bg-gray-800 overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      atsAnalysis.overallScore >= 80
+                        ? "bg-emerald-500"
+                        : atsAnalysis.overallScore >= 65
+                        ? "bg-blue-500"
+                        : atsAnalysis.overallScore >= 50
+                        ? "bg-amber-500"
+                        : "bg-red-500"
+                    }`}
+                    style={{ width: `${atsAnalysis.overallScore}%` }}
+                  />
+                </div>
+
+                {/* 4-Category Breakdown Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+                  <div className="rounded-lg bg-gray-950/70 border border-gray-800 p-2.5 space-y-1">
+                    <div className="text-[10px] font-semibold text-gray-400">Skills & Keywords</div>
+                    <div className="text-sm font-bold text-white">
+                      {atsAnalysis.breakdown.skillsKeywordScore} <span className="text-[10px] text-gray-500 font-normal">/ 30</span>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg bg-gray-950/70 border border-gray-800 p-2.5 space-y-1">
+                    <div className="text-[10px] font-semibold text-gray-400">Action & Impact</div>
+                    <div className="text-sm font-bold text-white">
+                      {atsAnalysis.breakdown.actionImpactScore} <span className="text-[10px] text-gray-500 font-normal">/ 25</span>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg bg-gray-950/70 border border-gray-800 p-2.5 space-y-1">
+                    <div className="text-[10px] font-semibold text-gray-400">Project Depth</div>
+                    <div className="text-sm font-bold text-white">
+                      {atsAnalysis.breakdown.experienceDepthScore} <span className="text-[10px] text-gray-500 font-normal">/ 25</span>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg bg-gray-950/70 border border-gray-800 p-2.5 space-y-1">
+                    <div className="text-[10px] font-semibold text-gray-400">Structure & Format</div>
+                    <div className="text-sm font-bold text-white">
+                      {atsAnalysis.breakdown.formattingStructureScore} <span className="text-[10px] text-gray-500 font-normal">/ 20</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Key Strengths & Suggestions */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  {atsAnalysis.strengths.length > 0 && (
+                    <div className="space-y-1.5">
+                      <div className="text-[11px] font-bold text-emerald-300 flex items-center gap-1.5">
+                        <CheckCircle className="h-3.5 w-3.5 text-emerald-400" />
+                        <span>ATS Pass Factors</span>
+                      </div>
+                      <ul className="space-y-1">
+                        {atsAnalysis.strengths.map((str: string, i: number) => (
+                          <li key={i} className="text-[10px] text-gray-300 flex items-start gap-1.5 leading-snug">
+                            <span className="text-emerald-400 mt-0.5">•</span>
+                            <span>{str}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {atsAnalysis.improvements.length > 0 && (
+                    <div className="space-y-1.5">
+                      <div className="text-[11px] font-bold text-amber-300 flex items-center gap-1.5">
+                        <Target className="h-3.5 w-3.5 text-amber-400" />
+                        <span>Recommendations to Boost ATS Score</span>
+                      </div>
+                      <ul className="space-y-1">
+                        {atsAnalysis.improvements.map((imp: string, i: number) => (
+                          <li key={i} className="text-[10px] text-gray-300 flex items-start gap-1.5 leading-snug">
+                            <span className="text-amber-400 mt-0.5">•</span>
+                            <span>{imp}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                {/* Missing Keywords Warning */}
+                {atsAnalysis.criticalMissingKeywords?.length > 0 && (
+                  <div className="rounded-lg bg-red-950/20 border border-red-500/30 p-2.5 space-y-1.5">
+                    <div className="text-[10px] font-bold text-red-300 flex items-center gap-1">
+                      <AlertTriangle className="h-3 w-3 text-red-400" />
+                      <span>Missing Industry Standard Keywords for {targetRole}:</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {atsAnalysis.criticalMissingKeywords.map((kw: string) => (
+                        <span key={kw} className="rounded bg-red-900/30 border border-red-700/40 px-1.5 py-0.5 text-[9px] font-mono text-red-200">
+                          {kw}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 )}
-                {extractedInfo.projects.length > 0 && (
-                  <p className="text-[11px] text-gray-300">
-                    <strong className="text-white">Detected Projects:</strong> {extractedInfo.projects.map(p => p.name).join(", ")}. Round 2 will progressively interrogate their architecture and trade-offs.
-                  </p>
+              </div>
+            )}
+
+            {/* Fetched Candidate Details Card */}
+            {extractedProfile && (
+              <div className="rounded-xl border border-gray-800 bg-gray-950/80 p-4 space-y-3">
+                <div className="flex items-center justify-between border-b border-gray-800 pb-2">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-emerald-400" />
+                    <span className="text-xs font-bold text-white">Fetched Resume Details (Verified Entities)</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowFullDetails(prev => !prev)}
+                    className="text-[11px] text-purple-400 hover:text-purple-300 flex items-center gap-1 font-medium transition"
+                  >
+                    <span>{showFullDetails ? "Collapse Details" : "Expand Full Details"}</span>
+                    {showFullDetails ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                  </button>
+                </div>
+
+                {showFullDetails && (
+                  <div className="space-y-3 text-xs">
+                    {/* Candidate Identity */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]">
+                      <div className="rounded-lg bg-gray-900/80 p-2 border border-gray-800">
+                        <span className="text-gray-500 block text-[10px]">Identified Candidate:</span>
+                        <span className="text-white font-semibold">{extractedProfile.name || "Candidate"}</span>
+                      </div>
+                      <div className="rounded-lg bg-gray-900/80 p-2 border border-gray-800">
+                        <span className="text-gray-500 block text-[10px]">Detected Target Focus:</span>
+                        <span className="text-white font-semibold">{targetRole}</span>
+                      </div>
+                      <div className="rounded-lg bg-gray-900/80 p-2 border border-gray-800">
+                        <span className="text-gray-500 block text-[10px]">Total Word Count:</span>
+                        <span className="text-white font-semibold">{atsAnalysis?.wordCount || 0} words</span>
+                      </div>
+                    </div>
+
+                    {/* Categorized Skills */}
+                    <div className="space-y-1.5">
+                      <span className="text-[11px] font-bold text-gray-300">Extracted Technical Stack by Category:</span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[10px]">
+                        {extractedProfile.skills.programmingLanguages?.length > 0 && (
+                          <div className="rounded bg-gray-900/60 p-2 border border-gray-800">
+                            <span className="text-gray-400 block mb-1 font-semibold">Languages:</span>
+                            <div className="flex flex-wrap gap-1">
+                              {extractedProfile.skills.programmingLanguages.map((s: string) => (
+                                <span key={s} className="rounded bg-blue-900/40 border border-blue-700/50 px-1.5 py-0.5 text-blue-200">{s}</span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {extractedProfile.skills.backend?.length > 0 && (
+                          <div className="rounded bg-gray-900/60 p-2 border border-gray-800">
+                            <span className="text-gray-400 block mb-1 font-semibold">Backend & Frameworks:</span>
+                            <div className="flex flex-wrap gap-1">
+                              {extractedProfile.skills.backend.map((s: string) => (
+                                <span key={s} className="rounded bg-emerald-900/40 border border-emerald-700/50 px-1.5 py-0.5 text-emerald-200">{s}</span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {extractedProfile.skills.databases?.length > 0 && (
+                          <div className="rounded bg-gray-900/60 p-2 border border-gray-800">
+                            <span className="text-gray-400 block mb-1 font-semibold">Databases & Storage:</span>
+                            <div className="flex flex-wrap gap-1">
+                              {extractedProfile.skills.databases.map((s: string) => (
+                                <span key={s} className="rounded bg-cyan-900/40 border border-cyan-700/50 px-1.5 py-0.5 text-cyan-200">{s}</span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {extractedProfile.skills.frontend?.length > 0 && (
+                          <div className="rounded bg-gray-900/60 p-2 border border-gray-800">
+                            <span className="text-gray-400 block mb-1 font-semibold">Frontend:</span>
+                            <div className="flex flex-wrap gap-1">
+                              {extractedProfile.skills.frontend.map((s: string) => (
+                                <span key={s} className="rounded bg-purple-900/40 border border-purple-700/50 px-1.5 py-0.5 text-purple-200">{s}</span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {extractedProfile.skills.devops?.length > 0 && (
+                          <div className="rounded bg-gray-900/60 p-2 border border-gray-800">
+                            <span className="text-gray-400 block mb-1 font-semibold">DevOps & Cloud:</span>
+                            <div className="flex flex-wrap gap-1">
+                              {extractedProfile.skills.devops.map((s: string) => (
+                                <span key={s} className="rounded bg-amber-900/40 border border-amber-700/50 px-1.5 py-0.5 text-amber-200">{s}</span>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Extracted Projects */}
+                    {extractedProfile.projects?.length > 0 && (
+                      <div className="space-y-1.5 pt-1">
+                        <span className="text-[11px] font-bold text-gray-300">Verified Projects (Round 2 Architecture Focus):</span>
+                        <div className="space-y-2">
+                          {extractedProfile.projects.map((p: any, idx: number) => (
+                            <div key={idx} className="rounded-lg bg-gray-900/60 border border-gray-800 p-2.5 space-y-1 text-[11px]">
+                              <div className="flex items-center justify-between font-bold text-white">
+                                <span className="flex items-center gap-1.5">
+                                  <FolderGit2 className="h-3.5 w-3.5 text-purple-400" />
+                                  <span>{p.name}</span>
+                                </span>
+                                {p.technologies?.length > 0 && (
+                                  <span className="text-[10px] text-purple-300 font-mono font-normal">
+                                    {p.technologies.join(" • ")}
+                                  </span>
+                                )}
+                              </div>
+                              {p.description && <p className="text-gray-400 text-[10px] leading-relaxed">{p.description}</p>}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Claims flagged for validation */}
+                    {extractedProfile.resumeClaims?.length > 0 && (
+                      <div className="space-y-1 pt-1">
+                        <span className="text-[10px] font-bold text-gray-400">Claims Flagged for Technical Validation in Round 2:</span>
+                        <ul className="space-y-0.5">
+                          {extractedProfile.resumeClaims.slice(0, 3).map((c: any, i: number) => (
+                            <li key={i} className="text-[10px] text-gray-300 flex items-center gap-1.5">
+                              <span className="text-purple-400">•</span>
+                              <span className="font-mono text-purple-200">"{c.claim}"</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             )}
