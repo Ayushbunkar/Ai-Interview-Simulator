@@ -71,18 +71,59 @@ export async function extractTextFromDocument(params: {
   // 2. PDF files
   if (lowerName.endsWith(".pdf") || params.mimeType === "application/pdf") {
     try {
-      const pdfParseModule = (await import("pdf-parse")) as any;
-      const pdfParse = pdfParseModule.default || pdfParseModule;
-      const data = await pdfParse(buffer);
-      const text = data.text ? data.text.trim() : "";
+      let extractedText = "";
 
-      // Scanned PDF detection: if text is empty or has virtually no alphanumeric content
-      const cleanChars = text.replace(/[^a-zA-Z0-9]/g, "");
-      if (cleanChars.length < 40) {
+      // Try pdf-parse v2 (PDFParse class)
+      try {
+        const pdfParseModule = (await import("pdf-parse")) as any;
+        if (pdfParseModule.PDFParse) {
+          const parser = new pdfParseModule.PDFParse({ data: buffer });
+          const res = await parser.getText();
+          if (res && typeof res.text === "string") {
+            extractedText = res.text.trim();
+          }
+          if (typeof parser.destroy === "function") {
+            await parser.destroy();
+          }
+        } else if (typeof pdfParseModule.default === "function") {
+          const data = await pdfParseModule.default(buffer);
+          extractedText = data.text ? data.text.trim() : "";
+        } else if (typeof pdfParseModule === "function") {
+          const data = await (pdfParseModule as any)(buffer);
+          extractedText = data.text ? data.text.trim() : "";
+        }
+      } catch (pdfErr) {
+        console.warn("PDF parser error:", pdfErr);
+      }
+
+      // If text extraction yielded content, return it
+      const cleanChars = extractedText.replace(/[^a-zA-Z0-9]/g, "");
+      if (cleanChars.length >= 25) {
+        return { text: extractedText, isScannedPdf: false };
+      }
+
+      // Stream fallback: extract text streams from PDF buffer if standard parser missed it
+      const bufferStr = buffer.toString("latin1");
+      const streamMatches = bufferStr.match(/stream[\r\n]+([\s\S]*?)endstream/g);
+      if (streamMatches) {
+        let textCandidate = "";
+        for (const s of streamMatches) {
+          const tjMatches = s.match(/\((.*?)\)\s*Tj/g) || s.match(/\[(.*?)\]\s*TJ/g);
+          if (tjMatches) {
+            textCandidate += " " + tjMatches.map(m => m.replace(/[\(\)\[\]]|\s*T[jJ]/g, "")).join(" ");
+          }
+        }
+        if (textCandidate.replace(/[^a-zA-Z0-9]/g, "").length >= 25) {
+          return { text: textCandidate.trim(), isScannedPdf: false };
+        }
+      }
+
+      // If text content genuinely has almost no readable characters, it is a scanned image
+      if (cleanChars.length < 25) {
         return { text: "", isScannedPdf: true };
       }
 
-      return { text, isScannedPdf: false };
+      return { text: extractedText, isScannedPdf: false };
     } catch (err: any) {
       return { text: "", isScannedPdf: true };
     }
