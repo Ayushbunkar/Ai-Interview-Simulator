@@ -393,12 +393,14 @@ function CodingArenaContent() {
 
           {/* Tab Content */}
           <div className="flex-1 overflow-y-auto p-5 space-y-6 text-xs text-gray-300">
-            {loading ? (
+            {loading && (
               <div className="py-20 text-center space-y-3">
                 <div className="inline-block h-7 w-7 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
                 <div className="text-xs text-gray-400">Loading problem details...</div>
               </div>
-            ) : error || !currentProblem ? (
+            )}
+
+            {!loading && (error || !currentProblem) && (
               <div className="py-16 text-center space-y-3">
                 <AlertTriangle className="mx-auto h-8 w-8 text-amber-500" />
                 <div className="text-sm font-semibold text-white">Problem could not be loaded</div>
@@ -410,7 +412,9 @@ function CodingArenaContent() {
                   Load Default Problem (Two Sum)
                 </button>
               </div>
-            ) : activeTab === "description" ? (
+            )}
+
+            {!loading && currentProblem && activeTab === "description" && (
               <>
                 {/* Title & Metadata */}
                 <div className="space-y-2">
@@ -485,7 +489,7 @@ function CodingArenaContent() {
               </>
             )}
 
-            {activeTab === "hints" && currentProblem && (
+            {!loading && currentProblem && activeTab === "hints" && (
               <div className="space-y-4">
                 <h3 className="font-bold text-white">Progressive Hints</h3>
                 <p className="text-gray-400">
