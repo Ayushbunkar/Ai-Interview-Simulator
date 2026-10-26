@@ -79,20 +79,44 @@ export function LiveTranscriptPanel({
   const isListening = voiceState === "ready_to_listen" || voiceState === "user_speaking";
   const isTakingLong = submitting && elapsedWaitSeconds >= 8;
 
+  const wordCount = (editableText || manualText).trim().split(/\s+/).filter(Boolean).length;
+  const charCount = (editableText || manualText).length;
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+      e.preventDefault();
+      const textToSubmit = editableText.trim() || manualText.trim();
+      if (textToSubmit && !submitting) {
+        onSubmit(textToSubmit);
+      }
+    }
+  };
+
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Edit3 className="h-4 w-4 text-blue-500" />
+          <Edit3 className="h-4 w-4 text-blue-400" />
           <span className="text-xs font-semibold text-foreground">
             {isListening ? "Live Spoken Transcript (Editable)" : "Your Answer Input"}
           </span>
         </div>
-        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <div className="flex items-center gap-2.5 text-xs">
           {isListening && (
-            <span className="flex items-center gap-1 text-emerald-500 font-medium animate-pulse">
-              <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
-              Mic Active
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium">
+              <span className="flex items-center gap-0.5 h-3">
+                <span className="w-0.5 bg-emerald-400 rounded-full wave-bar-1" />
+                <span className="w-0.5 bg-emerald-400 rounded-full wave-bar-2" />
+                <span className="w-0.5 bg-emerald-400 rounded-full wave-bar-3" />
+                <span className="w-0.5 bg-emerald-400 rounded-full wave-bar-4" />
+                <span className="w-0.5 bg-emerald-400 rounded-full wave-bar-5" />
+              </span>
+              <span>Listening Live</span>
+            </div>
+          )}
+          {wordCount > 0 && (
+            <span className="text-[11px] font-mono text-muted-foreground px-2 py-0.5 rounded bg-muted/60 border border-border/60">
+              {wordCount} {wordCount === 1 ? "word" : "words"} • {charCount} chars
             </span>
           )}
         </div>
@@ -150,14 +174,15 @@ export function LiveTranscriptPanel({
               setEditableText(e.target.value);
               setManualText(e.target.value);
             }}
+            onKeyDown={handleKeyDown}
             placeholder={
               isListening
                 ? "Listening... Speak naturally. Your transcribed words will appear here in real-time."
-                : "Type your answer or click 'Record Voice (Whisper AI)' / 'Live Mic' to speak through your microphone..."
+                : "Type your answer or click 'Record Voice (Whisper AI)' / 'Live Mic' to speak through your microphone... (Press Ctrl + Enter to submit)"
             }
             rows={4}
             disabled={submitting}
-            className="w-full rounded-lg border border-input bg-background/80 p-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none disabled:opacity-60 placeholder:text-muted-foreground/70 leading-relaxed font-sans text-foreground shadow-inner"
+            className="w-full rounded-xl border border-input bg-background/80 p-3.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/40 focus:border-blue-500/60 resize-none disabled:opacity-60 placeholder:text-muted-foreground/60 leading-relaxed font-sans text-foreground shadow-inner transition-all"
           />
 
           {isListening && interimTranscript && (
@@ -200,7 +225,7 @@ export function LiveTranscriptPanel({
             <button
               type="submit"
               disabled={submitting || !(editableText.trim() || manualText.trim())}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-md shadow-blue-600/25 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100 cursor-pointer"
             >
               {submitting ? (
                 <>
@@ -210,7 +235,10 @@ export function LiveTranscriptPanel({
               ) : (
                 <>
                   <Send className="h-3.5 w-3.5" />
-                  Submit Answer
+                  <span>Submit Answer</span>
+                  <kbd className="hidden sm:inline-block ml-1 px-1.5 py-0.5 text-[10px] font-mono bg-white/20 rounded text-white/90">
+                    Ctrl+↵
+                  </kbd>
                 </>
               )}
             </button>

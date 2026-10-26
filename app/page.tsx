@@ -61,41 +61,41 @@ export default function DashboardPage() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8 space-y-8">
       {/* Hero Banner */}
-      <div className="relative overflow-hidden rounded-2xl border border-blue-500/20 bg-gradient-to-br from-blue-950/40 via-gray-900/80 to-[#0d1527] p-6 sm:p-8 shadow-2xl">
-        <div className="relative z-10 max-w-3xl space-y-3">
-          <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-400">
+      <div className="relative overflow-hidden rounded-3xl border border-blue-500/20 bg-gradient-to-br from-blue-950/40 via-slate-900/90 to-[#090d16] p-7 sm:p-10 shadow-2xl">
+        <div className="relative z-10 max-w-3xl space-y-4">
+          <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/30 bg-blue-500/10 px-3.5 py-1 text-xs font-semibold text-blue-400">
             <Sparkles className="h-3.5 w-3.5" />
-            <span>4-Round Realistic Technical Hiring Engine</span>
+            <span>Enterprise 4-Round AI Interview Simulator</span>
           </div>
-          <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl text-white">
-            Forge Your Career in Tech.
+          <h1 className="text-3xl font-extrabold tracking-tight sm:text-5xl text-white">
+            Master the Tech Interview.
           </h1>
-          <p className="text-sm sm:text-base text-gray-300 leading-relaxed">
-            Experience simulated real-world software engineering interviews calibrated for{" "}
-            <span className="font-semibold text-blue-400">TCS, Capgemini, service firms, and product companies</span>.
-            Practice coding challenges with live compiler execution, answer probing technical questions, and receive detailed hiring readiness reports.
+          <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-2xl">
+            Simulate realistic, multi-round engineering interviews calibrated for{" "}
+            <span className="font-semibold text-blue-400">TCS, Capgemini, high-growth startups, and product companies</span>.
+            Execute real code with live compiler feedback, practice spoken dialogue, and review calibrated readiness scorecards.
           </p>
 
-          <div className="flex flex-wrap items-center gap-3 pt-3">
+          <div className="flex flex-wrap items-center gap-3 pt-2">
             <Link
               href="/interview/new"
-              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-blue-500/30 hover:bg-blue-500 transition-all hover:scale-[1.02]"
+              className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-500 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-blue-500/25 hover:from-blue-500 hover:to-indigo-500 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               <Play className="h-4 w-4 fill-white" />
-              <span>Start Full Interview</span>
+              <span>Launch Full Interview</span>
             </Link>
 
             <Link
               href="/coding"
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-700 bg-gray-800/80 px-4 py-2.5 text-sm font-medium text-gray-200 hover:bg-gray-700 hover:text-white transition"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/[0.08] bg-slate-900/80 px-4 py-3 text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white transition shadow-sm hover:scale-[1.02] active:scale-[0.98]"
             >
               <Code className="h-4 w-4 text-emerald-400" />
-              <span>Coding Practice</span>
+              <span>Coding Practice Arena</span>
             </Link>
 
             <Link
               href="/questions"
-              className="inline-flex items-center gap-2 rounded-lg border border-gray-700 bg-gray-800/80 px-4 py-2.5 text-sm font-medium text-gray-200 hover:bg-gray-700 hover:text-white transition"
+              className="inline-flex items-center gap-2 rounded-xl border border-white/[0.08] bg-slate-900/80 px-4 py-3 text-sm font-semibold text-slate-200 hover:bg-slate-800 hover:text-white transition shadow-sm hover:scale-[1.02] active:scale-[0.98]"
             >
               <BookOpen className="h-4 w-4 text-indigo-400" />
               <span>Question Bank ({data?.totalQuestionsCount || 200}+)</span>
@@ -104,60 +104,60 @@ export default function DashboardPage() {
         </div>
 
         {/* Ambient background decoration */}
-        <div className="absolute -right-12 -top-12 h-64 w-64 rounded-full bg-blue-600/10 blur-3xl pointer-events-none" />
-        <div className="absolute right-32 bottom-0 h-48 w-48 rounded-full bg-indigo-500/10 blur-2xl pointer-events-none" />
+        <div className="absolute -right-12 -top-12 h-72 w-72 rounded-full bg-blue-600/15 blur-3xl pointer-events-none" />
+        <div className="absolute right-32 bottom-0 h-56 w-56 rounded-full bg-indigo-500/15 blur-3xl pointer-events-none" />
       </div>
 
       {/* Real Stored Metrics Cards */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 sm:p-5 shadow-sm">
-          <div className="flex items-center justify-between text-gray-400">
-            <span className="text-xs font-medium">Completed Interviews</span>
+        <div className="rounded-2xl border border-white/[0.08] bg-slate-900/50 backdrop-blur-sm p-5 shadow-sm hover:border-white/[0.15] transition-all">
+          <div className="flex items-center justify-between text-slate-400">
+            <span className="text-xs font-semibold uppercase tracking-wider">Completed</span>
             <Award className="h-4 w-4 text-blue-400" />
           </div>
-          <div className="mt-2 text-2xl sm:text-3xl font-bold text-white">
+          <div className="mt-3 text-3xl font-extrabold text-white">
             {loading ? "..." : data?.totalCompleted ?? 0}
           </div>
-          <p className="mt-1 text-[11px] text-gray-400">
+          <p className="mt-1 text-[11px] text-slate-400">
             {data?.totalCompleted === 0 ? "No sessions finished yet" : "Stored locally in SQLite"}
           </p>
         </div>
 
-        <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 sm:p-5 shadow-sm">
-          <div className="flex items-center justify-between text-gray-400">
-            <span className="text-xs font-medium">Average Interview Score</span>
+        <div className="rounded-2xl border border-white/[0.08] bg-slate-900/50 backdrop-blur-sm p-5 shadow-sm hover:border-white/[0.15] transition-all">
+          <div className="flex items-center justify-between text-slate-400">
+            <span className="text-xs font-semibold uppercase tracking-wider">Average Score</span>
             <TrendingUp className="h-4 w-4 text-emerald-400" />
           </div>
-          <div className="mt-2 text-2xl sm:text-3xl font-bold text-white">
+          <div className="mt-3 text-3xl font-extrabold text-white">
             {loading ? "..." : data?.totalCompleted ? `${data.averageScore}%` : "—"}
           </div>
-          <p className="mt-1 text-[11px] text-gray-400">
+          <p className="mt-1 text-[11px] text-slate-400">
             {data?.totalCompleted ? "Calibrated rubric index" : "Start your first interview to track"}
           </p>
         </div>
 
-        <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 sm:p-5 shadow-sm">
-          <div className="flex items-center justify-between text-gray-400">
-            <span className="text-xs font-medium">Code Submissions</span>
+        <div className="rounded-2xl border border-white/[0.08] bg-slate-900/50 backdrop-blur-sm p-5 shadow-sm hover:border-white/[0.15] transition-all">
+          <div className="flex items-center justify-between text-slate-400">
+            <span className="text-xs font-semibold uppercase tracking-wider">Code Submissions</span>
             <Code className="h-4 w-4 text-purple-400" />
           </div>
-          <div className="mt-2 text-2xl sm:text-3xl font-bold text-white">
+          <div className="mt-3 text-3xl font-extrabold text-white">
             {loading ? "..." : data?.totalSubmissions ?? 0}
           </div>
-          <p className="mt-1 text-[11px] text-gray-400">
+          <p className="mt-1 text-[11px] text-slate-400">
             {data?.totalSubmissions ? `${data.acceptedSubmissions} Accepted` : "OnlineCompiler.io connected"}
           </p>
         </div>
 
-        <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 sm:p-5 shadow-sm">
-          <div className="flex items-center justify-between text-gray-400">
-            <span className="text-xs font-medium">Coding Accuracy</span>
+        <div className="rounded-2xl border border-white/[0.08] bg-slate-900/50 backdrop-blur-sm p-5 shadow-sm hover:border-white/[0.15] transition-all">
+          <div className="flex items-center justify-between text-slate-400">
+            <span className="text-xs font-semibold uppercase tracking-wider">Coding Accuracy</span>
             <Target className="h-4 w-4 text-cyan-400" />
           </div>
-          <div className="mt-2 text-2xl sm:text-3xl font-bold text-white">
+          <div className="mt-3 text-3xl font-extrabold text-white">
             {loading ? "..." : data?.totalSubmissions ? `${data.codingAccuracy}%` : "—"}
           </div>
-          <p className="mt-1 text-[11px] text-gray-400">
+          <p className="mt-1 text-[11px] text-slate-400">
             {data?.totalSubmissions ? "Passing all test cases" : "Real execution tests"}
           </p>
         </div>

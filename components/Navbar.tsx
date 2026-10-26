@@ -43,28 +43,28 @@ export function Navbar() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 border-b border-gray-800 bg-[#0b0f17]/90 backdrop-blur-md dark:border-gray-800">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
+    <header className="sticky top-0 z-50 border-b border-white/[0.08] bg-[#090d16]/90 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5 sm:px-6">
         {/* Brand */}
         <Link href="/" className="flex items-center gap-2.5 group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 text-white shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-cyan-400 text-white shadow-md shadow-blue-500/25 group-hover:scale-105 transition-transform">
             <Flame className="h-5 w-5" />
           </div>
           <div>
-            <div className="flex items-center gap-1.5 font-bold tracking-tight text-white">
+            <div className="flex items-center gap-1.5 font-bold tracking-tight text-white text-sm sm:text-base">
               <span>InterviewForge</span>
-              <span className="rounded bg-blue-500/20 px-1.5 py-0.5 text-[10px] font-semibold text-blue-400 border border-blue-500/30">
-                AI
+              <span className="rounded-full bg-gradient-to-r from-blue-500/20 to-indigo-500/20 px-2 py-0.5 text-[10px] font-bold text-blue-400 border border-blue-500/30">
+                PRO
               </span>
             </div>
-            <p className="text-[11px] text-gray-400 hidden sm:block">
+            <p className="text-[11px] text-slate-400 hidden sm:block">
               Software Engineering Hiring Simulator
             </p>
           </div>
         </Link>
 
         {/* Navigation Links */}
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden md:flex items-center gap-1 bg-slate-900/40 p-1 rounded-xl border border-white/[0.05]">
           {navItems.map(item => {
             const Icon = item.icon;
             const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
@@ -72,10 +72,10 @@ export function Navbar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all ${
                   isActive
-                    ? "bg-blue-600/15 text-blue-400 border border-blue-500/30"
-                    : "text-gray-300 hover:text-white hover:bg-gray-800/60"
+                    ? "bg-blue-600 text-white shadow-sm shadow-blue-600/30"
+                    : "text-slate-300 hover:text-white hover:bg-white/[0.06]"
                 }`}
               >
                 <Icon className="h-3.5 w-3.5" />
@@ -86,7 +86,7 @@ export function Navbar() {
         </nav>
 
         {/* System Status Indicators & Theme */}
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-2 sm:gap-2.5">
           {/* Compiler Status */}
           <div
             title={
@@ -94,7 +94,7 @@ export function Navbar() {
                 ? "OnlineCompiler.io: Active & Ready"
                 : "Compiler: Key missing (configure in Settings)"
             }
-            className="flex items-center gap-1.5 rounded-full border border-gray-800 bg-gray-900/60 px-2.5 py-1 text-[11px] text-gray-300"
+            className="flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-slate-900/70 px-3 py-1 text-[11px] text-slate-300 shadow-sm"
           >
             <span
               className={`h-2 w-2 rounded-full ${
@@ -103,8 +103,8 @@ export function Navbar() {
                   : "bg-amber-400"
               }`}
             />
-            <Terminal className="h-3 w-3 text-gray-400 hidden sm:inline" />
-            <span className="hidden sm:inline">
+            <Terminal className="h-3 w-3 text-slate-400 hidden sm:inline" />
+            <span className="hidden sm:inline font-medium">
               {health?.compiler?.configured ? "Compiler Ready" : "Compiler Offline"}
             </span>
           </div>
@@ -112,7 +112,7 @@ export function Navbar() {
           {/* AI Status */}
           <div
             title={health?.ai?.provider || "AI Engine Status"}
-            className="flex items-center gap-1.5 rounded-full border border-gray-800 bg-gray-900/60 px-2.5 py-1 text-[11px] text-gray-300"
+            className="flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-slate-900/70 px-3 py-1 text-[11px] text-slate-300 shadow-sm"
           >
             <span
               className={`h-2 w-2 rounded-full ${
@@ -121,16 +121,16 @@ export function Navbar() {
                   : "bg-cyan-400"
               }`}
             />
-            <Cpu className="h-3 w-3 text-gray-400 hidden sm:inline" />
-            <span className="hidden sm:inline">
-              {health?.ai?.configured ? "Groq AI" : "Local Dev AI"}
+            <Cpu className="h-3 w-3 text-slate-400 hidden sm:inline" />
+            <span className="hidden sm:inline font-medium">
+              {health?.ai?.configured ? "Groq AI" : "Local AI"}
             </span>
           </div>
 
           {/* Theme Toggle */}
           <button
             onClick={toggleTheme}
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-gray-800 bg-gray-900/80 text-gray-300 hover:text-white hover:bg-gray-800 transition"
+            className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/[0.08] bg-slate-900/80 text-slate-300 hover:text-white hover:bg-slate-800 transition shadow-sm"
             aria-label="Toggle theme"
           >
             {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}

@@ -561,17 +561,17 @@ export default function InterviewRoomPage() {
     <ErrorBoundary fallbackTitle="Interview Room Interface Recovery">
       <div className="flex flex-col min-h-[calc(100vh-4rem)] max-w-7xl mx-auto p-3 sm:p-5 gap-4 pb-12">
       {/* Top Header Bar: Round status, timer, pause, end */}
-      <header className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-xl border border-border bg-card shadow-sm">
+      <header className="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5 rounded-2xl glass-panel shadow-lg shadow-black/20">
         <div className="flex items-center gap-3">
-          <div className="h-9 w-9 rounded-lg bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold text-sm border border-blue-500/20">
+          <div className="h-10 w-10 rounded-xl bg-blue-500/15 text-blue-400 flex items-center justify-center font-bold text-sm border border-blue-500/30 shadow-sm shadow-blue-500/10">
             R{session?.currentRound || 1}
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="font-semibold text-sm text-foreground">
+              <h1 className="font-semibold text-sm sm:text-base text-foreground tracking-tight">
                 Round {session?.currentRound}: {ROUND_NAMES[session?.currentRound || 1]}
               </h1>
-              <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-muted text-muted-foreground border border-border">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-500/10 text-blue-300 border border-blue-500/25">
                 {session?.mode}
               </span>
             </div>
@@ -597,18 +597,18 @@ export default function InterviewRoomPage() {
                   ? "Current active round"
                   : `Jump to Round ${r.roundNumber}: ${r.roundName}`
               }
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium border transition-all ${
+              className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
                 r.roundNumber === session?.currentRound
-                  ? "bg-blue-600 text-white border-blue-500 shadow-sm cursor-default"
+                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-400 shadow-md shadow-blue-500/25 cursor-default"
                   : r.status === "completed"
-                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20 cursor-pointer"
-                  : "bg-muted text-muted-foreground border-border hover:bg-muted/80 hover:text-foreground cursor-pointer"
+                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20 cursor-pointer hover:scale-[1.02]"
+                  : "bg-muted/60 text-muted-foreground border-border/80 hover:bg-muted hover:text-foreground cursor-pointer hover:scale-[1.02]"
               }`}
             >
               {r.status === "completed" ? (
                 <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
               ) : (
-                <span className="font-semibold">{r.roundNumber}</span>
+                <span className="font-bold">{r.roundNumber}</span>
               )}
               <span className="hidden lg:inline">{r.roundName.split(" ")[0]}</span>
             </button>
@@ -617,12 +617,12 @@ export default function InterviewRoomPage() {
 
         {/* Controls: Timer, Pause, Next Round, End */}
         <div className="flex items-center gap-2">
-          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-mono font-semibold ${
+          <div className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-mono font-semibold shadow-sm ${
             isPaused
               ? "border-amber-500/40 bg-amber-500/10 text-amber-300"
               : secondsRemaining <= 300
               ? "border-red-500/40 bg-red-500/10 text-red-400 animate-pulse"
-              : "border-border bg-card text-foreground"
+              : "border-border/80 bg-card/80 text-foreground"
           }`}>
             <Clock className="h-3.5 w-3.5 text-muted-foreground" />
             <span>{formatTimer(secondsRemaining)}</span>
@@ -631,21 +631,21 @@ export default function InterviewRoomPage() {
           <button
             type="button"
             onClick={handleTogglePause}
-            className={`flex items-center gap-1 px-3 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl border text-xs font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-sm ${
               isPaused
-                ? "border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 font-semibold"
-                : "border-border bg-card hover:bg-muted text-foreground"
+                ? "border-emerald-500/40 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400"
+                : "border-border/80 bg-card/80 hover:bg-muted text-foreground"
             }`}
           >
             {isPaused ? <Play className="h-3.5 w-3.5 text-emerald-400 fill-emerald-400" /> : <Pause className="h-3.5 w-3.5" />}
-            {isPaused ? "Resume" : "Pause"}
+            <span>{isPaused ? "Resume" : "Pause"}</span>
           </button>
 
           {session?.currentRound && session.currentRound < 4 && (
             <button
               type="button"
               onClick={() => handleAdvanceRound()}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 text-xs font-medium transition-all"
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-blue-500/40 bg-gradient-to-r from-blue-600/20 to-indigo-600/20 hover:from-blue-600/30 hover:to-indigo-600/30 text-blue-300 text-xs font-semibold shadow-sm shadow-blue-500/10 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
               title="Finish current round and advance to next round"
             >
               <span>Next Round</span>
@@ -656,10 +656,10 @@ export default function InterviewRoomPage() {
           <button
             type="button"
             onClick={handleEndInterview}
-            className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-medium transition-all"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
           >
             <Square className="h-3.5 w-3.5" />
-            End Interview
+            <span>End Interview</span>
           </button>
         </div>
       </header>
@@ -692,16 +692,38 @@ export default function InterviewRoomPage() {
         {/* Left Column: Stage, Question, Controls & History */}
         <div className="flex flex-col gap-4">
           {/* Active Question Spotlight Card (Pinned prominently at the top of the interview stage) */}
-          <div className="rounded-xl border border-blue-500/40 bg-card p-4 sm:p-5 shadow-sm space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/80 pb-3">
-              <div className="flex items-center gap-2">
+          <div className="rounded-2xl border border-blue-500/30 bg-gradient-to-b from-blue-950/20 via-[#0e1424] to-[#0c101a] p-5 sm:p-6 shadow-xl shadow-blue-950/20 space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-2.5 border-b border-border/60 pb-3.5">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="flex h-2.5 w-2.5 rounded-full bg-blue-500 animate-pulse" />
                 <span className="text-xs font-bold uppercase tracking-wider text-blue-400">
                   Round {session?.currentRound}: {ROUND_NAMES[session?.currentRound || 1]}
                 </span>
-                <span className="rounded bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground border border-border">
+                <span className="rounded-full bg-blue-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-blue-300 border border-blue-500/25">
                   Question {(session?.currentQuestionIndex || 0) + 1}
                 </span>
+
+                {/* Interviewer State Live Badge */}
+                {voiceState === "interviewer_speaking" ? (
+                  <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-600/20 border border-blue-500/40 text-blue-300 text-[11px] font-semibold animate-pulse">
+                    <span className="flex items-center gap-0.5 h-2.5">
+                      <span className="w-0.5 bg-blue-400 rounded-full wave-bar-1" />
+                      <span className="w-0.5 bg-blue-400 rounded-full wave-bar-2" />
+                      <span className="w-0.5 bg-blue-400 rounded-full wave-bar-3" />
+                    </span>
+                    <span>Interviewer Speaking...</span>
+                  </span>
+                ) : voiceState === "ready_to_listen" || voiceState === "user_speaking" ? (
+                  <span className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/35 text-emerald-400 text-[11px] font-medium">
+                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-ping" />
+                    <span>Listening for Answer</span>
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-muted/60 text-muted-foreground text-[11px]">
+                    <span className="h-1.5 w-1.5 rounded-full bg-slate-400" />
+                    <span>Awaiting Input</span>
+                  </span>
+                )}
               </div>
 
               <div className="flex items-center gap-2">
@@ -711,7 +733,7 @@ export default function InterviewRoomPage() {
                     const lastQ = [...messages].reverse().find(m => m.sender === "interviewer" && (m.messageType === "question" || m.messageType === "clarification"));
                     if (lastQ) voiceControllerRef.current?.replayCurrentQuestion(lastQ.content);
                   }}
-                  className="flex items-center gap-1.5 rounded-lg border border-border bg-muted/40 hover:bg-muted px-2.5 py-1 text-xs font-medium text-foreground transition"
+                  className="flex items-center gap-1.5 rounded-xl border border-border bg-card/80 hover:bg-muted px-3 py-1.5 text-xs font-medium text-foreground shadow-sm transition hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                   title="Listen to interviewer speak this question aloud"
                 >
                   <Volume2 className="h-3.5 w-3.5 text-blue-400" />
@@ -724,7 +746,7 @@ export default function InterviewRoomPage() {
                     voiceControllerRef.current?.interruptInterviewer();
                     setIsClarifyOpen(true);
                   }}
-                  className="flex items-center gap-1.5 rounded-lg border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 px-2.5 py-1 text-xs font-medium text-amber-300 transition"
+                  className="flex items-center gap-1.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500/20 px-3 py-1.5 text-xs font-semibold text-amber-300 shadow-sm transition hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                   title="Ask interviewer for hints, constraints, or clarifications"
                 >
                   <HelpCircle className="h-3.5 w-3.5 text-amber-400" />
@@ -734,7 +756,7 @@ export default function InterviewRoomPage() {
             </div>
 
             {/* Question Text */}
-            <div className="text-sm sm:text-base font-medium text-foreground leading-relaxed whitespace-pre-wrap py-1">
+            <div className="text-base sm:text-lg font-medium text-foreground leading-relaxed whitespace-pre-wrap py-1">
               {(() => {
                 const qMsg = [...messages].reverse().find(m => m.sender === "interviewer" && m.messageType === "question");
                 return qMsg?.content || "Waiting for question from the interviewer...";
@@ -746,12 +768,12 @@ export default function InterviewRoomPage() {
               const clarifyMsg = [...messages].reverse().find(m => m.sender === "interviewer" && m.messageType === "clarification");
               if (!clarifyMsg) return null;
               return (
-                <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200 space-y-1 mt-2">
+                <div className="rounded-xl border border-amber-500/35 bg-gradient-to-r from-amber-500/10 to-transparent p-3.5 text-xs text-amber-200 space-y-1 mt-2">
                   <div className="font-semibold text-amber-300 flex items-center gap-1.5">
                     <Sparkles className="h-3.5 w-3.5 text-amber-400" />
                     Interviewer Clarification / Guidance:
                   </div>
-                  <div className="whitespace-pre-wrap">{clarifyMsg.content}</div>
+                  <div className="whitespace-pre-wrap leading-relaxed">{clarifyMsg.content}</div>
                 </div>
               );
             })()}
