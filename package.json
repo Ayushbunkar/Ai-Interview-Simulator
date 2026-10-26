@@ -9,7 +9,7 @@
     "lint": "next lint",
     "db:push": "drizzle-kit push",
     "db:seed": "node scripts/seed_neon.mjs",
-    "test": "node --test tests/interviewforge.test.mjs && npx tsx --test tests/e2e.test.mjs && npx tsx --test tests/voice_acceptance.test.mjs && npx tsx --test tests/phase2_acceptance.test.mjs && npx tsx --test tests/resume_engine_acceptance.test.mjs && npx tsx --test tests/advanced_improvements_acceptance.test.mjs && npx tsx --test tests/ats_score_acceptance.test.mjs"
+    "test": "node --test tests/interviewforge.test.mjs && npx tsx --test tests/e2e.test.mjs && npx tsx --test tests/voice_acceptance.test.mjs && npx tsx --test tests/phase2_acceptance.test.mjs && npx tsx --test tests/resume_engine_acceptance.test.mjs && npx tsx --test tests/advanced_improvements_acceptance.test.mjs && npx tsx --test tests/ats_score_acceptance.test.mjs && npx tsx --test tests/reliability_safeguards_acceptance.test.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

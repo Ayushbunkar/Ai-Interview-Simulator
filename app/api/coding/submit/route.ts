@@ -6,6 +6,13 @@ import { eq, asc } from "drizzle-orm";
 import { evaluateCodeAgainstTestCases, getCompilerProvider } from "@/lib/compiler";
 import { logAPIUsage } from "@/lib/ai/usage-tracker";
 import { logCodingStep } from "@/lib/coding/coding-tracker";
+import {
+  validateExecutionPayload,
+  acquireExecutionLock,
+  releaseExecutionLock,
+  DuplicateExecutionError,
+  CodePayloadTooLargeError,
+} from "@/lib/reliability/compiler-safeguards";
 
 const SubmitCodeSchema = z.object({
   problemSlug: z.string().min(1, "Problem slug is required"),
@@ -15,10 +22,17 @@ const SubmitCodeSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  let lockKey: string | null = null;
   try {
     await ensureDbInitialized();
     const body = await request.json();
     const validated = SubmitCodeSchema.parse(body);
+
+    // 1. Pre-execution payload validation (< 64KB code)
+    validateExecutionPayload(validated.code);
+
+    // 2. Concurrency deduplication lock
+    lockKey = acquireExecutionLock(validated.language, validated.code, validated.problemSlug, validated.sessionId);
 
     const [problem] = await db
       .select()
@@ -133,9 +147,19 @@ export async function POST(request: NextRequest) {
       testResults: evalResult.testResults,
     });
   } catch (error: any) {
+    if (error instanceof DuplicateExecutionError) {
+      return NextResponse.json({ error: error.message }, { status: 409 });
+    }
+    if (error instanceof CodePayloadTooLargeError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.errors }, { status: 400 });
     }
     return NextResponse.json({ error: error.message }, { status: 500 });
+  } finally {
+    if (lockKey) {
+      releaseExecutionLock(lockKey);
+    }
   }
 }

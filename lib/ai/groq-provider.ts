@@ -3,6 +3,7 @@ import { z } from "zod";
 import { InterviewAIProvider, AIContext, EvaluateAnswerParams, CandidateQuestionParams, GenerateFollowUpParams, GenerateReportParams } from "./interface";
 import { AnswerEvaluation, ClarificationResponse, RubricScoreItem } from "../types";
 import { TECHNICAL_ROUND_RUBRIC, BEHAVIORAL_ROUND_RUBRIC, calculateWeightedScore } from "../rubric";
+import { executeAIRequest } from "../reliability/ai-request-manager";
 
 const RubricItemSchema = z.union([
   z.object({
@@ -115,39 +116,34 @@ ${candidateAnswer || "(No answer provided)"}
 
 Evaluate the candidate rigorously based on factual correctness, engineering trade-offs, and clear communication.`;
 
-    try {
-      const response = await groq.chat.completions.create({
-        model: this.model,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.2,
-      });
+    const actionId = `eval:${context.sessionId}:round:${context.roundNumber}`;
 
-      const content = response.choices[0]?.message?.content || "{}";
-      const parsed = JSON.parse(content);
-      const validated = EvaluationSchema.parse(parsed);
-      return validated;
-    } catch (err) {
-      console.error("Groq evaluation parse error, using fallback format:", err);
-      // Construct fallback rubric score
-      const fallbackRubric = rubric.map(r => ({
-        name: r.name,
-        weight: r.weight,
-        score: candidateAnswer.length > 50 ? 65 : 30,
-        notes: "Evaluated with basic heuristics due to model parse timeout.",
-      }));
-      return {
-        score: calculateWeightedScore(fallbackRubric),
-        strengths: ["Provided relevant context."],
-        weaknesses: ["Expand on specific mechanics and edge cases."],
-        feedback: "Response recorded. Continue to develop detailed reasoning.",
-        rubricScores: fallbackRubric,
-        isSatisfactory: true,
-      };
-    }
+    return executeAIRequest(
+      async (signal) => {
+        const response = await groq.chat.completions.create(
+          {
+            model: this.model,
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userPrompt },
+            ],
+            response_format: { type: "json_object" },
+            temperature: 0.2,
+          },
+          { signal }
+        );
+
+        const content = response.choices[0]?.message?.content || "{}";
+        const parsed = JSON.parse(content);
+        return EvaluationSchema.parse(parsed);
+      },
+      {
+        timeoutMs: 15000,
+        maxRetries: 1, // Max 1 transient retry
+        actionId,
+        serviceName: "groq_eval",
+      }
+    );
   }
 
   async answerCandidateQuestion(params: CandidateQuestionParams): Promise<ClarificationResponse> {
@@ -179,26 +175,33 @@ Respond ONLY with JSON:
     const userPrompt = `Original Interview Question: "${currentQuestionText}"
 Candidate asked: "${candidateQuestion}"`;
 
-    try {
-      const res = await groq.chat.completions.create({
-        model: this.model,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.3,
-      });
+    const actionId = `clarify:${context.sessionId}:${Date.now()}`;
 
-      const parsed = JSON.parse(res.choices[0]?.message?.content || "{}");
-      return ClarificationSchema.parse(parsed);
-    } catch {
-      return {
-        message: "You may assume standard production constraints and typical memory limits. Focus on your logical approach and edge cases.",
-        clarified: true,
-        preservesOriginalQuestion: true,
-      };
-    }
+    return executeAIRequest(
+      async (signal) => {
+        const res = await groq.chat.completions.create(
+          {
+            model: this.model,
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userPrompt },
+            ],
+            response_format: { type: "json_object" },
+            temperature: 0.3,
+          },
+          { signal }
+        );
+
+        const parsed = JSON.parse(res.choices[0]?.message?.content || "{}");
+        return ClarificationSchema.parse(parsed);
+      },
+      {
+        timeoutMs: 12000,
+        maxRetries: 1,
+        actionId,
+        serviceName: "groq_clarify",
+      }
+    );
   }
 
   async generateFollowUp(params: GenerateFollowUpParams): Promise<{ followUpQuestion: string }> {
@@ -221,24 +224,33 @@ Candidate Answer: "${candidateAnswer}"
 Candidate Score: ${evaluation.score}
 Generate a sharp, realistic follow-up question.`;
 
-    try {
-      const res = await groq.chat.completions.create({
-        model: this.model,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.4,
-      });
+    const actionId = `followup:${context.sessionId}:${Date.now()}`;
 
-      const parsed = JSON.parse(res.choices[0]?.message?.content || "{}");
-      return FollowUpSchema.parse(parsed);
-    } catch {
-      return {
-        followUpQuestion: "How would this approach change if data volume or concurrency doubled?",
-      };
-    }
+    return executeAIRequest(
+      async (signal) => {
+        const res = await groq.chat.completions.create(
+          {
+            model: this.model,
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userPrompt },
+            ],
+            response_format: { type: "json_object" },
+            temperature: 0.4,
+          },
+          { signal }
+        );
+
+        const parsed = JSON.parse(res.choices[0]?.message?.content || "{}");
+        return FollowUpSchema.parse(parsed);
+      },
+      {
+        timeoutMs: 12000,
+        maxRetries: 1,
+        actionId,
+        serviceName: "groq_followup",
+      }
+    );
   }
 
   async generateFinalReport(params: GenerateReportParams) {
@@ -274,39 +286,32 @@ ${JSON.stringify(answers.map(a => ({ round: a.roundNumber, q: a.questionText.sli
 Coding Submissions:
 ${JSON.stringify(params.codingSubmissions || [], null, 2)}`;
 
-    try {
-      const res = await groq.chat.completions.create({
-        model: this.model,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        response_format: { type: "json_object" },
-        temperature: 0.3,
-      });
+    const actionId = `report:${context.sessionId}`;
 
-      return JSON.parse(res.choices[0]?.message?.content || "{}");
-    } catch (err) {
-      console.error("Groq report generation error:", err);
-      // Fallback
-      return {
-        technicalStrengths: ["Foundational CS comprehension."],
-        areasForImprovement: ["Strengthen algorithmic efficiency and concurrency."],
-        communicationAssessment: "Articulate and engaged.",
-        codingAssessmentSummary: "Demonstrated problem solving ability.",
-        sevenDayPlan: [
-          { day: 1, focus: "OOP & Java Memory", tasks: ["Garbage collection mechanics", "5 array problems"] },
-          { day: 2, focus: "Data Structures", tasks: ["HashMaps and linked lists", "Practice Two Pointers"] },
-          { day: 3, focus: "DBMS & SQL", tasks: ["Joins, indexes, ACID", "Query optimization"] },
-          { day: 4, focus: "OS & Threads", tasks: ["Concurrency primitives", "Deadlock resolution"] },
-          { day: 5, focus: "Networks & REST", tasks: ["HTTP methods, caching", "API idempotency"] },
-          { day: 6, focus: "System Design", tasks: ["URL shortener", "Cache layers"] },
-          { day: 7, focus: "Behavioral Mock", tasks: ["STAR stories", "Full practice run"] },
-        ],
-        readinessLevel: "Needs Practice" as const,
-        readinessSummary: `Candidate completed interview for ${context.targetRole}. Consistent practice recommended.`,
-      };
-    }
+    return executeAIRequest(
+      async (signal) => {
+        const res = await groq.chat.completions.create(
+          {
+            model: this.model,
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userPrompt },
+            ],
+            response_format: { type: "json_object" },
+            temperature: 0.3,
+          },
+          { signal }
+        );
+
+        return JSON.parse(res.choices[0]?.message?.content || "{}");
+      },
+      {
+        timeoutMs: 25000,
+        maxRetries: 1,
+        actionId,
+        serviceName: "groq_report",
+      }
+    );
   }
 
   async testConnection(): Promise<{ success: boolean; message: string; model?: string }> {

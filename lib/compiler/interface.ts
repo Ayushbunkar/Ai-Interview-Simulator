@@ -35,7 +35,7 @@ export interface TestCaseResult {
 }
 
 export interface ProblemEvaluationResult {
-  status: "accepted" | "wrong_answer" | "compilation_error" | "runtime_error" | "time_limit_exceeded" | "unconfigured";
+  status: "accepted" | "wrong_answer" | "compilation_error" | "runtime_error" | "time_limit_exceeded" | "unconfigured" | "system_error";
   passedCount: number;
   totalCount: number;
   runtimeMs?: number;

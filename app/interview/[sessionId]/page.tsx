@@ -33,6 +33,7 @@ import { RoundNumber, VoiceState } from "@/lib/types";
 import { VoiceSessionController } from "@/lib/voice/voice-session-controller";
 import { VoiceControls } from "@/components/voice/VoiceControls";
 import { LiveTranscriptPanel } from "@/components/voice/LiveTranscriptPanel";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 interface Message {
   id: string;
@@ -219,12 +220,15 @@ export default function InterviewRoomPage() {
     return () => clearInterval(interval);
   }, [isPaused, loading, session]);
 
+  const abortControllerRef = useRef<AbortController | null>(null);
+
   // Handle Candidate Answer Submission (Spoken or Typed)
   const handleSubmitAnswer = async (submittedText: string) => {
     if (!submittedText.trim() || submitting) return;
 
     setSubmitting(true);
     setVoiceError(null);
+    setError(null);
     voiceControllerRef.current?.notifySubmissionStarted();
 
     // Optimistic candidate message
@@ -241,11 +245,14 @@ export default function InterviewRoomPage() {
       },
     ]);
 
+    abortControllerRef.current = new AbortController();
+
     try {
       const res = await fetch(`/api/interviews/${sessionId}/answer`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ answer: submittedText.trim() }),
+        signal: abortControllerRef.current.signal,
       });
 
       const data = await res.json();
@@ -254,15 +261,29 @@ export default function InterviewRoomPage() {
       // Refetch latest session messages and rounds
       await fetchSession();
 
-      // Clear voice transcripts
+      // Clear voice transcripts only upon verified success
+      setError(null);
       setInterimTranscript("");
       setFinalTranscript("");
       setManualText("");
     } catch (err: any) {
-      setError(err.message);
-      setVoiceError(err.message);
+      if (err.name === "AbortError") {
+        setError("Evaluation request was cancelled. Your draft was safely preserved.");
+      } else {
+        setError(err.message || "Failed to evaluate answer.");
+        setVoiceError(err.message);
+      }
+      // Preserve candidate text in input
+      setManualText(submittedText.trim());
     } finally {
       setSubmitting(false);
+      abortControllerRef.current = null;
+    }
+  };
+
+  const handleCancelSubmission = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
     }
   };
 
@@ -477,7 +498,8 @@ export default function InterviewRoomPage() {
   const isCodingRound = session?.currentRound === 3;
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] max-w-7xl mx-auto p-4 gap-4">
+    <ErrorBoundary fallbackTitle="Interview Room Interface Recovery">
+      <div className="flex flex-col h-[calc(100vh-4rem)] max-w-7xl mx-auto p-4 gap-4">
       {/* Top Header Bar: Round status, timer, pause, end */}
       <header className="flex flex-wrap items-center justify-between gap-3 p-4 rounded-xl border border-border bg-card shadow-sm">
         <div className="flex items-center gap-3">
@@ -628,6 +650,8 @@ export default function InterviewRoomPage() {
               submitting={submitting}
               manualText={manualText}
               setManualText={setManualText}
+              errorMessage={error}
+              onCancelSubmission={handleCancelSubmission}
             />
           </div>
         </div>
@@ -886,5 +910,6 @@ export default function InterviewRoomPage() {
         </div>
       )}
     </div>
+    </ErrorBoundary>
   );
 }

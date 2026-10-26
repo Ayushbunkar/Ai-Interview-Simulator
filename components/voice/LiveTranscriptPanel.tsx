@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Send, Edit3, RotateCcw, Keyboard, Mic, Sparkles, Check } from "lucide-react";
+import { Send, Edit3, RotateCcw, Sparkles, AlertCircle, XCircle, RefreshCw } from "lucide-react";
 import { VoiceState } from "@/lib/types";
 
 interface LiveTranscriptPanelProps {
@@ -12,6 +12,8 @@ interface LiveTranscriptPanelProps {
   submitting: boolean;
   manualText: string;
   setManualText: (text: string) => void;
+  errorMessage?: string | null;
+  onCancelSubmission?: () => void;
 }
 
 export function LiveTranscriptPanel({
@@ -22,9 +24,11 @@ export function LiveTranscriptPanel({
   submitting,
   manualText,
   setManualText,
+  errorMessage,
+  onCancelSubmission,
 }: LiveTranscriptPanelProps) {
-  const [editableText, setEditableText] = useState("");
-  const [isEditing, setIsEditing] = useState(false);
+  const [editableText, setEditableText] = useState(manualText || "");
+  const [elapsedWaitSeconds, setElapsedWaitSeconds] = useState(0);
 
   // Sync incoming speech recognition transcript
   useEffect(() => {
@@ -35,6 +39,29 @@ export function LiveTranscriptPanel({
     }
   }, [finalTranscript, interimTranscript, setManualText]);
 
+  // Keep editableText in sync if manualText is updated externally (e.g. on error recovery)
+  useEffect(() => {
+    if (manualText && manualText !== editableText) {
+      setEditableText(manualText);
+    }
+  }, [manualText]);
+
+  // Track elapsed wait time when submission is in flight
+  useEffect(() => {
+    let timer: NodeJS.Timeout | null = null;
+    if (submitting) {
+      setElapsedWaitSeconds(0);
+      timer = setInterval(() => {
+        setElapsedWaitSeconds((prev) => prev + 1);
+      }, 1000);
+    } else {
+      setElapsedWaitSeconds(0);
+    }
+    return () => {
+      if (timer) clearInterval(timer);
+    };
+  }, [submitting]);
+
   const handleClear = () => {
     setEditableText("");
     setManualText("");
@@ -44,12 +71,13 @@ export function LiveTranscriptPanel({
     e.preventDefault();
     const textToSubmit = editableText.trim() || manualText.trim();
     if (!textToSubmit || submitting) return;
+    // NOTE: We DO NOT clear editableText or manualText here!
+    // Draft is preserved so if submission fails, candidate loses zero words.
     onSubmit(textToSubmit);
-    setEditableText("");
-    setManualText("");
   };
 
   const isListening = voiceState === "ready_to_listen" || voiceState === "user_speaking";
+  const isTakingLong = submitting && elapsedWaitSeconds >= 8;
 
   return (
     <div className="rounded-xl border border-border bg-card p-4 shadow-sm space-y-3">
@@ -69,6 +97,49 @@ export function LiveTranscriptPanel({
           )}
         </div>
       </div>
+
+      {/* Persistent Error / Retry Banner */}
+      {errorMessage && (
+        <div className="flex items-center justify-between gap-3 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-400">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="h-4 w-4 shrink-0 text-red-400" />
+            <span>
+              <strong>Submission Notice:</strong> {errorMessage} Your answer draft has been safely preserved below.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={submitting || !(editableText.trim() || manualText.trim())}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-red-500 hover:bg-red-600 text-white font-medium text-xs shrink-0 transition"
+          >
+            <RefreshCw className="h-3 w-3" />
+            Retry
+          </button>
+        </div>
+      )}
+
+      {/* Taking Longer than expected Banner */}
+      {isTakingLong && (
+        <div className="flex items-center justify-between gap-3 p-2.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-xs text-amber-300 animate-in fade-in">
+          <div className="flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-amber-400 animate-ping" />
+            <span>
+              Evaluation is taking longer than usual ({elapsedWaitSeconds}s). Safe bounded timeout active...
+            </span>
+          </div>
+          {onCancelSubmission && (
+            <button
+              type="button"
+              onClick={onCancelSubmission}
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 text-[11px] font-medium border border-amber-500/40"
+            >
+              <XCircle className="h-3 w-3" />
+              Cancel Wait
+            </button>
+          )}
+        </div>
+      )}
 
       {/* Transcript Input Area */}
       <form onSubmit={handleSubmit} className="space-y-3">
@@ -100,11 +171,10 @@ export function LiveTranscriptPanel({
         {/* Action Controls */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            {(editableText || manualText) && (
+            {(editableText || manualText) && !submitting && (
               <button
                 type="button"
                 onClick={handleClear}
-                disabled={submitting}
                 className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-border bg-card hover:bg-muted text-xs text-muted-foreground transition-colors"
               >
                 <RotateCcw className="h-3 w-3" />
@@ -112,27 +182,39 @@ export function LiveTranscriptPanel({
               </button>
             )}
             <span className="text-[11px] text-muted-foreground hidden sm:inline">
-              Feel free to edit or correct misrecognized words before submitting.
+              Draft preserved. Edit or correct misrecognized words before submitting.
             </span>
           </div>
 
-          <button
-            type="submit"
-            disabled={submitting || !(editableText.trim() || manualText.trim())}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
-          >
-            {submitting ? (
-              <>
-                <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                Evaluating...
-              </>
-            ) : (
-              <>
-                <Send className="h-3.5 w-3.5" />
-                Submit Answer
-              </>
+          <div className="flex items-center gap-2">
+            {submitting && onCancelSubmission && (
+              <button
+                type="button"
+                onClick={onCancelSubmission}
+                className="px-3 py-1.5 rounded-lg border border-border text-xs text-muted-foreground hover:bg-muted"
+              >
+                Cancel
+              </button>
             )}
-          </button>
+
+            <button
+              type="submit"
+              disabled={submitting || !(editableText.trim() || manualText.trim())}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
+            >
+              {submitting ? (
+                <>
+                  <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  <span>Evaluating ({elapsedWaitSeconds}s)...</span>
+                </>
+              ) : (
+                <>
+                  <Send className="h-3.5 w-3.5" />
+                  Submit Answer
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </form>
     </div>

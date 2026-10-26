@@ -3,6 +3,13 @@ import { z } from "zod";
 import { getCompilerProvider } from "@/lib/compiler";
 import { prepareExecutionSource } from "@/lib/compiler/harness";
 import { logAPIUsage } from "@/lib/ai/usage-tracker";
+import {
+  validateExecutionPayload,
+  acquireExecutionLock,
+  releaseExecutionLock,
+  DuplicateExecutionError,
+  CodePayloadTooLargeError,
+} from "@/lib/reliability/compiler-safeguards";
 
 const RunCodeSchema = z.object({
   language: z.enum(["java", "python", "cpp"]),
@@ -12,9 +19,16 @@ const RunCodeSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
+  let lockKey: string | null = null;
   try {
     const body = await request.json();
     const validated = RunCodeSchema.parse(body);
+
+    // 1. Pre-execution payload validation (< 64KB code, < 10KB stdin)
+    validateExecutionPayload(validated.code, validated.stdin);
+
+    // 2. Concurrency deduplication lock
+    lockKey = acquireExecutionLock(validated.language, validated.code, validated.stdin);
 
     const provider = getCompilerProvider();
     if (!provider.isConfigured()) {
@@ -61,9 +75,19 @@ export async function POST(request: NextRequest) {
       error: result.error,
     });
   } catch (error: any) {
+    if (error instanceof DuplicateExecutionError) {
+      return NextResponse.json({ error: error.message }, { status: 409 });
+    }
+    if (error instanceof CodePayloadTooLargeError) {
+      return NextResponse.json({ error: error.message }, { status: 400 });
+    }
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.errors }, { status: 400 });
     }
     return NextResponse.json({ error: error.message }, { status: 500 });
+  } finally {
+    if (lockKey) {
+      releaseExecutionLock(lockKey);
+    }
   }
 }

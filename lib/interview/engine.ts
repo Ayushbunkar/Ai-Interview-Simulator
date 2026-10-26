@@ -438,6 +438,44 @@ export async function submitCandidateAnswer(params: {
     }
   }
 
+  // Idempotency: Check if this turn was already evaluated and scored
+  const existingAnswers = await db
+    .select()
+    .from(candidateAnswers)
+    .where(
+      and(
+        eq(candidateAnswers.sessionId, sessionId),
+        eq(candidateAnswers.roundNumber, currentRound),
+        eq(candidateAnswers.questionText, questionText)
+      )
+    )
+    .orderBy(desc(candidateAnswers.createdAt))
+    .limit(1);
+
+  if (existingAnswers.length > 0 && existingAnswers[0].evaluationScore !== null) {
+    const existing = existingAnswers[0];
+    return {
+      session: {
+        id: session.id,
+        currentRound: session.currentRound,
+        currentQuestionIndex: session.currentQuestionIndex,
+        status: session.status,
+      },
+      evaluation: {
+        score: existing.evaluationScore,
+        strengths: JSON.parse(existing.strengths || "[]"),
+        weaknesses: JSON.parse(existing.weaknesses || "[]"),
+        feedback: existing.feedback,
+      },
+      interviewerReply: "Resuming interview. Evaluation for this turn was already recorded.",
+      nextRound: session.currentRound,
+      nextQuestionIndex: session.currentQuestionIndex,
+      isRoundFinished: false,
+      isInterviewComplete: session.status === "completed",
+      idempotent: true,
+    };
+  }
+
   // Record candidate message
   const now = new Date();
   await db.insert(conversationMessages).values({
@@ -452,27 +490,46 @@ export async function submitCandidateAnswer(params: {
 
   // Evaluate Answer via AI Provider
   const aiProvider = getAIProvider();
-  const evaluation = await aiProvider.evaluateAnswer({
-    context: {
+  let evaluation: AnswerEvaluation;
+  try {
+    evaluation = await aiProvider.evaluateAnswer({
+      context: {
+        sessionId,
+        roundNumber: currentRound,
+        roundName: ROUND_NAMES[currentRound],
+        companyProfile: session.companyProfile as CompanyProfile,
+        targetRole: session.targetRole,
+        difficulty: session.difficulty,
+        mode: session.mode as InterviewMode,
+        primaryLanguage: session.primaryLanguage,
+        resumeText: session.resumeText || undefined,
+        recentConversation: recentMessages.map(m => ({
+          sender: m.sender as any,
+          messageType: m.messageType,
+          content: m.content,
+        })),
+      },
+      questionText,
+      expectedAnswer,
+      candidateAnswer: answerText,
+    });
+  } catch (evalErr: any) {
+    // Record candidate answer honestly with evaluationScore: null (NEVER fabricate scores)
+    await db.insert(candidateAnswers).values({
+      id: "ans-" + Math.random().toString(36).substring(2, 10),
       sessionId,
       roundNumber: currentRound,
-      roundName: ROUND_NAMES[currentRound],
-      companyProfile: session.companyProfile as CompanyProfile,
-      targetRole: session.targetRole,
-      difficulty: session.difficulty,
-      mode: session.mode as InterviewMode,
-      primaryLanguage: session.primaryLanguage,
-      resumeText: session.resumeText || undefined,
-      recentConversation: recentMessages.map(m => ({
-        sender: m.sender as any,
-        messageType: m.messageType,
-        content: m.content,
-      })),
-    },
-    questionText,
-    expectedAnswer,
-    candidateAnswer: answerText,
-  });
+      questionId: questionId || null,
+      questionText,
+      answerText,
+      evaluationScore: null,
+      feedback: "AI evaluation service was temporarily unavailable or timed out. Your answer has been saved and can be retried.",
+      confidenceLevel: "low_insufficient_evidence",
+      createdAt: now,
+    });
+
+    throw new Error(`AI evaluation service failed: ${evalErr.message || "Timeout"}. Your answer draft is preserved.`);
+  }
 
   // Record candidate answer evaluation
   await db.insert(candidateAnswers).values({

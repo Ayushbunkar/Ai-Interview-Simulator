@@ -1,10 +1,14 @@
 import { CodeExecutionProvider, ExecutionRequest, ExecutionResponse } from "./interface";
+import { COMPILER_UNREACHABLE_MESSAGE, validateExecutionPayload } from "../reliability/compiler-safeguards";
 
 const LANGUAGE_ID_MAP: Record<"java" | "python" | "cpp", number> = {
   java: 91,    // OpenJDK 25 / standard Java
   python: 113, // Python 3.14 / standard Python
   cpp: 105,    // C++ (GCC 15)
 };
+
+const MAX_POLL_ATTEMPTS = 10;
+const POLL_INTERVAL_MS = 1000;
 
 export class OnlineCompilerProvider implements CodeExecutionProvider {
   name = "OnlineCompiler.io";
@@ -26,6 +30,17 @@ export class OnlineCompilerProvider implements CodeExecutionProvider {
         success: false,
         status: { id: 14, description: "Unconfigured" },
         error: "OnlineCompiler API key is not configured. Set ONLINECOMPILER_API_KEY in your settings or .env.local file.",
+      };
+    }
+
+    // Pre-execution payload validation (< 64KB code, < 10KB stdin)
+    try {
+      validateExecutionPayload(request.sourceCode, request.stdin);
+    } catch (err: any) {
+      return {
+        success: false,
+        status: { id: 13, description: "Payload Too Large" },
+        error: err.message,
       };
     }
 
@@ -51,9 +66,16 @@ export class OnlineCompilerProvider implements CodeExecutionProvider {
         signal: controller.signal,
       });
 
-      clearTimeout(timeout);
-
       if (!response.ok) {
+        clearTimeout(timeout);
+        // If HTTP 5xx or 502/503/504, return exact compiler service error message
+        if (response.status >= 500) {
+          return {
+            success: false,
+            status: { id: 13, description: `HTTP ${response.status}` },
+            error: COMPILER_UNREACHABLE_MESSAGE,
+          };
+        }
         const errorText = await response.text();
         return {
           success: false,
@@ -62,7 +84,44 @@ export class OnlineCompilerProvider implements CodeExecutionProvider {
         };
       }
 
-      const data = await response.json();
+      let data = await response.json();
+
+      // If Judge0 returns in queue or processing (status.id 1 or 2), perform bounded polling without re-submitting code
+      if (data.token && (data.status?.id === 1 || data.status?.id === 2)) {
+        let pollCount = 0;
+        while (pollCount < MAX_POLL_ATTEMPTS && (data.status?.id === 1 || data.status?.id === 2)) {
+          pollCount++;
+          await new Promise((res) => setTimeout(res, POLL_INTERVAL_MS));
+          if (controller.signal.aborted) break;
+
+          const pollRes = await fetch(`${this.baseUrl}/submissions/${data.token}`, {
+            headers: { "X-Auth-Token": this.apiKey },
+            signal: controller.signal,
+          });
+
+          if (pollRes.ok) {
+            data = await pollRes.json();
+          } else if (pollRes.status >= 500) {
+            clearTimeout(timeout);
+            return {
+              success: false,
+              status: { id: 13, description: `HTTP ${pollRes.status}` },
+              error: COMPILER_UNREACHABLE_MESSAGE,
+            };
+          }
+        }
+      }
+
+      clearTimeout(timeout);
+
+      // If status is still pending after max polls, return bounded timeout
+      if (data.status?.id === 1 || data.status?.id === 2) {
+        return {
+          success: false,
+          status: { id: 5, description: "Time Limit Exceeded" },
+          error: COMPILER_UNREACHABLE_MESSAGE,
+        };
+      }
 
       return {
         success: data.status?.id === 3,
@@ -77,11 +136,10 @@ export class OnlineCompilerProvider implements CodeExecutionProvider {
       };
     } catch (err: unknown) {
       clearTimeout(timeout);
-      const isAbort = (err as Error)?.name === "AbortError";
       return {
         success: false,
-        status: { id: 5, description: isAbort ? "Time Limit Exceeded" : "Network Error" },
-        error: isAbort ? "Execution timed out (exceeded limit)" : ((err as Error)?.message || "Unknown error during code execution"),
+        status: { id: 13, description: "Compiler Unreachable" },
+        error: COMPILER_UNREACHABLE_MESSAGE,
       };
     }
   }

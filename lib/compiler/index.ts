@@ -50,6 +50,9 @@ export async function evaluateCodeAgainstTestCases(params: {
   let runtimeErrorMessage = "";
   let hasTimeout = false;
 
+  let hasSystemError = false;
+  let systemErrorMessage = "";
+
   for (const tc of params.testCases) {
     const execRes = await provider.execute({
       language: params.language,
@@ -58,6 +61,22 @@ export async function evaluateCodeAgainstTestCases(params: {
       expectedOutput: tc.expectedOutput,
       timeoutMs: 15000,
     });
+
+    // Check for compiler service unreachable/system error
+    if (execRes.error && execRes.error.includes("compiler service did not respond")) {
+      hasSystemError = true;
+      systemErrorMessage = execRes.error;
+      testResults.push({
+        testCaseId: tc.id,
+        passed: false,
+        input: tc.isHidden ? "[Hidden Test Case]" : tc.input,
+        expectedOutput: tc.isHidden ? "[Hidden Test Case]" : tc.expectedOutput,
+        actualOutput: "",
+        error: systemErrorMessage,
+        isHidden: tc.isHidden,
+      });
+      break; // Abort remaining tests to prevent flooding unreachable compiler
+    }
 
     if (execRes.compileOutput || (execRes.status.id === 6 || execRes.status.description.toLowerCase().includes("compilation error"))) {
       hasCompilationError = true;
@@ -124,7 +143,9 @@ export async function evaluateCodeAgainstTestCases(params: {
   }
 
   let finalStatus: ProblemEvaluationResult["status"] = "accepted";
-  if (hasCompilationError) {
+  if (hasSystemError) {
+    finalStatus = "system_error";
+  } else if (hasCompilationError) {
     finalStatus = "compilation_error";
   } else if (hasTimeout) {
     finalStatus = "time_limit_exceeded";
@@ -141,7 +162,7 @@ export async function evaluateCodeAgainstTestCases(params: {
     runtimeMs: Math.round(totalRuntime),
     memoryKb: maxMemory,
     compileOutput: compilationErrorOutput || undefined,
-    errorMessage: runtimeErrorMessage || undefined,
+    errorMessage: systemErrorMessage || runtimeErrorMessage || undefined,
     testResults,
   };
 }
