@@ -155,19 +155,23 @@ export async function createSession(input: CreateInterviewInput) {
 
   // Generate and insert interview blueprint now that interview_sessions record exists
   if (parsedProfileData && activeProfileId) {
-    const bp = await generateInterviewBlueprint({
-      sessionId,
-      resumeProfileId: activeProfileId,
-      profile: parsedProfileData,
-      targetRole: input.targetRole,
-      companyProfile: input.companyProfile,
-      jobDescription: input.jobDescription,
-    });
-    if (bp.primaryLanguage && !input.primaryLanguage) {
-      detectedPrimaryLanguage = (bp.primaryLanguage === "javascript" ? "python" : bp.primaryLanguage) as any;
-      await db.update(interviewSessions)
-        .set({ primaryLanguage: detectedPrimaryLanguage })
-        .where(eq(interviewSessions.id, sessionId));
+    try {
+      const bp = await generateInterviewBlueprint({
+        sessionId,
+        resumeProfileId: activeProfileId,
+        profile: parsedProfileData,
+        targetRole: input.targetRole,
+        companyProfile: input.companyProfile,
+        jobDescription: input.jobDescription,
+      });
+      if (bp.primaryLanguage && !input.primaryLanguage) {
+        detectedPrimaryLanguage = (bp.primaryLanguage === "javascript" ? "python" : bp.primaryLanguage) as any;
+        await db.update(interviewSessions)
+          .set({ primaryLanguage: detectedPrimaryLanguage })
+          .where(eq(interviewSessions.id, sessionId));
+      }
+    } catch (bpErr) {
+      console.warn("Blueprint generation error, continuing with default syllabus:", bpErr);
     }
   }
 
@@ -184,10 +188,26 @@ export async function createSession(input: CreateInterviewInput) {
   }
 
   // Pick first question for starting round
-  const firstQuestion = await getNextQuestionForRound(sessionId, startingRound, 0, {
+  let firstQuestion = await getNextQuestionForRound(sessionId, startingRound, 0, {
     ...input,
     resumeProfileId: activeProfileId || undefined,
   });
+
+  if (!firstQuestion || !firstQuestion.questionText) {
+    firstQuestion = {
+      id: "java-01",
+      category: "java_oop",
+      topic: "Java Fundamentals",
+      difficulty: "easy",
+      companyTags: JSON.stringify(["TCS", "Capgemini", "Service-Based General"]),
+      questionText: "What is the difference between JDK, JRE, and JVM in Java?",
+      expectedAnswer: "JVM executes bytecode; JRE contains JVM and runtime libraries; JDK contains JRE plus development tools.",
+      explanation: "Foundational computer science principles.",
+      followUps: JSON.stringify(["Can you provide a practical example?"]),
+      rubricFocus: "Java Core Knowledge",
+      createdAt: now,
+    } as any;
+  }
 
   // Add welcome and initial question message
   const welcomeText = `Welcome to your ${input.companyProfile} Technical Interview for the ${input.targetRole} position.

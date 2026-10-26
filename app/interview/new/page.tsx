@@ -238,9 +238,25 @@ function InterviewSetupContent() {
         }),
       });
 
-      const data = await res.json();
+      let data: any = {};
+      try {
+        data = await res.json();
+      } catch {
+        // Fallback for non-JSON
+      }
+
       if (!res.ok) {
-        throw new Error(data.error ? JSON.stringify(data.error) : "Failed to create interview session");
+        const errorMsg =
+          (typeof data.error === "string" && data.error) ||
+          (Array.isArray(data.error) && data.error.map((e: any) => e.message || JSON.stringify(e)).join("; ")) ||
+          data.message ||
+          (data.error && JSON.stringify(data.error)) ||
+          `Failed to create interview session (Server error ${res.status})`;
+        throw new Error(errorMsg);
+      }
+
+      if (!data.session?.sessionId) {
+        throw new Error("Interview was created but server did not return a session ID.");
       }
 
       router.push(`/interview/${data.session.sessionId}`);
