@@ -15,12 +15,14 @@ const CreateInterviewSchema = z.object({
     "Capgemini",
     "Service-Based General",
     "Product-Based Engineering",
+    "Startup Fast-Paced",
+    "General Software Engineering",
     "Java / Backend Specialist",
     "AI / ML & GenAI",
     "Custom / General",
   ]),
   difficulty: z.enum(["fresher", "entry_level", "intermediate", "experienced"]),
-  mode: z.enum(["strict", "practice"]),
+  mode: z.enum(["strict", "practice", "realistic", "pressure"]),
   interviewModeVariant: z
     .enum([
       "full_mock",
@@ -39,6 +41,7 @@ const CreateInterviewSchema = z.object({
   durationMinutes: z.number().min(15).max(180).default(60),
   topicsEmphasized: z.array(z.string()).optional(),
   resumeText: z.string().max(10000).optional(),
+  jobDescription: z.string().max(10000).optional(),
 });
 
 export async function POST(request: NextRequest) {

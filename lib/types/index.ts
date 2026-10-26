@@ -6,7 +6,7 @@ export type InterviewRoundName =
   | "Coding Interview"
   | "Behavioral & HR";
 
-export type InterviewMode = "strict" | "practice";
+export type InterviewMode = "strict" | "practice" | "realistic" | "pressure";
 
 export type InterviewModeVariant =
   | "full_mock"
@@ -24,6 +24,8 @@ export type CompanyProfile =
   | "Capgemini"
   | "Service-Based General"
   | "Product-Based Engineering"
+  | "Startup Fast-Paced"
+  | "General Software Engineering"
   | "Java / Backend Specialist"
   | "AI / ML & GenAI"
   | "Custom / General";
@@ -71,6 +73,13 @@ export interface AnswerEvaluation {
   rubricScores: RubricScoreItem[];
   suggestedFollowUp?: string;
   isSatisfactory: boolean;
+  expectedConcepts?: string[];
+  demonstratedConcepts?: string[];
+  missingConcepts?: string[];
+  improvedAnswerOutline?: string;
+  confidenceLevel?: "high" | "medium" | "low_insufficient_evidence";
+  isVagueOrIncomplete?: boolean;
+  clarificationPrompt?: string;
 }
 
 export interface ClarificationResponse {
@@ -235,6 +244,8 @@ export interface FinalReportSummary {
     day: number;
     focus: string;
     tasks: string[];
+    estimatedMinutes?: number;
+    completed?: boolean;
     linkedEvidence?: string;
   }[];
   finalReadinessAssessment: "Strong Hire" | "Hire" | "Needs Practice" | "Major Revisions Needed";
@@ -431,6 +442,11 @@ export interface InterviewBlueprint {
   highPriorityTopics: string[];
   mediumPriorityTopics: string[];
   supportingFundamentals: string[];
+  jobDescriptionOverlapSkills?: string[];
+  explicitlyStatedSkills?: string[];
+  demonstratedProjectSkills?: string[];
+  inferredSkills?: string[];
+  unverifiedClaims?: string[];
   resumeClaims: ResumeClaimItem[];
   primaryLanguage: "java" | "python" | "cpp" | "javascript";
   plannedDistribution: Record<number, { topic: string; focus: string; questionsCount: number }>;

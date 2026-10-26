@@ -51,6 +51,7 @@ export interface CreateInterviewInput {
   topicsEmphasized?: string[];
   resumeText?: string;
   resumeProfileId?: string;
+  jobDescription?: string;
 }
 
 export const ROUND_NAMES: Record<RoundNumber, string> = {
@@ -109,6 +110,7 @@ export async function createSession(input: CreateInterviewInput) {
         targetRole: input.targetRole,
         experienceLevel: input.difficulty,
         rawResumeText: input.resumeText,
+        rawJobDescription: input.jobDescription || null,
         extractedSkills: JSON.stringify(flattened),
         extractedProjects: JSON.stringify(parseRes.profile.projects),
         extractedTechnologies: JSON.stringify(flattened),
@@ -159,6 +161,7 @@ export async function createSession(input: CreateInterviewInput) {
       profile: parsedProfileData,
       targetRole: input.targetRole,
       companyProfile: input.companyProfile,
+      jobDescription: input.jobDescription,
     });
     if (bp.primaryLanguage && !input.primaryLanguage) {
       detectedPrimaryLanguage = (bp.primaryLanguage === "javascript" ? "python" : bp.primaryLanguage) as any;
@@ -484,6 +487,11 @@ export async function submitCandidateAnswer(params: {
     strengths: JSON.stringify(evaluation.strengths),
     weaknesses: JSON.stringify(evaluation.weaknesses),
     feedback: evaluation.feedback,
+    expectedConcepts: evaluation.expectedConcepts ? JSON.stringify(evaluation.expectedConcepts) : null,
+    demonstratedConcepts: evaluation.demonstratedConcepts ? JSON.stringify(evaluation.demonstratedConcepts) : null,
+    missingConcepts: evaluation.missingConcepts ? JSON.stringify(evaluation.missingConcepts) : null,
+    improvedAnswerOutline: evaluation.improvedAnswerOutline || null,
+    confidenceLevel: evaluation.confidenceLevel || "high",
     createdAt: now,
   });
 
@@ -506,6 +514,14 @@ export async function submitCandidateAnswer(params: {
     if (commIssue) {
       interviewerReply += `💡 [Communication Tip]: In "${commIssue.submittedSentence}", note: ${commIssue.reason}. Try phrasing it as: "${commIssue.improvedInterviewVersion || commIssue.correctedSentence}".\n\n`;
     }
+  } else if (session.mode === "pressure") {
+    // In pressure mode, emphasize brisk pacing
+    interviewerReply += `[Pacing Note: Keep responses crisp and direct]\n\n`;
+  }
+
+  // Detect vague or incomplete answers and request clarification
+  if (evaluation.isVagueOrIncomplete && !isRoundFinished && evaluation.clarificationPrompt) {
+    interviewerReply += `Note: ${evaluation.clarificationPrompt}\n\n`;
   }
 
   // Audit API usage

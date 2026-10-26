@@ -287,6 +287,12 @@ export async function ensureDbInitialized() {
 
       ALTER TABLE interview_reports ADD COLUMN IF NOT EXISTS resume_assessment_report TEXT;
 
+      ALTER TABLE candidate_answers ADD COLUMN IF NOT EXISTS expected_concepts TEXT;
+      ALTER TABLE candidate_answers ADD COLUMN IF NOT EXISTS demonstrated_concepts TEXT;
+      ALTER TABLE candidate_answers ADD COLUMN IF NOT EXISTS missing_concepts TEXT;
+      ALTER TABLE candidate_answers ADD COLUMN IF NOT EXISTS improved_answer_outline TEXT;
+      ALTER TABLE candidate_answers ADD COLUMN IF NOT EXISTS confidence_level TEXT;
+
       CREATE TABLE IF NOT EXISTS interview_blueprints (
         id TEXT PRIMARY KEY,
         session_id TEXT NOT NULL REFERENCES interview_sessions(id),

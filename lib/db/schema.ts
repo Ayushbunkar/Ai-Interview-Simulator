@@ -108,6 +108,11 @@ export const candidateAnswers = pgTable("candidate_answers", {
   strengths: text("strengths"), // JSON array
   weaknesses: text("weaknesses"), // JSON array
   feedback: text("feedback"),
+  expectedConcepts: text("expected_concepts"), // JSON array
+  demonstratedConcepts: text("demonstrated_concepts"), // JSON array
+  missingConcepts: text("missing_concepts"), // JSON array
+  improvedAnswerOutline: text("improved_answer_outline"),
+  confidenceLevel: text("confidence_level"), // 'high', 'medium', 'low_insufficient_evidence'
   followUpAsked: text("follow_up_asked"),
   followUpAnswer: text("follow_up_answer"),
   followUpEvaluation: text("follow_up_evaluation"),

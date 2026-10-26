@@ -26,6 +26,13 @@ const EvaluationSchema = z.object({
   feedback: z.string(),
   rubricScores: z.array(RubricItemSchema).default([]),
   isSatisfactory: z.boolean().default(true),
+  expectedConcepts: z.array(z.string()).optional().default([]),
+  demonstratedConcepts: z.array(z.string()).optional().default([]),
+  missingConcepts: z.array(z.string()).optional().default([]),
+  improvedAnswerOutline: z.string().optional().default(""),
+  confidenceLevel: z.enum(["high", "medium", "low_insufficient_evidence"]).optional().default("high"),
+  isVagueOrIncomplete: z.boolean().optional().default(false),
+  clarificationPrompt: z.string().optional(),
 });
 
 const ClarificationSchema = z.object({
@@ -84,6 +91,13 @@ Respond ONLY with valid JSON conforming to this schema:
   "strengths": string[],
   "weaknesses": string[],
   "feedback": string (concise, professional, actionable interview feedback),
+  "expectedConcepts": string[] (core technical concepts required for a thorough answer),
+  "demonstratedConcepts": string[] (concepts candidate actually demonstrated correctly),
+  "missingConcepts": string[] (crucial concepts missing or incorrect in candidate response),
+  "improvedAnswerOutline": string (concise bulleted outline of how an optimal senior candidate would answer and why it is better),
+  "confidenceLevel": "high" | "medium" | "low_insufficient_evidence" (use low if answer is too short or ambiguous to evaluate),
+  "isVagueOrIncomplete": boolean (true if answer is overly brief, hand-waving, or missing core mechanics),
+  "clarificationPrompt": string (if isVagueOrIncomplete is true, a professional question asking candidate to elaborate on missing concepts),
   "rubricScores": [
     { "name": string, "weight": number, "score": number, "notes": string }
   ],
@@ -141,12 +155,19 @@ Evaluate the candidate rigorously based on factual correctness, engineering trad
     const { currentQuestionText, candidateQuestion, context } = params;
 
     const systemPrompt = `You are a professional technical interviewer at ${context.companyProfile}.
-The candidate has interrupted or asked a clarification question while pondering the interview question.
-IMPORTANT RULES:
-1. Be helpful, concise, and professional.
-2. DO NOT reveal the answer, solution algorithm, or give away the core trick.
-3. Clarify constraints, expectations, input/output types, or assumptions.
-4. Ensure the original interview question remains active.
+The candidate has interrupted or asked a question while contemplating the interview question.
+Mode: ${context.mode} interview.
+
+SPECIFIC INTENT HANDLING:
+1. REPEAT: If the candidate asks to repeat the question ("Can you repeat that?"), restate the original question verbatim and clearly.
+2. REPHRASE: If the candidate asks to rephrase ("Can you explain it differently?"), restate the problem using simpler, alternate terms or an intuitive metaphor.
+3. CLARIFY: If the candidate asks about scale, types, edge cases, nullability, or constraints, clarify them directly and realistically.
+4. HINT: If the candidate asks for a hint:
+   - In "practice" mode: Provide a gentle, directional hint pointing them toward the appropriate algorithmic technique or architectural pattern without revealing the solution.
+   - In "strict" or "realistic" mode: Politely remind them: "In this mode, I cannot provide direct hints, but consider the expected time complexity and core data structure properties."
+5. CONTRADICTIONS: Never accuse the candidate of dishonesty. If there is a discrepancy, treat it as an item requiring collaborative clarification.
+6. DO NOT solve the problem or write code for the candidate.
+7. Always ensure the original interview question remains active.
 
 Respond ONLY with JSON:
 {

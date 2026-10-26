@@ -91,6 +91,8 @@ function InterviewSetupContent() {
     { id: "Capgemini", label: "Capgemini", desc: "Service delivery focus. Pseudo-code, core CS concepts, agile & communication." },
     { id: "Service-Based General", label: "Service Companies", desc: "Wipro, Infosys, Cognizant, Accenture placement syllabus." },
     { id: "Product-Based Engineering", label: "Product Companies", desc: "Rigorous DSA, system design trade-offs, internal mechanics & scale." },
+    { id: "Startup Fast-Paced", label: "High-Growth Startup", desc: "Ownership, rapid execution, pragmatic architecture trade-offs, and speed." },
+    { id: "General Software Engineering", label: "General SWE Mock", desc: "Balanced computer science fundamentals, clean code, and algorithms." },
     { id: "Java / Backend Specialist", label: "Java / Backend", desc: "Spring Boot, JVM memory, concurrency, transactions, and REST APIs." },
     { id: "AI / ML & GenAI", label: "AI/ML Engineer", desc: "Python, LLM concepts, RAG architectures, vectors, model evaluation." },
     { id: "Custom / General", label: "Custom Mock", desc: "Balanced full-stack software engineering assessment." },
@@ -179,6 +181,7 @@ function InterviewSetupContent() {
           durationMinutes: Number(durationMinutes),
           topicsEmphasized: selectedTopics,
           resumeText: resumeText.trim() || undefined,
+          jobDescription: jobDescription.trim() || undefined,
         }),
       });
 
@@ -303,40 +306,76 @@ function InterviewSetupContent() {
               <ShieldAlert className="h-4 w-4 text-amber-400" />
               <span>Simulation Feedback Mode</span>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <button
-                type="button"
-                onClick={() => setMode("strict")}
-                className={`text-left rounded-lg border p-4 transition-all ${
-                  mode === "strict"
-                    ? "border-amber-500 bg-amber-500/10 ring-1 ring-amber-500/30"
-                    : "border-gray-800 bg-gray-950/60 hover:border-gray-700"
-                }`}
-              >
-                <div className="flex items-center justify-between font-semibold text-xs text-white">
-                  <span>Strict Interview (Hiring Pressure)</span>
-                  {mode === "strict" && <CheckCircle2 className="h-3.5 w-3.5 text-amber-400" />}
-                </div>
-                <p className="mt-1 text-[11px] text-gray-400">
-                  Real hiring conditions: No immediate answers or hints revealed during rounds. Full evaluation presented in the final report.
-                </p>
-              </button>
-
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               <button
                 type="button"
                 onClick={() => setMode("practice")}
-                className={`text-left rounded-lg border p-4 transition-all ${
+                className={`text-left rounded-lg border p-3.5 transition-all ${
                   mode === "practice"
                     ? "border-blue-500 bg-blue-500/10 ring-1 ring-blue-500/30"
                     : "border-gray-800 bg-gray-950/60 hover:border-gray-700"
                 }`}
               >
                 <div className="flex items-center justify-between font-semibold text-xs text-white">
-                  <span>Practice & Formative Coaching</span>
+                  <span>Practice & Coaching</span>
                   {mode === "practice" && <CheckCircle2 className="h-3.5 w-3.5 text-blue-400" />}
                 </div>
-                <p className="mt-1 text-[11px] text-gray-400">
-                  Live coaching: Formative scores, immediate speech/grammar coaching tips, and progressive hints after each answer.
+                <p className="mt-1 text-[11px] text-gray-400 leading-normal">
+                  Live scores, formative communication tips, and progressive hints after each answer.
+                </p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setMode("realistic")}
+                className={`text-left rounded-lg border p-3.5 transition-all ${
+                  mode === "realistic"
+                    ? "border-emerald-500 bg-emerald-500/10 ring-1 ring-emerald-500/30"
+                    : "border-gray-800 bg-gray-950/60 hover:border-gray-700"
+                }`}
+              >
+                <div className="flex items-center justify-between font-semibold text-xs text-white">
+                  <span>Realistic Corporate</span>
+                  {mode === "realistic" && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />}
+                </div>
+                <p className="mt-1 text-[11px] text-gray-400 leading-normal">
+                  Professional corporate interview. No interim scores; full evidence-based debrief in final report.
+                </p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setMode("strict")}
+                className={`text-left rounded-lg border p-3.5 transition-all ${
+                  mode === "strict"
+                    ? "border-amber-500 bg-amber-500/10 ring-1 ring-amber-500/30"
+                    : "border-gray-800 bg-gray-950/60 hover:border-gray-700"
+                }`}
+              >
+                <div className="flex items-center justify-between font-semibold text-xs text-white">
+                  <span>Strict Hiring Bar</span>
+                  {mode === "strict" && <CheckCircle2 className="h-3.5 w-3.5 text-amber-400" />}
+                </div>
+                <p className="mt-1 text-[11px] text-gray-400 leading-normal">
+                  Concise interviewer behavior, rigorous rubric benchmarks, and challenging edge-case probes.
+                </p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setMode("pressure")}
+                className={`text-left rounded-lg border p-3.5 transition-all ${
+                  mode === "pressure"
+                    ? "border-red-500 bg-red-500/10 ring-1 ring-red-500/30"
+                    : "border-gray-800 bg-gray-950/60 hover:border-gray-700"
+                }`}
+              >
+                <div className="flex items-center justify-between font-semibold text-xs text-white">
+                  <span>Pressure Simulation</span>
+                  {mode === "pressure" && <CheckCircle2 className="h-3.5 w-3.5 text-red-400" />}
+                </div>
+                <p className="mt-1 text-[11px] text-gray-400 leading-normal">
+                  Tight time limits and rapid pacing without humiliation. Tests clarity under pressure.
                 </p>
               </button>
             </div>

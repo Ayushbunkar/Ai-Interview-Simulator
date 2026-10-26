@@ -26,6 +26,7 @@ import {
   Check,
   XCircle,
   ArrowRight,
+  Lightbulb,
 } from "lucide-react";
 import { ROUND_NAMES } from "@/lib/interview/engine";
 import { RoundNumber, VoiceState } from "@/lib/types";
@@ -361,6 +362,43 @@ export default function InterviewRoomPage() {
     }
   };
 
+  // Explain Approach Aloud or via Text Before Coding
+  const [isExplainingApproach, setIsExplainingApproach] = useState(false);
+  const handleExplainApproach = async () => {
+    if (!codingProblem || isExplainingApproach) return;
+    setIsExplainingApproach(true);
+    try {
+      const approachText = manualText.trim() || finalTranscript.trim() || "Candidate is explaining initial approach for " + codingProblem.title;
+      await fetch("/api/coding/step", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId,
+          problemId: codingProblem.id,
+          stepType: "initial_approach",
+          content: approachText,
+          metadata: { language: codingLanguage },
+        }),
+      });
+
+      if (manualText.trim() || finalTranscript.trim()) {
+        await handleSubmitAnswer(`Here is my algorithmic approach before coding:\n\n${approachText}`);
+      } else {
+        // Prompt candidate to speak into mic
+        if (voiceControllerRef.current?.isVoiceMode()) {
+          voiceControllerRef.current.speakInterviewerMessage(
+            "explain-prompt-" + Date.now(),
+            `Please go ahead and explain your approach for ${codingProblem.title}. What data structures and algorithm will you use, and what is your expected time and space complexity?`
+          );
+        }
+      }
+    } catch (err: any) {
+      console.warn("Could not log approach step:", err);
+    } finally {
+      setIsExplainingApproach(false);
+    }
+  };
+
   // Toggle Pause
   const handleTogglePause = async () => {
     const endpoint = isPaused ? "resume" : "pause";
@@ -643,6 +681,17 @@ export default function InterviewRoomPage() {
 
                 <button
                   type="button"
+                  onClick={handleExplainApproach}
+                  disabled={isExplainingApproach}
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 text-xs font-medium transition-colors"
+                  title="Explain algorithmic approach and complexity before writing code"
+                >
+                  <Lightbulb className="h-3.5 w-3.5 text-purple-400" />
+                  <span>Explain Approach</span>
+                </button>
+
+                <button
+                  type="button"
                   onClick={handleRunCode}
                   disabled={isRunningCode || isSubmittingCode}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-border bg-background hover:bg-muted text-xs font-medium transition-colors disabled:opacity-50"
@@ -710,6 +759,18 @@ export default function InterviewRoomPage() {
                   {runResult?.time && <span>Duration: {runResult.time}s</span>}
                 </div>
 
+                {runResult?.configured === false && (
+                  <div className="p-2.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-sans">
+                    <strong>Code Execution Disabled:</strong> OnlineCompiler API is not configured. Set <code className="text-amber-200 bg-amber-950/60 px-1 py-0.5 rounded">ONLINECOMPILER_API_KEY</code> in Settings or <code className="text-amber-200 bg-amber-950/60 px-1 py-0.5 rounded">.env.local</code> to execute code live. Fake compiler results are never generated.
+                  </div>
+                )}
+
+                {submitResult?.configured === false && (
+                  <div className="p-2.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-sans">
+                    <strong>Evaluation Disabled:</strong> Real test-case execution requires <code className="text-amber-200 bg-amber-950/60 px-1 py-0.5 rounded">ONLINECOMPILER_API_KEY</code>.
+                  </div>
+                )}
+
                 {runResult?.stdout && (
                   <div>
                     <span className="text-emerald-400 font-semibold">Standard Output:</span>
@@ -764,10 +825,41 @@ export default function InterviewRoomPage() {
             </div>
 
             <form onSubmit={handleAskInterviewer} className="space-y-3">
+              <div className="flex flex-wrap gap-1.5 pb-1">
+                <button
+                  type="button"
+                  onClick={() => setClarifyQuestion("Could you please repeat the question?")}
+                  className="rounded-full border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 px-2.5 py-1 text-[11px] font-medium text-amber-300 transition"
+                >
+                  Repeat Question
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setClarifyQuestion("Could you please rephrase this question from an intuitive perspective?")}
+                  className="rounded-full border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 px-2.5 py-1 text-[11px] font-medium text-amber-300 transition"
+                >
+                  Rephrase Question
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setClarifyQuestion("Could you give me a small directional hint on the optimal approach?")}
+                  className="rounded-full border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 px-2.5 py-1 text-[11px] font-medium text-amber-300 transition"
+                >
+                  Request Hint
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setClarifyQuestion("Could you clarify the input scale bounds and whether inputs can be null or empty?")}
+                  className="rounded-full border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 px-2.5 py-1 text-[11px] font-medium text-amber-300 transition"
+                >
+                  Clarify Constraints
+                </button>
+              </div>
+
               <textarea
                 value={clarifyQuestion}
                 onChange={(e) => setClarifyQuestion(e.target.value)}
-                placeholder="e.g. Could you clarify if input contains duplicate elements? Can we assume single-threaded execution?"
+                placeholder="Or type your specific question: e.g. Could you clarify if input contains duplicate elements? Can we assume single-threaded execution?"
                 rows={3}
                 className="w-full rounded-lg border border-input bg-background p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 autoFocus

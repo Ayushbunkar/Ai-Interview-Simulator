@@ -82,6 +82,8 @@ export async function generateInterviewBlueprint(params: {
   profile: CandidateProfileStructured;
   targetRole?: string;
   companyProfile?: string;
+  jobDescription?: string;
+  jobRequirements?: string[];
 }): Promise<InterviewBlueprint> {
   await ensureDbInitialized();
   const { sessionId, resumeProfileId, profile } = params;
@@ -105,9 +107,11 @@ export async function generateInterviewBlueprint(params: {
   }
 
   // Project weight = 5 (practical demonstration receives highest priority)
+  const demonstratedProjectSkills: string[] = [];
   for (const p of profile.projects) {
     for (const t of p.technologies) {
       skillOccurrences[t] = (skillOccurrences[t] || 0) + 5;
+      if (!demonstratedProjectSkills.includes(t)) demonstratedProjectSkills.push(t);
     }
   }
 
@@ -115,8 +119,39 @@ export async function generateInterviewBlueprint(params: {
   for (const exp of [...profile.experience, ...profile.internships]) {
     for (const t of exp.technologiesUsed) {
       skillOccurrences[t] = (skillOccurrences[t] || 0) + 6;
+      if (!demonstratedProjectSkills.includes(t)) demonstratedProjectSkills.push(t);
     }
   }
+
+  // Job Description Overlap Boost: +8 priority for technologies overlapping with target role JD
+  const jdText = (params.jobDescription || (params.jobRequirements || []).join(" ")).toLowerCase();
+  const jobDescriptionOverlapSkills: string[] = [];
+  if (jdText.length > 0) {
+    for (const skill of allSkillsList) {
+      if (jdText.includes(skill.toLowerCase())) {
+        skillOccurrences[skill] = (skillOccurrences[skill] || 0) + 8;
+        if (!jobDescriptionOverlapSkills.includes(skill)) {
+          jobDescriptionOverlapSkills.push(skill);
+        }
+      }
+    }
+  }
+
+  // Inferred Skills: skills logically accompanying the candidate's core stack
+  const inferredSkills: string[] = [];
+  if (allSkillsList.some(s => s.toLowerCase().includes("react") || s.toLowerCase().includes("next"))) {
+    if (!allSkillsList.includes("JavaScript")) inferredSkills.push("JavaScript (DOM / ES6+)");
+    if (!allSkillsList.includes("TypeScript")) inferredSkills.push("TypeScript Type Safety");
+  }
+  if (allSkillsList.some(s => s.toLowerCase().includes("spring") || s.toLowerCase().includes("java"))) {
+    if (!allSkillsList.includes("JVM Internals")) inferredSkills.push("JVM Internals & GC");
+    if (!allSkillsList.includes("REST APIs")) inferredSkills.push("REST API Architecture");
+  }
+  if (allSkillsList.some(s => s.toLowerCase().includes("python") || s.toLowerCase().includes("fastapi"))) {
+    if (!allSkillsList.includes("Python GIL")) inferredSkills.push("Python Concurrency & Memory");
+  }
+
+  const unverifiedClaims = profile.resumeClaims.map(c => c.claim);
 
   // Sort by priority weight
   const sortedSkills = Object.entries(skillOccurrences)
@@ -215,6 +250,11 @@ export async function generateInterviewBlueprint(params: {
         rawBlueprintJson: JSON.stringify({
           candidateProfile: profile,
           trees: TECH_INTERVIEW_TREES,
+          jobDescriptionOverlapSkills,
+          explicitlyStatedSkills: allSkillsList,
+          demonstratedProjectSkills,
+          inferredSkills,
+          unverifiedClaims,
         }),
         createdAt: now,
       });
@@ -232,6 +272,11 @@ export async function generateInterviewBlueprint(params: {
     highPriorityTopics,
     mediumPriorityTopics,
     supportingFundamentals,
+    jobDescriptionOverlapSkills,
+    explicitlyStatedSkills: allSkillsList,
+    demonstratedProjectSkills,
+    inferredSkills,
+    unverifiedClaims,
     resumeClaims: profile.resumeClaims,
     primaryLanguage,
     plannedDistribution,

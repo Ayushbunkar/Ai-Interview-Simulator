@@ -113,6 +113,13 @@ export class LocalDevAIProvider implements InterviewAIProvider {
       feedback,
       rubricScores,
       isSatisfactory: finalScore >= 60,
+      expectedConcepts: uniqueKeywords.slice(0, 5),
+      demonstratedConcepts: uniqueKeywords.filter(k => cleanAnswer.includes(k)),
+      missingConcepts: uniqueKeywords.filter(k => !cleanAnswer.includes(k)),
+      improvedAnswerOutline: `1. Clearly define the core concept and its operational purpose.\n2. Explain internal mechanics, data structures, and lifecycle.\n3. Discuss edge cases, runtime/space trade-offs, and scalability bottlenecks.`,
+      confidenceLevel: cleanAnswer.length < 25 ? "low_insufficient_evidence" : "high",
+      isVagueOrIncomplete: cleanAnswer.length < 25,
+      clarificationPrompt: cleanAnswer.length < 25 ? "Your answer is quite brief. Could you elaborate on your specific technical implementation before we proceed?" : undefined,
     };
   }
 
@@ -122,7 +129,17 @@ export class LocalDevAIProvider implements InterviewAIProvider {
 
     let msg = `[Interviewer Clarification]\nRegarding the question: "${currentQuestionText}"\n\n`;
 
-    if (lower.includes("constraint") || lower.includes("limit") || lower.includes("range")) {
+    if (lower.includes("repeat") || lower.includes("say that again") || lower.includes("what was the question")) {
+      msg = `Certainly, let me repeat the question for you:\n\n"${currentQuestionText}"\n\nTake your time to structure your response.`;
+    } else if (lower.includes("rephrase") || lower.includes("differently") || lower.includes("simplify") || lower.includes("mean by")) {
+      msg = `To look at it from another perspective: think about how this system operates in practice, what data structures are best suited for the task, and how you would prevent common failure modes.`;
+    } else if (lower.includes("hint") || lower.includes("clue") || lower.includes("stuck")) {
+      if (context.mode === "practice") {
+        msg = `💡 [Interviewer Hint]: Think about the fundamental data structure or design pattern that optimizes this exact operation. Consider how caching, hashing, or divide-and-conquer could reduce computational overhead.`;
+      } else {
+        msg = `In this interview mode, direct hints are not provided. However, recall the expected time complexity and typical memory constraints for this class of problem.`;
+      }
+    } else if (lower.includes("constraint") || lower.includes("limit") || lower.includes("range")) {
       msg += `You can assume standard production constraints: inputs fit within standard 32-bit/64-bit integer ranges, and data volume is within typical memory capacity unless specified. Focus on the optimal algorithmic approach.`;
     } else if (lower.includes("null") || lower.includes("empty") || lower.includes("negative")) {
       msg += `Yes, handling edge cases such as null/empty references and boundary values is expected in your design.`;

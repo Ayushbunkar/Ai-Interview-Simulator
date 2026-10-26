@@ -7,6 +7,8 @@ import {
   candidateAnswers,
   interviewReports,
   codingProblems,
+  interviewBlueprints,
+  codingStepsLog,
 } from "@/lib/db/schema";
 import { eq, asc } from "drizzle-orm";
 
@@ -108,8 +110,10 @@ export async function DELETE(
     await ensureDbInitialized();
     const sessionId = params.id;
 
-    // Delete associated records
+    // Delete associated records with foreign key dependencies
     await db.delete(interviewReports).where(eq(interviewReports.sessionId, sessionId));
+    await db.delete(interviewBlueprints).where(eq(interviewBlueprints.sessionId, sessionId));
+    await db.delete(codingStepsLog).where(eq(codingStepsLog.sessionId, sessionId));
     await db.delete(conversationMessages).where(eq(conversationMessages.sessionId, sessionId));
     await db.delete(candidateAnswers).where(eq(candidateAnswers.sessionId, sessionId));
     await db.delete(interviewRounds).where(eq(interviewRounds.sessionId, sessionId));
