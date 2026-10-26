@@ -40,6 +40,11 @@ let initialized = false;
 
 export async function ensureDbInitialized() {
   if (initialized) return;
+  if (!process.env.DATABASE_URL) {
+    // Neon database URL is not configured. Running in offline/fallback mode.
+    initialized = true;
+    return;
+  }
   try {
     // 1. Ensure all tables exist in Neon PostgreSQL
     await pool.query(`

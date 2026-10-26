@@ -116,7 +116,7 @@ function CodingArenaContent() {
     fetch("/api/coding/problems")
       .then(r => r.json())
       .then(data => {
-        if (data.problems) {
+        if (data.problems && data.problems.length > 0) {
           setProblemList(data.problems);
         }
       })
@@ -126,12 +126,14 @@ function CodingArenaContent() {
   // 2. Fetch Selected Problem Details
   useEffect(() => {
     setLoading(true);
+    setError(null);
     fetch(`/api/coding/problems/${querySlug}`)
       .then(r => {
-        if (!r.ok) throw new Error("Problem not found");
+        if (!r.ok) throw new Error("Problem could not be loaded");
         return r.json();
       })
       .then(data => {
+        if (!data.problem) throw new Error("Problem data is unavailable");
         const p: Problem = data.problem;
         setCurrentProblem(p);
         setIsBookmarked(Boolean(p.isBookmarked));
@@ -149,7 +151,8 @@ function CodingArenaContent() {
         setLoading(false);
       })
       .catch(err => {
-        setError(err.message);
+        console.error("Error loading problem:", err);
+        setError(err.message || "Unable to load problem");
         setLoading(false);
       });
   }, [querySlug]);
@@ -390,7 +393,24 @@ function CodingArenaContent() {
 
           {/* Tab Content */}
           <div className="flex-1 overflow-y-auto p-5 space-y-6 text-xs text-gray-300">
-            {activeTab === "description" && currentProblem && (
+            {loading ? (
+              <div className="py-20 text-center space-y-3">
+                <div className="inline-block h-7 w-7 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+                <div className="text-xs text-gray-400">Loading problem details...</div>
+              </div>
+            ) : error || !currentProblem ? (
+              <div className="py-16 text-center space-y-3">
+                <AlertTriangle className="mx-auto h-8 w-8 text-amber-500" />
+                <div className="text-sm font-semibold text-white">Problem could not be loaded</div>
+                <p className="text-xs text-gray-400">{error || "Unable to reach coding problems service."}</p>
+                <button
+                  onClick={() => router.push(`/coding?slug=two-sum${sessionId ? `&sessionId=${sessionId}` : ""}`)}
+                  className="rounded-lg bg-blue-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-blue-500 transition"
+                >
+                  Load Default Problem (Two Sum)
+                </button>
+              </div>
+            ) : activeTab === "description" ? (
               <>
                 {/* Title & Metadata */}
                 <div className="space-y-2">

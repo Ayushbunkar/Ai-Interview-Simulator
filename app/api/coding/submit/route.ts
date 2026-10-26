@@ -6,6 +6,7 @@ import { eq, asc } from "drizzle-orm";
 import { evaluateCodeAgainstTestCases, getCompilerProvider } from "@/lib/compiler";
 import { logAPIUsage } from "@/lib/ai/usage-tracker";
 import { logCodingStep } from "@/lib/coding/coding-tracker";
+import { STATIC_CODING_PROBLEMS } from "@/lib/fallback/data-source";
 import {
   validateExecutionPayload,
   acquireExecutionLock,
@@ -24,7 +25,6 @@ const SubmitCodeSchema = z.object({
 export async function POST(request: NextRequest) {
   let lockKey: string | null = null;
   try {
-    await ensureDbInitialized();
     const body = await request.json();
     const validated = SubmitCodeSchema.parse(body);
 
@@ -34,13 +34,47 @@ export async function POST(request: NextRequest) {
     // 2. Concurrency deduplication lock
     lockKey = acquireExecutionLock(validated.language, validated.code, validated.problemSlug, validated.sessionId);
 
-    const [problem] = await db
-      .select()
-      .from(codingProblems)
-      .where(eq(codingProblems.slug, validated.problemSlug));
+    let problem: any = null;
+    let problemTests: any[] = [];
+
+    if (process.env.DATABASE_URL) {
+      try {
+        await ensureDbInitialized();
+        const [found] = await db
+          .select()
+          .from(codingProblems)
+          .where(eq(codingProblems.slug, validated.problemSlug));
+        problem = found;
+
+        if (problem) {
+          problemTests = await db
+            .select()
+            .from(testCases)
+            .where(eq(testCases.problemId, problem.id))
+            .orderBy(asc(testCases.orderIndex));
+        }
+      } catch (dbErr) {
+        console.warn("Neon DB lookup failed in submit route, falling back to static problem:", dbErr);
+        problem = null;
+      }
+    }
 
     if (!problem) {
-      return NextResponse.json({ error: "Problem not found" }, { status: 404 });
+      const staticP = STATIC_CODING_PROBLEMS.find(p => p.slug === validated.problemSlug) || STATIC_CODING_PROBLEMS[0];
+      if (!staticP) {
+        return NextResponse.json({ error: "Problem not found" }, { status: 404 });
+      }
+      problem = {
+        id: staticP.id,
+        slug: staticP.slug,
+        title: staticP.title,
+      };
+      problemTests = (staticP.testCases || []).map((tc, idx) => ({
+        id: tc.id || `${staticP.id}_tc_${idx}`,
+        input: tc.input,
+        expectedOutput: tc.expectedOutput,
+        isHidden: tc.isHidden,
+      }));
     }
 
     const provider = getCompilerProvider();
@@ -54,13 +88,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    // Fetch all test cases for this problem (visible and hidden)
-    const problemTests = await db
-      .select()
-      .from(testCases)
-      .where(eq(testCases.problemId, problem.id))
-      .orderBy(asc(testCases.orderIndex));
 
     const evalResult = await evaluateCodeAgainstTestCases({
       language: validated.language,
@@ -77,36 +104,42 @@ export async function POST(request: NextRequest) {
     const submissionId = "sub-" + Math.random().toString(36).substring(2, 10);
     const now = new Date();
 
-    // Record submission
-    await db.insert(codeSubmissions).values({
-      id: submissionId,
-      sessionId: validated.sessionId || null,
-      problemId: problem.id,
-      language: validated.language,
-      code: validated.code,
-      status: evalResult.status,
-      passedTests: evalResult.passedCount,
-      totalTests: evalResult.totalCount,
-      runtimeMs: evalResult.runtimeMs || null,
-      memoryKb: evalResult.memoryKb || null,
-      compileOutput: evalResult.compileOutput || null,
-      errorMessage: evalResult.errorMessage || null,
-      createdAt: now,
-    });
+    // Safely record submission if DB is available
+    if (process.env.DATABASE_URL) {
+      try {
+        await db.insert(codeSubmissions).values({
+          id: submissionId,
+          sessionId: validated.sessionId || null,
+          problemId: problem.id,
+          language: validated.language,
+          code: validated.code,
+          status: evalResult.status,
+          passedTests: evalResult.passedCount,
+          totalTests: evalResult.totalCount,
+          runtimeMs: evalResult.runtimeMs || null,
+          memoryKb: evalResult.memoryKb || null,
+          compileOutput: evalResult.compileOutput || null,
+          errorMessage: evalResult.errorMessage || null,
+          createdAt: now,
+        });
 
-    // Record individual execution results
-    for (const tr of evalResult.testResults) {
-      await db.insert(executionResults).values({
-        id: "exec-" + Math.random().toString(36).substring(2, 10),
-        submissionId,
-        testCaseId: tr.testCaseId,
-        passed: tr.passed,
-        actualOutput: tr.actualOutput || null,
-        expectedOutput: tr.expectedOutput || null,
-        executionTimeMs: tr.executionTimeMs || null,
-        memoryKb: tr.memoryKb || null,
-        error: tr.error || null,
-      });
+        // Record individual execution results
+        for (const tr of evalResult.testResults) {
+          await db.insert(executionResults).values({
+            id: "exec-" + Math.random().toString(36).substring(2, 10),
+            submissionId,
+            testCaseId: tr.testCaseId,
+            passed: tr.passed,
+            actualOutput: tr.actualOutput || null,
+            expectedOutput: tr.expectedOutput || null,
+            executionTimeMs: tr.executionTimeMs || null,
+            memoryKb: tr.memoryKb || null,
+            error: tr.error || null,
+          });
+        }
+      } catch (dbErr) {
+        console.warn("Could not save submission to Neon DB:", dbErr);
+      }
     }
 
     // Log API usage and coding step

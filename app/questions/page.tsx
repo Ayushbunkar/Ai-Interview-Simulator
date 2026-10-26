@@ -43,6 +43,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 export default function QuestionBankPage() {
   const [questions, setQuestions] = useState<QuestionItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(false);
 
   // Filters
   const [search, setSearch] = useState("");
@@ -62,10 +63,16 @@ export default function QuestionBankPage() {
 
     try {
       const res = await fetch(`/api/questions?${params.toString()}`);
+      if (!res.ok) throw new Error("Failed to fetch questions");
       const data = await res.json();
       setQuestions(data.questions || []);
-    } catch {}
-    setLoading(false);
+      setFetchError(false);
+    } catch (err) {
+      console.error("Failed to load questions:", err);
+      setFetchError(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -171,12 +178,37 @@ export default function QuestionBankPage() {
 
       {/* Questions List */}
       {loading ? (
-        <div className="py-12 text-center text-xs text-gray-400">Loading questions...</div>
+        <div className="py-16 text-center space-y-3">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
+          <div className="text-xs text-gray-400">Loading placement questions...</div>
+        </div>
+      ) : fetchError ? (
+        <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-12 text-center space-y-3">
+          <div className="text-sm font-semibold text-red-400">Unable to load questions from server</div>
+          <p className="text-xs text-gray-400">Please check your network connection and retry.</p>
+          <button
+            onClick={() => fetchQuestions()}
+            className="inline-flex items-center gap-2 rounded-lg bg-red-600/30 border border-red-500/40 px-3.5 py-1.5 text-xs font-medium text-white hover:bg-red-600/50 transition"
+          >
+            Retry Loading
+          </button>
+        </div>
       ) : questions.length === 0 ? (
         <div className="rounded-xl border border-dashed border-gray-800 p-12 text-center space-y-2">
           <BookOpen className="mx-auto h-8 w-8 text-gray-600" />
           <div className="text-sm font-semibold text-white">No questions match your criteria</div>
-          <p className="text-xs text-gray-400">Try adjusting your category or search query.</p>
+          <p className="text-xs text-gray-400">Try adjusting your filters or search keywords.</p>
+          <button
+            onClick={() => {
+              setCategory("all");
+              setDifficulty("all");
+              setCompany("all");
+              setSearch("");
+            }}
+            className="mt-2 inline-flex items-center gap-1.5 rounded-lg border border-gray-700 bg-gray-800 px-3 py-1.5 text-xs text-gray-200 hover:bg-gray-700 transition"
+          >
+            Clear All Filters
+          </button>
         </div>
       ) : (
         <div className="space-y-3">

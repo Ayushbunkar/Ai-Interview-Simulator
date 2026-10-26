@@ -38,6 +38,7 @@ import { logAPIUsage } from "../ai/usage-tracker";
 import { parseResumeStructured } from "../intelligence/resume-parser";
 import { generateInterviewBlueprint, getBlueprintForSession, TECH_INTERVIEW_TREES } from "../intelligence/blueprint-generator";
 import { compileResumeAssessmentDossier } from "../intelligence/resume-report-generator";
+import { STATIC_QUESTIONS } from "../fallback/data-source";
 
 export interface CreateInterviewInput {
   title?: string;
@@ -386,8 +387,32 @@ export async function getNextQuestionForRound(
     categories = ["behavioral"];
   }
 
-  // Fetch eligible questions from DB
-  const allEligible = await db.select().from(questions);
+  // Fetch eligible questions from DB or fallback
+  let allEligible: any[] = [];
+  if (process.env.DATABASE_URL) {
+    try {
+      allEligible = await db.select().from(questions);
+    } catch {
+      allEligible = [];
+    }
+  }
+
+  if (allEligible.length === 0) {
+    allEligible = STATIC_QUESTIONS.map(q => ({
+      id: q.id,
+      category: q.category,
+      topic: q.topic,
+      difficulty: q.difficulty,
+      companyTags: JSON.stringify(q.companyTags || []),
+      questionText: q.questionText,
+      expectedAnswer: q.expectedAnswer,
+      explanation: q.explanation,
+      followUps: JSON.stringify(q.followUps || []),
+      rubricFocus: q.rubricFocus || null,
+      createdAt: new Date(),
+    }));
+  }
+
   let filtered = allEligible.filter(q => categories.includes(q.category) && !askedIds.has(q.id));
 
   if (filtered.length === 0) {

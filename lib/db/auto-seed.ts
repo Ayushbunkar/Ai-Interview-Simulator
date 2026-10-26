@@ -14,6 +14,7 @@ import mediumCoding from "@/data/coding/medium.json";
 import hardCoding from "@/data/coding/hard.json";
 
 export async function autoSeedIfEmpty() {
+  if (!process.env.DATABASE_URL) return;
   try {
     const qCountRes = await pool.query("SELECT COUNT(*) as count FROM questions;");
     const count = parseInt(qCountRes.rows[0]?.count || "0", 10);
