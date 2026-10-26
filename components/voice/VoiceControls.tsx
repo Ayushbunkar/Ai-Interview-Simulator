@@ -76,21 +76,78 @@ export function VoiceControls({
       const loadVoices = () => {
         const vList = window.speechSynthesis.getVoices();
         const englishVoices = vList.filter(v => v.lang.startsWith("en"));
-        setVoices(englishVoices.length > 0 ? englishVoices : vList);
+        const list = englishVoices.length > 0 ? englishVoices : vList;
+        setVoices(list);
+
+        // Check if there is a saved voice from localStorage or synthesizer
+        try {
+          const savedVoice = localStorage.getItem("interviewforge_voice_uri") || synthesizer.getSelectedVoiceURI();
+          if (savedVoice) {
+            setSelectedVoice(savedVoice);
+            synthesizer.setVoice(savedVoice);
+          } else if (list.length > 0 && !selectedVoice) {
+            // Pick a good default English voice
+            const pref = list.find(v => v.name.includes("Google") || v.name.includes("Natural") || v.name.includes("David") || v.name.includes("Ravi")) || list[0];
+            if (pref) {
+              const val = pref.voiceURI || pref.name;
+              setSelectedVoice(val);
+              synthesizer.setVoice(val);
+            }
+          }
+        } catch {}
       };
+
       loadVoices();
       window.speechSynthesis.onvoiceschanged = loadVoices;
     }
-  }, []);
+
+    try {
+      const savedRate = localStorage.getItem("interviewforge_voice_rate");
+      if (savedRate) {
+        const r = parseFloat(savedRate);
+        if (!isNaN(r)) {
+          setSpeechRate(r);
+          synthesizer.setRate(r);
+        }
+      }
+    } catch {}
+  }, [synthesizer]);
 
   const handleVoiceChange = (uri: string) => {
     setSelectedVoice(uri);
     synthesizer.setVoice(uri);
+    try {
+      localStorage.setItem("interviewforge_voice_uri", uri);
+    } catch {}
+
+    // If interviewer is actively speaking, restart speech immediately with newly selected voice!
+    if (voiceState === "interviewer_speaking" && synthesizer.getCurrentText()) {
+      synthesizer.speak(synthesizer.getCurrentText(), synthesizer.getCurrentUtteranceId() || "curr-" + Date.now(), {
+        onEnd: () => {
+          onStopSpeaking();
+        },
+      });
+    } else {
+      // Provide an immediate sample so candidate hears the selected voice
+      synthesizer.speak("Interviewer voice updated.", "sample-" + Date.now());
+    }
   };
 
   const handleRateChange = (rate: number) => {
     setSpeechRate(rate);
     synthesizer.setRate(rate);
+    try {
+      localStorage.setItem("interviewforge_voice_rate", String(rate));
+    } catch {}
+
+    // If interviewer is actively speaking, restart with new speed
+    if (voiceState === "interviewer_speaking" && synthesizer.getCurrentText()) {
+      synthesizer.speak(synthesizer.getCurrentText(), synthesizer.getCurrentUtteranceId() || "curr-" + Date.now(), {
+        onEnd: () => {
+          onStopSpeaking();
+        },
+      });
+    }
   };
 
   const isInterviewerSpeaking = voiceState === "interviewer_speaking";

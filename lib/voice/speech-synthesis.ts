@@ -26,6 +26,15 @@ export class BrowserSpeechSynthesizer {
   constructor() {
     if (typeof window !== "undefined" && "speechSynthesis" in window) {
       this.isSupportedBrowser = true;
+      try {
+        const saved = localStorage.getItem("interviewforge_voice_uri");
+        if (saved) this.selectedVoiceURI = saved;
+        const savedRate = localStorage.getItem("interviewforge_voice_rate");
+        if (savedRate) {
+          const r = parseFloat(savedRate);
+          if (!isNaN(r)) this.rate = r;
+        }
+      } catch {}
     }
   }
 
@@ -40,10 +49,32 @@ export class BrowserSpeechSynthesizer {
 
   public setVoice(voiceURI: string) {
     this.selectedVoiceURI = voiceURI;
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("interviewforge_voice_uri", voiceURI);
+      } catch {}
+    }
   }
 
   public setRate(rate: number) {
     this.rate = Math.max(0.5, Math.min(2.0, rate));
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("interviewforge_voice_rate", String(this.rate));
+      } catch {}
+    }
+  }
+
+  public getCurrentText(): string {
+    return this.currentText;
+  }
+
+  public getSelectedVoiceURI(): string | null {
+    return this.selectedVoiceURI;
+  }
+
+  public getRate(): number {
+    return this.rate;
   }
 
   public speak(text: string, utteranceId?: string, options: SpeechSynthesisOptions = {}) {
@@ -83,14 +114,22 @@ export class BrowserSpeechSynthesizer {
     // Pick selected voice or suitable English voice
     const voices = this.getVoices();
     if (this.selectedVoiceURI) {
-      const found = voices.find(v => v.voiceURI === this.selectedVoiceURI);
-      if (found) utterance.voice = found;
+      const found = voices.find(
+        v => v.voiceURI === this.selectedVoiceURI || v.name === this.selectedVoiceURI
+      );
+      if (found) {
+        utterance.voice = found;
+        utterance.lang = found.lang; // CRITICAL: Windows SAPI/Chromium requires utterance.lang to match selected voice
+      }
     } else {
       // Preference: Natural/Google/Microsoft English voices
       const preferred = voices.find(
         v => v.lang.startsWith("en") && (v.name.includes("Google") || v.name.includes("Natural") || v.name.includes("Samantha"))
       ) || voices.find(v => v.lang.startsWith("en"));
-      if (preferred) utterance.voice = preferred;
+      if (preferred) {
+        utterance.voice = preferred;
+        utterance.lang = preferred.lang;
+      }
     }
 
     utterance.onstart = () => {
