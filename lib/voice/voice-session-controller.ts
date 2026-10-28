@@ -172,23 +172,33 @@ export class VoiceSessionController {
   }
 
   /**
-   * Starts listening for candidate's voice answer.
-   * If forceLive is true, explicitly uses real-time browser Web Speech recognition.
+   * Starts dual recording:
+   * 1. Browser Speech Recognizer (for zero-latency real-time preview if available)
+   * 2. MediaRecorder audio buffer (for 100% reliable Whisper AI fallback so words are never lost)
    */
-  public startListening(forceLive = false) {
+  public async startListening(forceLive = false) {
     this.synthesizer.stop();
-    if (forceLive) {
-      this.isWhisperMode = false;
-    }
-    if (this.isWhisperMode) {
-      this.startWhisperRecording();
-    } else {
-      this.recognizer.resetTranscript();
-      const started = this.recognizer.start();
-      if (started) {
-        this.setState("ready_to_listen");
+    this.recognizer.resetTranscript();
+
+    // 1. Always record microphone audio locally via MediaRecorder
+    if (this.audioRecorder.isSupported()) {
+      try {
+        await this.audioRecorder.start();
+      } catch (err) {
+        console.warn("Background MediaRecorder start note:", err);
       }
     }
+
+    // 2. Also start Web Speech API for real-time live word streaming
+    if (this.recognizer.isSupported()) {
+      try {
+        this.recognizer.start();
+      } catch (err) {
+        console.warn("Web Speech recognizer start note:", err);
+      }
+    }
+
+    this.setState("ready_to_listen");
   }
 
   /**
@@ -202,6 +212,41 @@ export class VoiceSessionController {
     if (this.state === "ready_to_listen" || this.state === "user_speaking") {
       this.setState("idle");
     }
+  }
+
+  /**
+   * Stops listening and returns best transcribed text:
+   * If live Web Speech API captured >= 3 words, returns it immediately.
+   * If live Web Speech was empty/failed, automatically transcribes the recorded audio via Whisper AI!
+   */
+  public async stopAndGetTranscript(): Promise<string> {
+    const liveText = this.recognizer.getFinalTranscript();
+    this.recognizer.stop();
+
+    const liveWords = liveText.trim().split(/\s+/).filter(Boolean);
+    // If live text produced an answer, use it and stop audio recorder
+    if (liveWords.length >= 3) {
+      if (this.audioRecorder.isRecording()) {
+        await this.audioRecorder.stop();
+      }
+      this.setState("idle");
+      return liveText.trim();
+    }
+
+    // If live text was empty/insufficient, transcribe via Whisper AI
+    if (this.audioRecorder.isRecording()) {
+      this.callbacks.onInterimTranscript("Transcribing audio with Whisper AI...");
+      const whisperText = await this.audioRecorder.stopAndTranscribe();
+      this.callbacks.onInterimTranscript("");
+      this.setState("idle");
+      if (whisperText && whisperText.trim()) {
+        this.callbacks.onFinalTranscript(whisperText.trim());
+        return whisperText.trim();
+      }
+    }
+
+    this.setState("idle");
+    return liveText.trim();
   }
 
   /**

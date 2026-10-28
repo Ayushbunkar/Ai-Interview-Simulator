@@ -32,8 +32,9 @@ export async function POST(request: NextRequest) {
       file,
       model: "whisper-large-v3-turbo",
       response_format: "json",
-      language: "en",
       temperature: 0.2,
+      prompt:
+        "Technical software engineering interview answer covering programming languages, algorithms, data structures, Big-O notation, system design, databases, and computer science.",
     });
 
     const text = (transcription.text || "").trim();

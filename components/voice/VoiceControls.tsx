@@ -244,25 +244,25 @@ export function VoiceControls({
           </div>
         ) : isListening ? (
           <div className="flex items-center gap-2 flex-wrap">
-            {/* Primary Action: Done Speaking -> Stop Listening & Submit Answer */}
+            {/* Primary Action: Done Speaking -> Stop Listening & Transcribe / Submit Answer */}
             {onDoneSpeaking && (
               <button
                 type="button"
                 onClick={onDoneSpeaking}
                 className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold shadow-lg shadow-emerald-600/30 transition-all cursor-pointer ring-2 ring-emerald-400/50 hover:scale-[1.02] active:scale-[0.98]"
-                title="Finished speaking? Click to complete your answer and submit"
+                title="Finished speaking? Click to transcribe your answer and submit"
               >
                 <CheckCircle2 className="h-4 w-4 text-emerald-200" />
-                <span>Done Speaking (Submit Answer)</span>
+                <span>Done Speaking (Transcribe & Submit)</span>
               </button>
             )}
 
-            {/* Pause Listening without submitting */}
+            {/* Pause & Review Answer in Editor */}
             <button
               type="button"
               onClick={onStopListening}
               className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-700 bg-gray-900/90 hover:bg-gray-800 text-gray-200 text-xs font-semibold transition cursor-pointer"
-              title="Pause microphone listening to review or edit your answer before submitting"
+              title="Pause microphone and transcribe speech into the answer box so you can review before submitting"
             >
               <span className="flex items-center gap-0.5 h-3">
                 <span className="w-0.5 bg-emerald-400 rounded-full wave-bar-1 animate-pulse" />
@@ -272,7 +272,7 @@ export function VoiceControls({
                 <span className="w-0.5 bg-emerald-400 rounded-full wave-bar-5 animate-pulse" />
               </span>
               <Pause className="h-3.5 w-3.5 text-amber-400" />
-              <span>Pause Mic</span>
+              <span>Pause & Transcribe to Box</span>
             </button>
 
             {/* Silence Auto-submit Countdown Indicator */}

@@ -248,28 +248,57 @@ export default function InterviewRoomPage() {
     }
   }, [messages, loading, isPaused, submitting, isVoiceMode]);
 
-  // Done Speaking handler: stops microphone and immediately submits transcribed answer
-  const handleDoneSpeaking = () => {
+  // Done Speaking handler: stops microphone, transcribes audio (using AI fallback if needed), and submits
+  const handleDoneSpeaking = async () => {
     if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
     setSilenceCountdown(null);
 
-    voiceControllerRef.current?.stopListening();
+    setIsTranscribingAudio(true);
+    try {
+      let textToSubmit = "";
+      if (voiceControllerRef.current) {
+        textToSubmit = await voiceControllerRef.current.stopAndGetTranscript();
+      }
 
-    const spoken = (finalTranscript + (interimTranscript ? " " + interimTranscript : "")).trim();
-    const textToSubmit = spoken || manualText.trim();
-    if (textToSubmit) {
-      handleSubmitAnswer(textToSubmit);
+      if (!textToSubmit) {
+        const spoken = (finalTranscript + (interimTranscript ? " " + interimTranscript : "")).trim();
+        textToSubmit = spoken || manualText.trim();
+      }
+
+      if (textToSubmit) {
+        setFinalTranscript(textToSubmit);
+        setManualText(textToSubmit);
+        handleSubmitAnswer(textToSubmit);
+      }
+    } catch (err: any) {
+      console.warn("Transcription notice:", err);
+    } finally {
+      setIsTranscribingAudio(false);
     }
   };
 
-  // Pause listening: explicitly keeps mic paused so user can review/edit without auto-restart
-  const handleStopListening = () => {
+  // Pause listening: transcribes speech directly into the answer box and pauses mic so user can edit
+  const handleStopListening = async () => {
     userManuallyPausedRef.current = true;
     if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
     if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
     setSilenceCountdown(null);
-    voiceControllerRef.current?.stopListening();
+
+    setIsTranscribingAudio(true);
+    try {
+      if (voiceControllerRef.current) {
+        const text = await voiceControllerRef.current.stopAndGetTranscript();
+        if (text) {
+          setFinalTranscript(text);
+          setManualText(text);
+        }
+      }
+    } catch (err: any) {
+      console.warn("Pause transcription notice:", err);
+    } finally {
+      setIsTranscribingAudio(false);
+    }
   };
 
   // Start listening: candidate manually unpauses microphone
