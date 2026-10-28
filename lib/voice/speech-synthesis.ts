@@ -108,23 +108,74 @@ export class BrowserSpeechSynthesizer {
     this.onEndCallback = options.onEnd;
 
     const utterance = new SpeechSynthesisUtterance(cleanSpeech);
-    utterance.rate = options.rate || this.rate;
+
+    // Dynamic rate resolution (check localStorage to honor user settings)
+    let activeRate = options.rate || this.rate;
+    if (typeof window !== "undefined") {
+      try {
+        const savedRate = localStorage.getItem("interviewforge_voice_rate");
+        if (savedRate) {
+          const r = parseFloat(savedRate);
+          if (!isNaN(r)) activeRate = r;
+        }
+      } catch {}
+    }
+    utterance.rate = activeRate;
     utterance.pitch = options.pitch || this.pitch;
 
-    // Pick selected voice or suitable English voice
+    // Guaranteed Voice Resolution from browser localStorage setting
+    let activeVoiceTarget = options.voiceURI || this.selectedVoiceURI;
+    if (typeof window !== "undefined") {
+      try {
+        const saved = localStorage.getItem("interviewforge_voice_uri");
+        if (saved) activeVoiceTarget = saved;
+      } catch {}
+    }
+
     const voices = this.getVoices();
-    if (this.selectedVoiceURI) {
-      const found = voices.find(
-        v => v.voiceURI === this.selectedVoiceURI || v.name === this.selectedVoiceURI
+    let foundVoice: SpeechSynthesisVoice | undefined;
+
+    if (activeVoiceTarget && voices.length > 0) {
+      const target = activeVoiceTarget.toLowerCase().trim();
+
+      // 1. Exact match on voiceURI or name
+      foundVoice = voices.find(
+        v => (v.voiceURI && v.voiceURI.toLowerCase().trim() === target) ||
+             (v.name && v.name.toLowerCase().trim() === target)
       );
-      if (found) {
-        utterance.voice = found;
-        utterance.lang = found.lang; // CRITICAL: Windows SAPI/Chromium requires utterance.lang to match selected voice
+
+      // 2. Substring matching (e.g. "Microsoft Heera" matching full name or vice-versa)
+      if (!foundVoice) {
+        foundVoice = voices.find(v => {
+          const vUri = (v.voiceURI || "").toLowerCase().trim();
+          const vName = (v.name || "").toLowerCase().trim();
+          return (vUri && target.includes(vUri)) ||
+                 (vUri && vUri.includes(target)) ||
+                 (vName && target.includes(vName)) ||
+                 (vName && vName.includes(target));
+        });
       }
+
+      // 3. Match by distinct speaker character (Heera, Ravi, David, Zira, Mark, Cleveland)
+      if (!foundVoice) {
+        const speakerKeys = ["heera", "ravi", "david", "zira", "mark", "cleveland", "george", "susan", "hazel", "catherine", "james", "richard", "linda", "google", "samantha"];
+        const matchedKey = speakerKeys.find(k => target.includes(k));
+        if (matchedKey) {
+          foundVoice = voices.find(v => 
+            (v.name && v.name.toLowerCase().includes(matchedKey)) ||
+            (v.voiceURI && v.voiceURI.toLowerCase().includes(matchedKey))
+          );
+        }
+      }
+    }
+
+    if (foundVoice) {
+      utterance.voice = foundVoice;
+      utterance.lang = foundVoice.lang; // Critical on Windows Chromium to match selected voice
     } else {
-      // Preference: Natural/Google/Microsoft English voices
+      // Fallback preference: Indian English (Heera / Ravi) or Natural/Google English
       const preferred = voices.find(
-        v => v.lang.startsWith("en") && (v.name.includes("Google") || v.name.includes("Natural") || v.name.includes("Samantha"))
+        v => v.lang.startsWith("en") && (v.name.includes("Heera") || v.name.includes("Ravi") || v.name.includes("Natural") || v.name.includes("Google") || v.name.includes("David"))
       ) || voices.find(v => v.lang.startsWith("en"));
       if (preferred) {
         utterance.voice = preferred;

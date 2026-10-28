@@ -91,14 +91,28 @@ export function VoiceControls({
         try {
           const savedVoice = localStorage.getItem("interviewforge_voice_uri") || synthesizer.getSelectedVoiceURI();
           if (savedVoice) {
-            setSelectedVoice(savedVoice);
-            synthesizer.setVoice(savedVoice);
+            const target = savedVoice.toLowerCase().trim();
+            const matched = list.find(v => {
+              const uri = (v.voiceURI || "").toLowerCase().trim();
+              const name = (v.name || "").toLowerCase().trim();
+              return uri === target || name === target || uri.includes(target) || target.includes(uri) || name.includes(target) || target.includes(name);
+            });
+
+            if (matched) {
+              const exactVal = matched.voiceURI || matched.name;
+              setSelectedVoice(exactVal);
+              synthesizer.setVoice(exactVal);
+            } else {
+              setSelectedVoice(savedVoice);
+              synthesizer.setVoice(savedVoice);
+            }
           } else if (list.length > 0 && !selectedVoice) {
-            const pref = list.find(v => v.name.includes("Google") || v.name.includes("Natural") || v.name.includes("David") || v.name.includes("Ravi")) || list[0];
+            const pref = list.find(v => v.name.includes("Heera") || v.name.includes("Ravi") || v.name.includes("Google") || v.name.includes("David")) || list[0];
             if (pref) {
               const val = pref.voiceURI || pref.name;
               setSelectedVoice(val);
               synthesizer.setVoice(val);
+              localStorage.setItem("interviewforge_voice_uri", val);
             }
           }
         } catch {}
@@ -127,6 +141,9 @@ export function VoiceControls({
       localStorage.setItem("interviewforge_voice_uri", uri);
     } catch {}
 
+    const selectedObj = voices.find(v => (v.voiceURI || v.name) === uri);
+    const speakerName = selectedObj?.name ? selectedObj.name.split("-")[0].trim() : "selected voice";
+
     if (voiceState === "interviewer_speaking" && synthesizer.getCurrentText()) {
       synthesizer.speak(synthesizer.getCurrentText(), synthesizer.getCurrentUtteranceId() || "curr-" + Date.now(), {
         onEnd: () => {
@@ -134,7 +151,7 @@ export function VoiceControls({
         },
       });
     } else {
-      synthesizer.speak("Interviewer voice updated.", "sample-" + Date.now());
+      synthesizer.speak(`Hello, I am your interviewer speaking with ${speakerName}.`, "sample-" + Date.now());
     }
   };
 
