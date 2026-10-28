@@ -15,6 +15,9 @@ interface LiveTranscriptPanelProps {
   errorMessage?: string | null;
   onCancelSubmission?: () => void;
   isTranscribingAudio?: boolean;
+  onDoneSpeaking?: () => void;
+  silenceCountdown?: number | null;
+  onCancelSilenceCountdown?: () => void;
 }
 
 export function LiveTranscriptPanel({
@@ -28,6 +31,9 @@ export function LiveTranscriptPanel({
   errorMessage,
   onCancelSubmission,
   isTranscribingAudio = false,
+  onDoneSpeaking,
+  silenceCountdown,
+  onCancelSilenceCountdown,
 }: LiveTranscriptPanelProps) {
   const [editableText, setEditableText] = useState(manualText || "");
   const [elapsedWaitSeconds, setElapsedWaitSeconds] = useState(0);
@@ -220,6 +226,22 @@ export function LiveTranscriptPanel({
           </p>
 
           <div className="flex items-center gap-2">
+            {/* Silence countdown pill inside panel if active */}
+            {typeof silenceCountdown === "number" && silenceCountdown > 0 && (
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs font-medium animate-pulse">
+                <span>Submitting in {silenceCountdown}s...</span>
+                {onCancelSilenceCountdown && (
+                  <button
+                    type="button"
+                    onClick={onCancelSilenceCountdown}
+                    className="underline text-[10px] text-amber-200 hover:text-white ml-1 font-semibold"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            )}
+
             {(editableText || manualText) && (
               <button
                 type="button"
@@ -235,12 +257,22 @@ export function LiveTranscriptPanel({
             <button
               type="submit"
               disabled={submitting || !(editableText.trim() || manualText.trim())}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-md shadow-blue-600/20 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:scale-100 cursor-pointer"
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-white text-xs font-semibold shadow-md transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:scale-100 cursor-pointer ${
+                isListening
+                  ? "bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-emerald-600/30 ring-1 ring-emerald-400/50"
+                  : "bg-blue-600 hover:bg-blue-700 shadow-blue-600/20"
+              }`}
             >
               {submitting ? (
                 <>
                   <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
                   <span>Submitting...</span>
+                </>
+              ) : isListening ? (
+                <>
+                  <Send className="h-3.5 w-3.5 text-emerald-200" />
+                  <span>Done Speaking (Submit)</span>
+                  <span className="text-[10px] opacity-70 ml-1 font-mono">Ctrl+↵</span>
                 </>
               ) : (
                 <>

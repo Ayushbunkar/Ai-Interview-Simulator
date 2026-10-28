@@ -223,20 +223,109 @@ export default function InterviewRoomPage() {
     }
   }, [messages, loading, isVoiceMode]);
 
-  // Automatically activate live microphone listening when it's candidate's turn to answer
+  // Silence auto-completion & turn tracking refs
+  const [silenceCountdown, setSilenceCountdown] = useState<number | null>(null);
+  const silenceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const countdownIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const autoStartedForMsgIdRef = useRef<string | null>(null);
+  const userManuallyPausedRef = useRef<boolean>(false);
+
+  // Automatically activate live microphone listening ONCE when it's candidate's turn to answer
   useEffect(() => {
     if (loading || isPaused || submitting || !isVoiceMode || !voiceControllerRef.current) return;
     if (messages.length === 0) return;
 
     const lastMsg = messages[messages.length - 1];
     if (lastMsg.sender === "interviewer") {
-      const controller = voiceControllerRef.current;
-      // If controller is idle and synthesizer is not speaking, automatically turn on live mic!
-      if (controller.getState() === "idle" && !controller.isInterviewerSpeaking()) {
-        controller.startListening(true);
+      // Check if we haven't already auto-started for this specific interviewer message
+      if (lastMsg.id !== autoStartedForMsgIdRef.current) {
+        const controller = voiceControllerRef.current;
+        if (controller.getState() === "idle" && !controller.isInterviewerSpeaking() && !userManuallyPausedRef.current) {
+          autoStartedForMsgIdRef.current = lastMsg.id;
+          controller.startListening(true);
+        }
       }
     }
-  }, [messages, loading, isPaused, submitting, isVoiceMode, voiceState]);
+  }, [messages, loading, isPaused, submitting, isVoiceMode]);
+
+  // Done Speaking handler: stops microphone and immediately submits transcribed answer
+  const handleDoneSpeaking = () => {
+    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    setSilenceCountdown(null);
+
+    voiceControllerRef.current?.stopListening();
+
+    const spoken = (finalTranscript + (interimTranscript ? " " + interimTranscript : "")).trim();
+    const textToSubmit = spoken || manualText.trim();
+    if (textToSubmit) {
+      handleSubmitAnswer(textToSubmit);
+    }
+  };
+
+  // Pause listening: explicitly keeps mic paused so user can review/edit without auto-restart
+  const handleStopListening = () => {
+    userManuallyPausedRef.current = true;
+    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    setSilenceCountdown(null);
+    voiceControllerRef.current?.stopListening();
+  };
+
+  // Start listening: candidate manually unpauses microphone
+  const handleStartListening = () => {
+    userManuallyPausedRef.current = false;
+    voiceControllerRef.current?.startListening(true);
+  };
+
+  // Cancel silence countdown if candidate wants to continue speaking or editing
+  const handleCancelSilenceCountdown = () => {
+    userManuallyPausedRef.current = true;
+    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    setSilenceCountdown(null);
+  };
+
+  // Smart Silence Detection: when candidate finishes speaking and is silent for 3.5s, countdown and auto-submit
+  useEffect(() => {
+    if (submitting || !isVoiceMode || (voiceState !== "ready_to_listen" && voiceState !== "user_speaking")) {
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+      if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+      setSilenceCountdown(null);
+      return;
+    }
+
+    const currentText = (finalTranscript + (interimTranscript ? " " + interimTranscript : "")).trim() || manualText.trim();
+    const wordCount = currentText.split(/\s+/).filter(Boolean).length;
+
+    // Reset countdown if new speech/words arrive
+    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    setSilenceCountdown(null);
+
+    // Only initiate silence auto-completion if candidate has spoken at least 4 words
+    if (wordCount >= 4 && !userManuallyPausedRef.current) {
+      silenceTimerRef.current = setTimeout(() => {
+        let count = 3;
+        setSilenceCountdown(count);
+        countdownIntervalRef.current = setInterval(() => {
+          count -= 1;
+          if (count <= 0) {
+            if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+            setSilenceCountdown(null);
+            handleDoneSpeaking();
+          } else {
+            setSilenceCountdown(count);
+          }
+        }, 1000);
+      }, 3500);
+    }
+
+    return () => {
+      if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+      if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    };
+  }, [finalTranscript, interimTranscript, manualText, voiceState, submitting, isVoiceMode]);
 
   // Live countdown timer
   useEffect(() => {
@@ -252,6 +341,13 @@ export default function InterviewRoomPage() {
   // Handle Candidate Answer Submission (Spoken or Typed)
   const handleSubmitAnswer = async (submittedText: string) => {
     if (!submittedText.trim() || submitting) return;
+
+    // Reset turn flags & silence countdowns
+    autoStartedForMsgIdRef.current = null;
+    userManuallyPausedRef.current = false;
+    if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
+    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+    setSilenceCountdown(null);
 
     setSubmitting(true);
     setVoiceError(null);
@@ -902,13 +998,16 @@ export default function InterviewRoomPage() {
                         setIsVoiceMode(next);
                         voiceControllerRef.current?.setVoiceMode(next);
                         if (next) {
-                          voiceControllerRef.current?.startListening(true);
+                          handleStartListening();
                         } else {
-                          voiceControllerRef.current?.stopListening();
+                          handleStopListening();
                         }
                       }}
-                      onStartListening={() => voiceControllerRef.current?.startListening(true)}
-                      onStopListening={() => voiceControllerRef.current?.stopListening()}
+                      onStartListening={handleStartListening}
+                      onStopListening={handleStopListening}
+                      onDoneSpeaking={handleDoneSpeaking}
+                      silenceCountdown={silenceCountdown}
+                      onCancelSilenceCountdown={handleCancelSilenceCountdown}
                       onStopSpeaking={() => voiceControllerRef.current?.stopSpeaking()}
                       onReplayQuestion={() => {
                         const lastQ = [...messages].reverse().find(m => m.sender === "interviewer");
@@ -933,6 +1032,9 @@ export default function InterviewRoomPage() {
                     interimTranscript={interimTranscript}
                     finalTranscript={finalTranscript}
                     onSubmit={handleSubmitAnswer}
+                    onDoneSpeaking={handleDoneSpeaking}
+                    silenceCountdown={silenceCountdown}
+                    onCancelSilenceCountdown={handleCancelSilenceCountdown}
                     submitting={submitting}
                     manualText={manualText}
                     setManualText={setManualText}
@@ -1330,13 +1432,16 @@ export default function InterviewRoomPage() {
                     setIsVoiceMode(next);
                     voiceControllerRef.current?.setVoiceMode(next);
                     if (next) {
-                      voiceControllerRef.current?.startListening(true);
+                      handleStartListening();
                     } else {
-                      voiceControllerRef.current?.stopListening();
+                      handleStopListening();
                     }
                   }}
-                  onStartListening={() => voiceControllerRef.current?.startListening(true)}
-                  onStopListening={() => voiceControllerRef.current?.stopListening()}
+                  onStartListening={handleStartListening}
+                  onStopListening={handleStopListening}
+                  onDoneSpeaking={handleDoneSpeaking}
+                  silenceCountdown={silenceCountdown}
+                  onCancelSilenceCountdown={handleCancelSilenceCountdown}
                   onStopSpeaking={() => voiceControllerRef.current?.stopSpeaking()}
                   onReplayQuestion={() => {
                     const lastQ = [...messages].reverse().find(m => m.sender === "interviewer");
@@ -1363,6 +1468,9 @@ export default function InterviewRoomPage() {
                 interimTranscript={interimTranscript}
                 finalTranscript={finalTranscript}
                 onSubmit={handleSubmitAnswer}
+                onDoneSpeaking={handleDoneSpeaking}
+                silenceCountdown={silenceCountdown}
+                onCancelSilenceCountdown={handleCancelSilenceCountdown}
                 submitting={submitting}
                 manualText={manualText}
                 setManualText={setManualText}

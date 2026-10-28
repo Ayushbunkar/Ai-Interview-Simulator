@@ -281,6 +281,14 @@ export class VoiceSessionController {
     this.setState("interviewer_thinking");
   }
 
+  public getFinalTranscript(): string {
+    return this.recognizer.getFinalTranscript();
+  }
+
+  public resetTranscript() {
+    this.recognizer.resetTranscript();
+  }
+
   public getSpeechSynthesizer(): BrowserSpeechSynthesizer {
     return this.synthesizer;
   }

@@ -93,15 +93,19 @@ export class BrowserSpeechRecognizer {
 
     this.recognition.onresult = (event: any) => {
       let currentInterim = "";
+      let newFinal = "";
       for (let i = event.resultIndex; i < event.results.length; ++i) {
         const item = event.results[i];
         const transcriptSegment = item[0]?.transcript || "";
         if (item.isFinal) {
-          this.finalTranscript += (this.finalTranscript ? " " : "") + transcriptSegment.trim();
-          this.options.onFinalTranscript?.(this.finalTranscript);
+          newFinal += (newFinal ? " " : "") + transcriptSegment.trim();
         } else {
-          currentInterim += transcriptSegment;
+          currentInterim += (currentInterim ? " " : "") + transcriptSegment.trim();
         }
+      }
+      if (newFinal) {
+        this.finalTranscript = (this.finalTranscript ? this.finalTranscript + " " : "") + newFinal;
+        this.options.onFinalTranscript?.(this.finalTranscript);
       }
       this.interimTranscript = currentInterim;
       this.options.onInterimTranscript?.(currentInterim);
@@ -186,6 +190,13 @@ export class BrowserSpeechRecognizer {
     if (this.restartTimer) {
       clearTimeout(this.restartTimer);
       this.restartTimer = null;
+    }
+    // Flush any pending interim speech so no spoken words are lost when candidate finishes
+    if (this.interimTranscript && this.interimTranscript.trim().length > 0) {
+      this.finalTranscript = (this.finalTranscript ? this.finalTranscript + " " : "") + this.interimTranscript.trim();
+      this.interimTranscript = "";
+      this.options.onFinalTranscript?.(this.finalTranscript);
+      this.options.onInterimTranscript?.("");
     }
     if (this.recognition) {
       try {

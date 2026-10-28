@@ -13,6 +13,8 @@ import {
   Settings,
   Flame,
   Sparkles,
+  CheckCircle2,
+  Pause,
 } from "lucide-react";
 import { VoiceState } from "@/lib/types";
 import { BrowserSpeechSynthesizer } from "@/lib/voice/speech-synthesis";
@@ -26,6 +28,9 @@ interface VoiceControlsProps {
   onStopSpeaking: () => void;
   onReplayQuestion: () => void;
   onInterrupt: () => void;
+  onDoneSpeaking?: () => void;
+  silenceCountdown?: number | null;
+  onCancelSilenceCountdown?: () => void;
   onStartWhisperRecording?: () => void;
   onStopWhisperRecording?: () => void;
   isWhisperRecording?: boolean;
@@ -43,6 +48,9 @@ export function VoiceControls({
   onStopSpeaking,
   onReplayQuestion,
   onInterrupt,
+  onDoneSpeaking,
+  silenceCountdown,
+  onCancelSilenceCountdown,
   onStartWhisperRecording,
   onStopWhisperRecording,
   isWhisperRecording = false,
@@ -235,22 +243,54 @@ export function VoiceControls({
             <span>Transcribing with Whisper AI into answer input...</span>
           </div>
         ) : isListening ? (
-          <button
-            type="button"
-            onClick={onStopListening}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-lg shadow-emerald-600/30 transition-all cursor-pointer ring-2 ring-emerald-400/40"
-            title="Microphone is actively transcribing your voice directly into the answer box. Click to pause."
-          >
-            <span className="flex items-center gap-0.5 h-3">
-              <span className="w-0.5 bg-white rounded-full wave-bar-1 animate-pulse" />
-              <span className="w-0.5 bg-white rounded-full wave-bar-2 animate-pulse" />
-              <span className="w-0.5 bg-white rounded-full wave-bar-3 animate-pulse" />
-              <span className="w-0.5 bg-white rounded-full wave-bar-4 animate-pulse" />
-              <span className="w-0.5 bg-white rounded-full wave-bar-5 animate-pulse" />
-            </span>
-            <Mic className="h-4 w-4" />
-            <span>Listening Live (Click to Pause)</span>
-          </button>
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Primary Action: Done Speaking -> Stop Listening & Submit Answer */}
+            {onDoneSpeaking && (
+              <button
+                type="button"
+                onClick={onDoneSpeaking}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold shadow-lg shadow-emerald-600/30 transition-all cursor-pointer ring-2 ring-emerald-400/50 hover:scale-[1.02] active:scale-[0.98]"
+                title="Finished speaking? Click to complete your answer and submit"
+              >
+                <CheckCircle2 className="h-4 w-4 text-emerald-200" />
+                <span>Done Speaking (Submit Answer)</span>
+              </button>
+            )}
+
+            {/* Pause Listening without submitting */}
+            <button
+              type="button"
+              onClick={onStopListening}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl border border-gray-700 bg-gray-900/90 hover:bg-gray-800 text-gray-200 text-xs font-semibold transition cursor-pointer"
+              title="Pause microphone listening to review or edit your answer before submitting"
+            >
+              <span className="flex items-center gap-0.5 h-3">
+                <span className="w-0.5 bg-emerald-400 rounded-full wave-bar-1 animate-pulse" />
+                <span className="w-0.5 bg-emerald-400 rounded-full wave-bar-2 animate-pulse" />
+                <span className="w-0.5 bg-emerald-400 rounded-full wave-bar-3 animate-pulse" />
+                <span className="w-0.5 bg-emerald-400 rounded-full wave-bar-4 animate-pulse" />
+                <span className="w-0.5 bg-emerald-400 rounded-full wave-bar-5 animate-pulse" />
+              </span>
+              <Pause className="h-3.5 w-3.5 text-amber-400" />
+              <span>Pause Mic</span>
+            </button>
+
+            {/* Silence Auto-submit Countdown Indicator */}
+            {typeof silenceCountdown === "number" && silenceCountdown > 0 && (
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs font-medium animate-pulse">
+                <span>Silence detected • Auto-submitting in {silenceCountdown}s...</span>
+                {onCancelSilenceCountdown && (
+                  <button
+                    type="button"
+                    onClick={onCancelSilenceCountdown}
+                    className="underline text-[11px] text-amber-200 hover:text-white cursor-pointer font-semibold"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
         ) : (
           <>
             {/* Primary Live Microphone Action */}
