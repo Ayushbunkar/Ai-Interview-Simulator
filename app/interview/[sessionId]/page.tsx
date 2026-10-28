@@ -37,7 +37,7 @@ import {
   Shuffle,
   Building2,
 } from "lucide-react";
-import { ROUND_NAMES } from "@/lib/interview/engine";
+import { ROUND_NAMES, DEFAULT_ROUND_QUESTION_COUNT } from "@/lib/interview/engine";
 import { RoundNumber, VoiceState } from "@/lib/types";
 import { VoiceSessionController } from "@/lib/voice/voice-session-controller";
 import { VoiceControls } from "@/components/voice/VoiceControls";
@@ -121,6 +121,7 @@ export default function InterviewRoomPage() {
   const [activeConsoleTab, setActiveConsoleTab] = useState<"terminal" | "tests">("terminal");
   const [revealedHints, setRevealedHints] = useState<number[]>([]);
   const [isChangingProblem, setIsChangingProblem] = useState(false);
+  const [isSkippingQuestion, setIsSkippingQuestion] = useState(false);
   const [problemChangeNotice, setProblemChangeNotice] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -648,6 +649,30 @@ export default function InterviewRoomPage() {
     } finally {
       setIsChangingProblem(false);
       setTimeout(() => setProblemChangeNotice(null), 5000);
+    }
+  };
+
+  // Change / Skip Question in Technical, Advanced, or HR Rounds
+  const handleSkipTechnicalQuestion = async () => {
+    if (isSkippingQuestion) return;
+    setIsSkippingQuestion(true);
+    try {
+      const res = await fetch(`/api/interviews/${sessionId}/skip-question`, {
+        method: "POST",
+      });
+      if (!res.ok) throw new Error("Failed to change question.");
+      const data = await res.json();
+      await fetchSession();
+      if (data.newQuestion?.questionText && voiceControllerRef.current?.isVoiceMode()) {
+        voiceControllerRef.current.speakInterviewerMessage(
+          "switched-q-" + Date.now(),
+          data.newQuestion.questionText
+        );
+      }
+    } catch (err: any) {
+      console.error("Change question error:", err);
+    } finally {
+      setIsSkippingQuestion(false);
     }
   };
 
@@ -1420,8 +1445,14 @@ export default function InterviewRoomPage() {
                   Round {session?.currentRound}: {ROUND_NAMES[session?.currentRound || 1]}
                 </span>
                 <span className="rounded-full bg-blue-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-blue-300 border border-blue-500/25">
-                  Question {(session?.currentQuestionIndex || 0) + 1}
+                  Question {(session?.currentQuestionIndex || 0) + 1} of {DEFAULT_ROUND_QUESTION_COUNT[session?.currentRound || 1] || 4}
                 </span>
+                {session?.companyProfile && (
+                  <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary border border-primary/25 flex items-center gap-1">
+                    <Building2 className="h-3 w-3" />
+                    {session.companyProfile}
+                  </span>
+                )}
 
                 {/* Interviewer State Live Badge */}
                 {voiceState === "interviewer_speaking" ? (
@@ -1446,11 +1477,22 @@ export default function InterviewRoomPage() {
                 )}
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={handleSkipTechnicalQuestion}
+                  disabled={isSkippingQuestion}
+                  className="flex items-center gap-1.5 rounded-xl border border-border bg-card/80 hover:bg-muted px-3 py-1.5 text-xs font-semibold text-foreground shadow-sm transition hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-50"
+                  title="Switch to another question for this topic"
+                >
+                  <Shuffle className={`h-3.5 w-3.5 text-primary ${isSkippingQuestion ? "animate-spin" : ""}`} />
+                  <span>{isSkippingQuestion ? "Changing..." : "Change Question"}</span>
+                </button>
+
                 <button
                   type="button"
                   onClick={() => {
-                    const lastQ = [...messages].reverse().find(m => m.sender === "interviewer" && (m.messageType === "question" || m.messageType === "clarification"));
+                    const lastQ = [...messages].reverse().find(m => m.sender === "interviewer" && (m.messageType === "question" || m.messageType === "followup" || m.messageType === "clarification"));
                     if (lastQ) voiceControllerRef.current?.replayCurrentQuestion(lastQ.content);
                   }}
                   className="flex items-center gap-1.5 rounded-xl border border-border bg-card/80 hover:bg-muted px-3 py-1.5 text-xs font-medium text-foreground shadow-sm transition hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
@@ -1478,7 +1520,7 @@ export default function InterviewRoomPage() {
             {/* Question Text */}
             <div className="text-base sm:text-lg font-medium text-foreground leading-relaxed whitespace-pre-wrap py-1">
               {(() => {
-                const qMsg = [...messages].reverse().find(m => m.sender === "interviewer" && m.messageType === "question");
+                const qMsg = [...messages].reverse().find(m => m.sender === "interviewer" && (m.messageType === "question" || m.messageType === "followup"));
                 return qMsg?.content || "Waiting for question from the interviewer...";
               })()}
             </div>

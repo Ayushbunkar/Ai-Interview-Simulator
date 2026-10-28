@@ -64,10 +64,10 @@ export const ROUND_NAMES: Record<RoundNumber, string> = {
 };
 
 export const DEFAULT_ROUND_QUESTION_COUNT: Record<RoundNumber, number> = {
-  1: 8,
-  2: 8,
-  3: 1, // 1 LeetCode-style problem
-  4: 8,
+  1: 4, // 3-4 questions in Technical Fundamentals
+  2: 4, // 3-4 questions in Advanced CS & Projects
+  3: 1, // Coding Interview (with problem switcher)
+  4: 3, // 3-4 questions in Behavioral & HR
 };
 
 export async function createSession(input: CreateInterviewInput) {
@@ -699,10 +699,12 @@ export async function submitCandidateAnswer(params: {
     .limit(1);
 
   let wasAlreadyAskedToElaborate = false;
+  let wasAlreadyAskedFollowUp = false;
   if (lastInterviewerMsg?.metadata) {
     try {
       const meta = typeof lastInterviewerMsg.metadata === "string" ? JSON.parse(lastInterviewerMsg.metadata) : lastInterviewerMsg.metadata;
       wasAlreadyAskedToElaborate = Boolean(meta?.isClarificationProbe);
+      wasAlreadyAskedFollowUp = Boolean(meta?.isFollowUp);
     } catch {}
   }
 
@@ -729,6 +731,83 @@ export async function submitCandidateAnswer(params: {
     return {
       evaluation,
       interviewerReply: probeReply,
+      roundCompleted: false,
+      nextRound: currentRound,
+      isInterviewComplete: false,
+    };
+  }
+
+  // Follow-up questions in Round 1 (Technical Fundamentals) & Round 2 (Advanced CS & Projects):
+  // Probe deeper into candidate's answer with a sharp, realistic technical follow-up!
+  if ((currentRound === 1 || currentRound === 2) && !wasAlreadyAskedFollowUp && !wasAlreadyAskedToElaborate && currentIdx < maxQuestionsInRound - 1) {
+    let followUpText = "";
+
+    // 1. Check if original question had curated follow-ups
+    if (questionId) {
+      try {
+        const [qRecord] = await db.select().from(questions).where(eq(questions.id, questionId));
+        if (qRecord?.followUps) {
+          const parsed = JSON.parse(qRecord.followUps);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            followUpText = parsed[Math.floor(Math.random() * parsed.length)];
+          }
+        }
+      } catch {}
+    }
+
+    // 2. If not found, use AI or structured generator
+    if (!followUpText) {
+      try {
+        const ai = getAIProvider();
+        const followUpRes = await ai.generateFollowUp({
+          currentQuestionText: questionText,
+          candidateAnswer: answerText,
+          evaluation,
+          context: {
+            sessionId,
+            roundNumber: currentRound,
+            roundName: ROUND_NAMES[currentRound],
+            mode: session.mode as InterviewMode,
+            companyProfile: session.companyProfile as CompanyProfile,
+            targetRole: session.targetRole,
+            difficulty: session.difficulty as any,
+            primaryLanguage: session.primaryLanguage || "java",
+            recentConversation: [],
+          },
+        });
+        if (followUpRes?.followUpQuestion) {
+          followUpText = followUpRes.followUpQuestion;
+        }
+      } catch {}
+    }
+
+    // 3. Fallback targeted technical follow-up
+    if (!followUpText) {
+      followUpText = currentRound === 1
+        ? "How would you handle boundary conditions, memory efficiency, or thread-safety when applying this concept?"
+        : "In a production architecture with 10x higher throughput, what latency bottlenecks or failure modes would you anticipate with this design?";
+    }
+
+    const followUpMsg = `${interviewerReply}Thank you. As a follow-up on your response:\n\n**${followUpText}**`;
+
+    await db.insert(conversationMessages).values({
+      id: "msg-" + Math.random().toString(36).substring(2, 10),
+      sessionId,
+      roundNumber: currentRound,
+      sender: "interviewer",
+      messageType: "followup",
+      content: followUpMsg,
+      metadata: JSON.stringify({
+        questionId: questionId || null,
+        questionIndex: currentIdx,
+        isFollowUp: true,
+      }),
+      timestamp: new Date(),
+    });
+
+    return {
+      evaluation,
+      interviewerReply: followUpMsg,
       roundCompleted: false,
       nextRound: currentRound,
       isInterviewComplete: false,
