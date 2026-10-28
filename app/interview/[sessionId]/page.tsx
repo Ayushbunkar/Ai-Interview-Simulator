@@ -34,6 +34,8 @@ import {
   ChevronDown,
   ChevronUp,
   Layers,
+  Shuffle,
+  Building2,
 } from "lucide-react";
 import { ROUND_NAMES } from "@/lib/interview/engine";
 import { RoundNumber, VoiceState } from "@/lib/types";
@@ -118,6 +120,8 @@ export default function InterviewRoomPage() {
   const [activeLeftTab, setActiveLeftTab] = useState<"problem" | "voice" | "hints">("problem");
   const [activeConsoleTab, setActiveConsoleTab] = useState<"terminal" | "tests">("terminal");
   const [revealedHints, setRevealedHints] = useState<number[]>([]);
+  const [isChangingProblem, setIsChangingProblem] = useState(false);
+  const [problemChangeNotice, setProblemChangeNotice] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const voiceControllerRef = useRef<VoiceSessionController | null>(null);
@@ -167,7 +171,14 @@ export default function InterviewRoomPage() {
 
       // If in Round 3, fetch current coding challenge
       if (data.session.currentRound === 3) {
-        loadCodingProblemForSession(data.messages);
+        if (data.activeCodingProblem) {
+          setCodingProblem(data.activeCodingProblem);
+          const lang = data.session.primaryLanguage || "java";
+          setCodingLanguage(lang);
+          setCode(data.activeCodingProblem.starterCode?.[lang] || data.activeCodingProblem.starterCodeJava || "");
+        } else {
+          loadCodingProblemForSession(data.messages);
+        }
       }
     } catch (err: any) {
       setError(err.message || "Failed to load session");
@@ -611,6 +622,35 @@ export default function InterviewRoomPage() {
     }
   };
 
+  // Change / Shuffle Coding Problem
+  const handleChangeProblem = async () => {
+    if (isChangingProblem) return;
+    setIsChangingProblem(true);
+    setProblemChangeNotice(null);
+    try {
+      const res = await fetch(`/api/interviews/${sessionId}/change-problem`, {
+        method: "POST",
+      });
+      if (!res.ok) throw new Error("Failed to change coding problem.");
+      const data = await res.json();
+      if (data.problem) {
+        setCodingProblem(data.problem);
+        const currentLang = codingLanguage || "java";
+        const newCode = data.problem.starterCode?.[currentLang] || data.problem.starterCodeJava || "";
+        setCode(newCode);
+        setRunResult(null);
+        setSubmitResult(null);
+        setProblemChangeNotice(`Switched to: ${data.problem.title} (${session?.companyProfile || "TCS"} format)`);
+        fetchSession();
+      }
+    } catch (err: any) {
+      console.error("Change problem error:", err);
+    } finally {
+      setIsChangingProblem(false);
+      setTimeout(() => setProblemChangeNotice(null), 5000);
+    }
+  };
+
   // Toggle Pause
   const handleTogglePause = async () => {
     const endpoint = isPaused ? "resume" : "pause";
@@ -921,20 +961,46 @@ export default function InterviewRoomPage() {
                 codingProblem ? (
                   <div className="space-y-4">
                     <div className="space-y-2 border-b border-border pb-3">
-                      <div className="flex items-center gap-2">
-                        <h2 className="text-base font-bold text-foreground">{codingProblem.title}</h2>
-                        <span
-                          className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                            codingProblem.difficulty === "easy"
-                              ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                              : codingProblem.difficulty === "medium"
-                              ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                              : "bg-red-500/20 text-red-400 border border-red-500/30"
-                          }`}
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h2 className="text-base font-bold text-foreground">{codingProblem.title}</h2>
+                          <span
+                            className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                              codingProblem.difficulty === "easy"
+                                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                                : codingProblem.difficulty === "medium"
+                                ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                                : "bg-red-500/20 text-red-400 border border-red-500/30"
+                            }`}
+                          >
+                            {codingProblem.difficulty}
+                          </span>
+                          {session?.companyProfile && (
+                            <span className="rounded bg-primary/10 border border-primary/25 px-2 py-0.5 text-[10px] font-semibold text-primary flex items-center gap-1">
+                              <Building2 className="h-3 w-3" />
+                              {session.companyProfile}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Randomize / Change Coding Question Button */}
+                        <button
+                          type="button"
+                          onClick={handleChangeProblem}
+                          disabled={isChangingProblem}
+                          className="flex items-center gap-1.5 px-2.5 py-1 text-[11px] rounded bg-muted/80 hover:bg-muted text-foreground border border-border/80 hover:border-border transition-colors font-medium shadow-sm disabled:opacity-50"
+                          title="Get another random problem tailored for this company profile"
                         >
-                          {codingProblem.difficulty}
-                        </span>
+                          <Shuffle className={`h-3 w-3 text-primary ${isChangingProblem ? "animate-spin" : ""}`} />
+                          <span>{isChangingProblem ? "Selecting..." : "Change Question"}</span>
+                        </button>
                       </div>
+
+                      {problemChangeNotice && (
+                        <div className="p-2 rounded bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-[11px] flex items-center justify-between animate-fadeIn">
+                          <span>{problemChangeNotice}</span>
+                        </div>
+                      )}
                       <div className="flex flex-wrap gap-1">
                         {codingProblem.topicTags?.map((tag: string) => (
                           <span key={tag} className="rounded bg-muted px-2 py-0.5 text-[10px] text-muted-foreground font-mono">

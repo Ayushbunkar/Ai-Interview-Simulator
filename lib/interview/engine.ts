@@ -39,6 +39,7 @@ import { parseResumeStructured } from "../intelligence/resume-parser";
 import { generateInterviewBlueprint, getBlueprintForSession, TECH_INTERVIEW_TREES } from "../intelligence/blueprint-generator";
 import { compileResumeAssessmentDossier } from "../intelligence/resume-report-generator";
 import { STATIC_QUESTIONS } from "../fallback/data-source";
+import { selectRandomCodingProblem } from "./coding-selector";
 
 export interface CreateInterviewInput {
   title?: string;
@@ -189,34 +190,63 @@ export async function createSession(input: CreateInterviewInput) {
   }
 
   // Pick first question for starting round
-  let firstQuestion = await getNextQuestionForRound(sessionId, startingRound, 0, {
-    ...input,
-    resumeProfileId: activeProfileId || undefined,
-  });
+  let firstQuestion: any = null;
+  let welcomeText = "";
+  let messageMetadata: any = {};
 
-  if (!firstQuestion || !firstQuestion.questionText) {
+  if (startingRound === 3) {
+    const prob = await selectRandomCodingProblem({
+      companyProfile: input.companyProfile,
+      difficulty: input.difficulty,
+    });
     firstQuestion = {
-      id: "java-01",
-      category: "java_oop",
-      topic: "Java Fundamentals",
-      difficulty: "easy",
-      companyTags: JSON.stringify(["TCS", "Capgemini", "Service-Based General"]),
-      questionText: "What is the difference between JDK, JRE, and JVM in Java?",
-      expectedAnswer: "JVM executes bytecode; JRE contains JVM and runtime libraries; JDK contains JRE plus development tools.",
-      explanation: "Foundational computer science principles.",
-      followUps: JSON.stringify(["Can you provide a practical example?"]),
-      rubricFocus: "Java Core Knowledge",
+      id: prob.id,
+      category: "dsa_concepts",
+      topic: prob.title,
+      difficulty: prob.difficulty,
+      companyTags: JSON.stringify([input.companyProfile]),
+      questionText: `Your coding challenge is: **${prob.title}** (${prob.difficulty.toUpperCase()}).\n\n${prob.description}\n\nExplain your algorithmic approach aloud and write your code in the editor pane when ready.`,
+      expectedAnswer: `Optimal algorithmic solution for ${prob.title}.`,
+      explanation: prob.description,
+      followUps: JSON.stringify(prob.hints || []),
+      rubricFocus: "Algorithmic Problem Solving",
       createdAt: now,
-    } as any;
-  }
+    };
+    welcomeText = `Welcome to your ${input.companyProfile} Coding Interview for the ${input.targetRole} position.\nMode: ${variant.replace(/_/g, " ").toUpperCase()}.\n\n` +
+      `Your coding challenge is: **${prob.title}** (${prob.difficulty.toUpperCase()}).\n\n` +
+      `${prob.description}\n\n` +
+      `Explain your algorithmic approach aloud and write your code in the editor pane when ready.`;
+    messageMetadata = { problemId: prob.id, problemSlug: prob.slug, questionIndex: 0 };
+  } else {
+    firstQuestion = await getNextQuestionForRound(sessionId, startingRound, 0, {
+      ...input,
+      resumeProfileId: activeProfileId || undefined,
+    });
 
-  // Add welcome and initial question message
-  const welcomeText = `Welcome to your ${input.companyProfile} Technical Interview for the ${input.targetRole} position.
+    if (!firstQuestion || !firstQuestion.questionText) {
+      firstQuestion = {
+        id: "java-01",
+        category: "java_oop",
+        topic: "Java Fundamentals",
+        difficulty: "easy",
+        companyTags: JSON.stringify(["TCS", "Capgemini", "Service-Based General"]),
+        questionText: "What is the difference between JDK, JRE, and JVM in Java?",
+        expectedAnswer: "JVM executes bytecode; JRE contains JVM and runtime libraries; JDK contains JRE plus development tools.",
+        explanation: "Foundational computer science principles.",
+        followUps: JSON.stringify(["Can you provide a practical example?"]),
+        rubricFocus: "Java Core Knowledge",
+        createdAt: now,
+      } as any;
+    }
+
+    welcomeText = `Welcome to your ${input.companyProfile} Technical Interview for the ${input.targetRole} position.
 Mode: ${variant.replace(/_/g, " ").toUpperCase()}.
 I will be conducting your evaluation today. We will begin with Round ${startingRound}: ${ROUND_NAMES[startingRound]}.
 
 Let's begin with your first question:
 ${firstQuestion.questionText}`;
+    messageMetadata = { questionId: firstQuestion.id, questionIndex: 0 };
+  }
 
   await db.insert(conversationMessages).values({
     id: "msg-" + Math.random().toString(36).substring(2, 10),
@@ -225,7 +255,7 @@ ${firstQuestion.questionText}`;
     sender: "interviewer",
     messageType: "question",
     content: welcomeText,
-    metadata: JSON.stringify({ questionId: firstQuestion.id, questionIndex: 0 }),
+    metadata: JSON.stringify(messageMetadata),
     timestamp: now,
   });
 
@@ -256,7 +286,9 @@ export async function getNextQuestionForRound(
        targetTech.toLowerCase().includes("postgres") ? TECH_INTERVIEW_TREES["PostgreSQL"] : null);
 
     if (tree && tree.length > 0) {
-      const qText = tree[Math.floor(questionIndex / techCount) % tree.length] || tree[0];
+      const randomOffset = Math.floor(Math.random() * tree.length);
+      const qIndex = (questionIndex + randomOffset) % tree.length;
+      const qText = tree[qIndex] || tree[0];
       return {
         id: `resume-bp-r1-${targetTech.toLowerCase().replace(/[^a-z0-9]/g, "")}-${questionIndex}`,
         category: "frontend",
@@ -420,8 +452,39 @@ export async function getNextQuestionForRound(
     filtered = allEligible.filter(q => categories.includes(q.category));
   }
 
-  // Return best matching question
-  const selected = filtered[questionIndex % Math.max(1, filtered.length)] || allEligible[0];
+  // Filter by target company profile (TCS, Capgemini, Service-Based, Product-Based, etc.)
+  const targetCompany = sessionInput?.companyProfile;
+  if (targetCompany && filtered.length > 0) {
+    const companyMatches = filtered.filter(q => {
+      try {
+        const tags = typeof q.companyTags === "string" ? JSON.parse(q.companyTags) : q.companyTags;
+        if (!Array.isArray(tags)) return false;
+        if (targetCompany === "TCS") {
+          return tags.includes("TCS") || tags.includes("Service-Based General");
+        }
+        if (targetCompany === "Capgemini") {
+          return tags.includes("Capgemini") || tags.includes("Service-Based General");
+        }
+        if (targetCompany === "Service-Based General") {
+          return tags.includes("TCS") || tags.includes("Capgemini") || tags.includes("Service-Based General");
+        }
+        if (targetCompany === "Product-Based Engineering") {
+          return tags.includes("Product-Based Engineering") || tags.includes("Java / Backend Specialist");
+        }
+        return tags.includes(targetCompany);
+      } catch {
+        return false;
+      }
+    });
+
+    if (companyMatches.length > 0) {
+      filtered = companyMatches;
+    }
+  }
+
+  // Return a randomized matching question so every session gets unique, varied questions
+  const randomIndex = Math.floor(Math.random() * filtered.length);
+  const selected = filtered[randomIndex] || allEligible[0];
   return selected;
 }
 
@@ -714,8 +777,11 @@ export async function submitCandidateAnswer(params: {
         );
 
       if (nextRound === 3) {
-        // Coding Round presentation
-        const [problem] = await db.select().from(codingProblems).limit(1);
+        // Coding Round presentation - Company-specific & randomized
+        const problem = await selectRandomCodingProblem({
+          companyProfile: session.companyProfile,
+          difficulty: session.difficulty,
+        });
         interviewerReply += `Great effort in Round ${currentRound}! We are now transitioning to Round 3: Coding Interview.\n\n` +
           `Your coding challenge is: **${problem.title}** (${problem.difficulty.toUpperCase()}).\n\n` +
           `${problem.description}\n\n` +
@@ -980,7 +1046,10 @@ export async function advanceToNextRound(sessionId: string, targetRoundNumber?: 
 
   let interviewerReply = "";
   if (nextRound === 3) {
-    const [problem] = await db.select().from(codingProblems).limit(1);
+    const problem = await selectRandomCodingProblem({
+      companyProfile: session.companyProfile,
+      difficulty: session.difficulty,
+    });
     interviewerReply = `We are now transitioning to Round 3: Coding Interview.\n\n` +
       `Your coding challenge is: **${problem.title}** (${problem.difficulty.toUpperCase()}).\n\n` +
       `${problem.description}\n\n` +

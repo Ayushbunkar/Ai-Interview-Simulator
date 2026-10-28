@@ -11,6 +11,7 @@ import {
   codingStepsLog,
 } from "@/lib/db/schema";
 import { eq, asc } from "drizzle-orm";
+import { selectRandomCodingProblem, formatProblemRecord } from "@/lib/interview/coding-selector";
 
 export const dynamic = "force-dynamic";
 
@@ -54,27 +55,43 @@ export async function GET(
       .from(interviewReports)
       .where(eq(interviewReports.sessionId, sessionId));
 
-    // Default coding problem if in Round 3
+    // Active coding problem if in Round 3
     let activeCodingProblem = null;
     if (session.currentRound === 3) {
-      const [problem] = await db.select().from(codingProblems).limit(1);
-      if (problem) {
-        activeCodingProblem = {
-          id: problem.id,
-          title: problem.title,
-          slug: problem.slug,
-          difficulty: problem.difficulty,
-          topicTags: JSON.parse(problem.topicTags || "[]"),
-          description: problem.description,
-          inputFormat: problem.inputFormat,
-          outputFormat: problem.outputFormat,
-          constraints: JSON.parse(problem.constraints || "[]"),
-          examples: JSON.parse(problem.examples || "[]"),
-          hints: JSON.parse(problem.hints || "[]"),
-          starterCodeJava: problem.starterCodeJava,
-          starterCodePython: problem.starterCodePython,
-          starterCodeCpp: problem.starterCodeCpp,
-        };
+      // Find assigned problem in conversation messages
+      const round3Msg = [...messages].reverse().find(
+        m => m.roundNumber === 3 && m.sender === "interviewer" && m.metadata
+      );
+
+      let targetSlug = "";
+      let targetId = "";
+      if (round3Msg?.metadata) {
+        try {
+          const meta = typeof round3Msg.metadata === "string" ? JSON.parse(round3Msg.metadata) : round3Msg.metadata;
+          if (meta.problemSlug) targetSlug = meta.problemSlug;
+          if (meta.problemId) targetId = meta.problemId;
+        } catch {
+          // ignore
+        }
+      }
+
+      let problem: any = null;
+      if (targetSlug) {
+        const [found] = await db.select().from(codingProblems).where(eq(codingProblems.slug, targetSlug));
+        problem = found;
+      } else if (targetId) {
+        const [found] = await db.select().from(codingProblems).where(eq(codingProblems.id, targetId));
+        problem = found;
+      }
+
+      // If not yet set, pick random problem tailored for this company & difficulty
+      if (!problem) {
+        activeCodingProblem = await selectRandomCodingProblem({
+          companyProfile: session.companyProfile,
+          difficulty: session.difficulty,
+        });
+      } else {
+        activeCodingProblem = formatProblemRecord(problem);
       }
     }
 
