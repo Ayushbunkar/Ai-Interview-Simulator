@@ -160,6 +160,10 @@ function InterviewSetupContent() {
       });
 
       const data = await res.json();
+      if (data.rawResumeText) {
+        setResumeText(data.rawResumeText);
+      }
+
       if (!res.ok) {
         throw new Error(data.error || "Failed to parse resume document");
       }
@@ -172,9 +176,6 @@ function InterviewSetupContent() {
       });
       setExtractedProfile(data.profile);
       setAtsAnalysis(data.atsAnalysis);
-      if (data.rawResumeText) {
-        setResumeText(data.rawResumeText);
-      }
       setResumeSuccessMessage(`Extracted from "${file.name}" — ATS Score: ${data.atsAnalysis?.overallScore ?? "Ready"}/100`);
 
       setTimeout(() => {
@@ -679,12 +680,12 @@ function InterviewSetupContent() {
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* PDF or DOCX or Text file upload */}
+              {/* PDF, Images (JPG, PNG, WEBP), DOCX, or TXT file upload */}
               <div className="rounded-lg border border-dashed border-gray-800 bg-gray-950/60 p-4 text-center flex flex-col justify-between">
                 <div>
                   <Upload className="mx-auto h-5 w-5 text-gray-500 mb-1.5" />
-                  <p className="text-xs font-medium text-gray-300 mb-1">Upload Resume (PDF, DOCX, or TXT)</p>
-                  <p className="text-[10px] text-gray-500 mb-3">Auto-extracts text, skills, projects, and calculates ATS score.</p>
+                  <p className="text-xs font-medium text-gray-300 mb-1">Upload Resume (PDF, JPG, PNG, DOCX, TXT)</p>
+                  <p className="text-[10px] text-gray-500 mb-3">Auto-extracts text (OCR enabled for scans & images), fills editor & analyzes ATS.</p>
                   
                   {selectedFile && (
                     <div className="mb-3 inline-flex items-center gap-1.5 rounded-md border border-purple-500/30 bg-purple-950/50 px-2.5 py-1 text-[11px] text-purple-300">
@@ -697,7 +698,7 @@ function InterviewSetupContent() {
                   <input
                     ref={fileInputRef}
                     type="file"
-                    accept=".pdf,.docx,.txt"
+                    accept=".pdf,.docx,.txt,.jpg,.jpeg,.png,.webp,image/*"
                     onChange={handleFileUpload}
                     disabled={parsingResume}
                     className="text-[11px] text-gray-400 file:mr-2 file:py-1 file:px-2.5 file:rounded-md file:border-0 file:text-[11px] file:font-medium file:bg-purple-600/30 file:text-purple-300 hover:file:bg-purple-600/50 cursor-pointer block mx-auto"
@@ -712,13 +713,23 @@ function InterviewSetupContent() {
                 )}
               </div>
 
-              {/* Pasted text option */}
+              {/* Extracted or Pasted resume text */}
               <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-semibold text-gray-300">
+                    Resume Content (Extracted from file or pasted)
+                  </span>
+                  {resumeText && (
+                    <span className="text-[10px] text-emerald-400 font-medium">
+                      ✓ Text Loaded
+                    </span>
+                  )}
+                </div>
                 <textarea
                   rows={4}
                   value={resumeText}
                   onChange={e => setResumeText(e.target.value)}
-                  placeholder="Or paste resume summary / key project descriptions here (e.g. 'Built an e-commerce backend using Spring Boot, PostgreSQL, and Redis caching. Handled 1000 orders/min with optimistic locking.')..."
+                  placeholder="Extracted text from your uploaded resume will appear here automatically. You can also paste your resume summary or project bullets..."
                   className="w-full rounded-lg border border-gray-800 bg-gray-950 p-2.5 text-xs text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none"
                 />
                 <div className="flex items-center justify-between">

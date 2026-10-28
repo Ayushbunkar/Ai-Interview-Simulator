@@ -48,16 +48,56 @@ export interface ResumeParseResult {
 /**
  * Extracts plain text from Buffer according to file type, with robust scanned PDF detection.
  */
+/**
+ * Extracts raw textual representation from uploaded document buffer with OCR fallback
+ * for scanned PDFs, images (JPG, PNG, WEBP), and Word documents.
+ */
+async function runTesseractOcr(buffer: Buffer): Promise<string> {
+  if (!buffer || buffer.length < 8) return "";
+
+  // Check magic numbers for supported image formats
+  const isPng = buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47;
+  const isJpg = buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff;
+  const isBmp = buffer[0] === 0x42 && buffer[1] === 0x4d;
+  const isWebp = buffer.slice(8, 12).toString("ascii") === "WEBP";
+  const isTiff = (buffer[0] === 0x49 && buffer[1] === 0x49) || (buffer[0] === 0x4d && buffer[1] === 0x4d);
+
+  if (!isPng && !isJpg && !isBmp && !isWebp && !isTiff) {
+    return "";
+  }
+
+  try {
+    const tesseractModule = (await import("tesseract.js")) as any;
+    const Tesseract = tesseractModule.default || tesseractModule;
+    if (typeof Tesseract.recognize === "function") {
+      const ocrPromise = Tesseract.recognize(buffer, "eng").catch((e: any) => {
+        console.warn("Tesseract worker error:", e?.message);
+        return null;
+      });
+      const timeoutPromise = new Promise<{ data: { text: string } } | null>((resolve) =>
+        setTimeout(() => resolve(null), 20000)
+      );
+      const res = await Promise.race([ocrPromise, timeoutPromise]);
+      if (res && res.data && typeof res.data.text === "string") {
+        return res.data.text.trim();
+      }
+    }
+  } catch (ocrErr) {
+    console.warn("Tesseract OCR fallback warning:", ocrErr);
+  }
+  return "";
+}
+
 export async function extractTextFromDocument(params: {
   buffer: Buffer;
   fileName: string;
   mimeType?: string;
 }): Promise<{ text: string; isScannedPdf: boolean }> {
-  const { buffer, fileName } = params;
+  const { buffer, fileName, mimeType } = params;
   const lowerName = fileName.toLowerCase();
 
   // 1. DOCX files
-  if (lowerName.endsWith(".docx")) {
+  if (lowerName.endsWith(".docx") || mimeType === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
     try {
       const mammoth = (await import("mammoth")) as any;
       const result = await mammoth.extractRawText({ buffer });
@@ -68,8 +108,22 @@ export async function extractTextFromDocument(params: {
     }
   }
 
-  // 2. PDF files
-  if (lowerName.endsWith(".pdf") || params.mimeType === "application/pdf") {
+  // 2. Images (JPG, JPEG, PNG, WEBP, BMP, etc.)
+  const isImageFile =
+    mimeType?.startsWith("image/") ||
+    /\.(jpg|jpeg|png|webp|bmp|tiff|tif)$/i.test(lowerName);
+
+  if (isImageFile) {
+    const ocrText = await runTesseractOcr(buffer);
+    const cleanChars = ocrText.replace(/[^a-zA-Z0-9]/g, "");
+    return {
+      text: ocrText,
+      isScannedPdf: cleanChars.length < 15,
+    };
+  }
+
+  // 3. PDF files (Digital or Scanned)
+  if (lowerName.endsWith(".pdf") || mimeType === "application/pdf") {
     try {
       let extractedText = "";
 
@@ -118,18 +172,60 @@ export async function extractTextFromDocument(params: {
         }
       }
 
-      // If text content genuinely has almost no readable characters, it is a scanned image
-      if (cleanChars.length < 25) {
-        return { text: "", isScannedPdf: true };
+      // 4. OCR fallback for Scanned/Raster PDFs (extract embedded images & recognize)
+      let ocrExtracted = "";
+      try {
+        const pdfParseModule = (await import("pdf-parse")) as any;
+        if (pdfParseModule.PDFParse) {
+          const imgParser = new pdfParseModule.PDFParse({ data: buffer });
+          if (typeof imgParser.getImage === "function") {
+            const imgRes = await imgParser.getImage({ imageBuffer: true });
+            if (imgRes && Array.isArray(imgRes.pages)) {
+              for (const page of imgRes.pages) {
+                if (Array.isArray(page.images)) {
+                  for (const img of page.images) {
+                    if (img.data && img.data.length > 500) {
+                      const t = await runTesseractOcr(Buffer.from(img.data));
+                      if (t) {
+                        ocrExtracted += "\n" + t;
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+          if (typeof imgParser.destroy === "function") {
+            await imgParser.destroy();
+          }
+        }
+      } catch (imgErr) {
+        console.warn("PDF image extraction for OCR warning:", imgErr);
       }
 
-      return { text: extractedText, isScannedPdf: false };
+      // Try OCR on buffer if embedded image extraction did not produce enough text
+      if (ocrExtracted.replace(/[^a-zA-Z0-9]/g, "").length < 20) {
+        const directOcr = await runTesseractOcr(buffer);
+        if (directOcr) {
+          ocrExtracted += "\n" + directOcr;
+        }
+      }
+
+      const totalCandidate = (extractedText + "\n" + ocrExtracted).trim();
+      const totalCleanChars = totalCandidate.replace(/[^a-zA-Z0-9]/g, "");
+
+      if (totalCleanChars.length >= 15) {
+        return { text: totalCandidate, isScannedPdf: false };
+      }
+
+      return { text: "", isScannedPdf: true };
     } catch (err: any) {
+      console.warn("PDF extraction error:", err);
       return { text: "", isScannedPdf: true };
     }
   }
 
-  // 3. Plain text or markdown
+  // 5. Plain text or markdown
   return { text: buffer.toString("utf-8").trim(), isScannedPdf: false };
 }
 

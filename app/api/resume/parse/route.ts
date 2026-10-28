@@ -33,18 +33,20 @@ export async function POST(req: NextRequest) {
           mimeType: file.type,
         });
 
-        if (extracted.isScannedPdf) {
+        rawResumeText = extracted.text || "";
+
+        // Only report error if extraction and OCR produced virtually no readable text
+        if (!rawResumeText || rawResumeText.trim().length < 10) {
           return NextResponse.json(
             {
               error:
-                "The uploaded document appears to be a scanned image or empty file without selectable text. Please upload a digital PDF, a DOCX file, or paste your resume text.",
+                "Could not extract readable text from the uploaded document or image. Please paste your resume text in the adjacent box or upload a clearer file.",
               isScannedPdf: true,
+              rawResumeText: rawResumeText || "",
             },
             { status: 400 }
           );
         }
-
-        rawResumeText = extracted.text;
       } else {
         rawResumeText = (formData.get("rawResumeText") as string) || "";
       }
@@ -57,11 +59,12 @@ export async function POST(req: NextRequest) {
       candidateName = body.candidateName || candidateName;
     }
 
-    if (!rawResumeText || rawResumeText.trim().length < 15) {
+    if (!rawResumeText || rawResumeText.trim().length < 10) {
       return NextResponse.json(
         {
           error:
-            "Resume content contains insufficient text. Please upload a valid document or paste your resume summary.",
+            "Resume content contains insufficient text. Please upload a valid document or paste your resume summary in the box.",
+          rawResumeText: rawResumeText || "",
         },
         { status: 400 }
       );
