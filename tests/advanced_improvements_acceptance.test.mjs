@@ -11,7 +11,7 @@ import { LocalDevAIProvider } from "../lib/ai/local-dev-provider.ts";
 
 describe("Advanced Improvements — InterviewForge AI Master Acceptance Suite", () => {
 
-  // 1. Resume + Job Description Overlap Prioritization
+  // 1. Resume  dfd+ Job Description Overlap Prioritization
   test("1. Job Description overlap skills receive top priority in interview blueprint", async () => {
     const resume = `
 Alex Rivera
