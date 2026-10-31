@@ -16,6 +16,7 @@ import {
   Cpu,
   Terminal,
   Mic,
+  CalendarCheck2,
 } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 
@@ -37,9 +38,10 @@ export function Navbar() {
   const navItems = [
     { label: "Dashboard", href: "/", icon: LayoutDashboard },
     { label: "Start Interview", href: "/interview/new", icon: PlayCircle },
+    { label: "Interview Ready", href: "/interview-ready", icon: CalendarCheck2 },
+    { label: "Speech Drill (700)", href: "/speech-drill", icon: Mic },
     { label: "Coding Arena", href: "/coding", icon: Code2 },
     { label: "Question Bank", href: "/questions", icon: BookOpen },
-    { label: "Speech Drill (700)", href: "/speech-drill", icon: Mic },
     { label: "Reports", href: "/reports", icon: FileText },
     { label: "Settings", href: "/settings", icon: SettingsIcon },
   ];

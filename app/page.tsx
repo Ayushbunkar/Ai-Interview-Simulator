@@ -21,6 +21,7 @@ import {
   BarChart3,
   Layers,
   Mic,
+  CalendarCheck2,
 } from "lucide-react";
 
 interface AnalyticsData {
@@ -92,6 +93,14 @@ export default function DashboardPage() {
             >
               <Code className="h-4 w-4 text-emerald-400" />
               <span>Coding Practice Arena</span>
+            </Link>
+
+            <Link
+              href="/interview-ready"
+              className="inline-flex items-center gap-2 rounded-xl border border-amber-500/40 bg-gradient-to-r from-amber-950/70 via-orange-950/70 to-yellow-950/70 px-4 py-3 text-sm font-bold text-amber-300 hover:text-white hover:border-amber-400 transition shadow-lg shadow-amber-950/40 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <CalendarCheck2 className="h-4 w-4 text-amber-400" />
+              <span>Interview Ready (30-Day Master Roadmap)</span>
             </Link>
 
             <Link
@@ -169,6 +178,34 @@ export default function DashboardPage() {
           <p className="mt-1 text-[11px] text-slate-400">
             {data?.totalSubmissions ? "Passing all test cases" : "Real execution tests"}
           </p>
+        </div>
+      </div>
+
+      {/* 30-Day Interview Ready Master Roadmap Banner */}
+      <div className="relative overflow-hidden rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-950/40 via-orange-950/30 to-slate-900/90 p-6 sm:p-7 shadow-xl">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2 max-w-2xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-0.5 text-xs font-semibold text-amber-400">
+              <CalendarCheck2 className="h-3.5 w-3.5" />
+              <span>Full 30-Day Technical Curriculum • November 1 to 30</span>
+            </div>
+            <h2 className="text-xl sm:text-2xl font-extrabold text-white">
+              Interview Ready: The Day-by-Day Master Roadmap
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+              Tick your daily progress across 9 Phases (Java/OOP, DBMS/SQL, OS, Networks, APIs, Linux/Git, LLD, HLD, Projects).
+              Complete with model answers, under-the-hood interviewer logic, architectural diagrams, and practical coding tasks.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+            <Link
+              href="/interview-ready"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 px-5 py-3 text-xs sm:text-sm font-bold text-slate-950 shadow-md shadow-amber-500/20 hover:from-amber-400 hover:to-orange-400 transition hover:scale-[1.02]"
+            >
+              <span>Open 30-Day Curriculum</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
         </div>
       </div>
 
