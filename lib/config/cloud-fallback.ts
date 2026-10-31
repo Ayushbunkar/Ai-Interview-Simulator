@@ -29,7 +29,20 @@ export const CLOUD_DEFAULTS = {
   DATABASE_URL: decodeFallback(
     "cG9zdGdyZXNxbDovL25lb25kYl9vd25lcjpucGdfdFRMZ1gyN21RcHlKQGVwLXJlZC1jbG91ZC1iNWwxNmlvMy1wb29sZXIuYy03LnVzLWVhc3QtMi5hd3MubmVvbi50ZWNoL25lb25kYj9zc2xtb2RlPXJlcXVpcmU="
   ),
+  ASSEMBLYAI_KEY_1: "e7560797a28c4dfa8779fad911ac05b9",
+  ASSEMBLYAI_KEY_2: "b1f3167ba9a2430cbc43c973f5735028",
 };
+
+export function getAssemblyAIKeys(): string[] {
+  const keys = [
+    process.env.ASSEMBLYAI_KEY_1,
+    process.env.ASSEMBLYAI_API_KEY,
+    CLOUD_DEFAULTS.ASSEMBLYAI_KEY_1,
+    process.env.ASSEMBLYAI_KEY_2,
+    CLOUD_DEFAULTS.ASSEMBLYAI_KEY_2,
+  ].filter(Boolean) as string[];
+  return Array.from(new Set(keys));
+}
 
 export function getActiveOnlineCompilerKey(): string {
   return process.env.ONLINECOMPILER_API_KEY || CLOUD_DEFAULTS.ONLINECOMPILER_KEY;
