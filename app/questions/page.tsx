@@ -13,6 +13,7 @@ import {
   ArrowRight,
   Building2,
   Check,
+  Mic,
 } from "lucide-react";
 
 interface QuestionItem {
@@ -122,7 +123,34 @@ export default function QuestionBankPage() {
         </Link>
       </div>
 
-      {/* Filter & Search Bar */}
+      {/* 700 Questions Speech Drill Callout Banner */}
+      <div className="rounded-xl border border-cyan-500/30 bg-gradient-to-r from-cyan-950/40 via-blue-950/30 to-indigo-950/40 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg shadow-cyan-500/5">
+        <div className="flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-white shadow-md shadow-cyan-500/20">
+            <Mic className="h-5 w-5" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-white tracking-tight">
+                New: 700 Fresher SDE Speech & Articulation Drill Room
+              </span>
+              <span className="rounded-full bg-cyan-500/20 px-2 py-0.5 text-[10px] font-bold text-cyan-300 border border-cyan-500/30">
+                14 Topics • 50 Qs Each
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Practice speaking answers out loud. Evaluates English pronunciation, articulation, WPM pace, and filler words with real model answers.
+            </p>
+          </div>
+        </div>
+        <Link
+          href="/speech-drill"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-xs font-semibold text-white shadow-md shadow-cyan-600/20 transition-all shrink-0 self-start sm:self-auto active:scale-95"
+        >
+          <span>Open Speech Drill</span>
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
+      </div>
       <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-4 space-y-3">
         <div className="relative">
           <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-500" />

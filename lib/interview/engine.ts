@@ -1,4 +1,4 @@
-import { db, ensureDbInitialized } from "../db";
+import { db, ensureDbInitialized } from "../db/index";
 import {
   interviewSessions,
   interviewRounds,
@@ -13,7 +13,7 @@ import {
   interviewBlueprints,
 } from "../db/schema";
 import { eq, and, sql, desc } from "drizzle-orm";
-import { getAIProvider, isLiveAIConfigured } from "../ai";
+import { getAIProvider, isLiveAIConfigured } from "../ai/index";
 import {
   CompanyProfile,
   InterviewMode,

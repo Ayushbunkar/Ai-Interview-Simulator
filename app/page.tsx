@@ -20,6 +20,7 @@ import {
   Sparkles,
   BarChart3,
   Layers,
+  Mic,
 } from "lucide-react";
 
 interface AnalyticsData {
@@ -91,6 +92,14 @@ export default function DashboardPage() {
             >
               <Code className="h-4 w-4 text-emerald-400" />
               <span>Coding Practice Arena</span>
+            </Link>
+
+            <Link
+              href="/speech-drill"
+              className="inline-flex items-center gap-2 rounded-xl border border-cyan-500/30 bg-gradient-to-r from-cyan-950/60 to-blue-950/60 px-4 py-3 text-sm font-semibold text-cyan-300 hover:text-white hover:border-cyan-500/60 transition shadow-sm hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <Mic className="h-4 w-4 text-cyan-400" />
+              <span>700 SDE Speech Drill Room</span>
             </Link>
 
             <Link

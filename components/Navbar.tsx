@@ -15,6 +15,7 @@ import {
   Moon,
   Cpu,
   Terminal,
+  Mic,
 } from "lucide-react";
 import { useTheme } from "./ThemeProvider";
 
@@ -38,6 +39,7 @@ export function Navbar() {
     { label: "Start Interview", href: "/interview/new", icon: PlayCircle },
     { label: "Coding Arena", href: "/coding", icon: Code2 },
     { label: "Question Bank", href: "/questions", icon: BookOpen },
+    { label: "Speech Drill (700)", href: "/speech-drill", icon: Mic },
     { label: "Reports", href: "/reports", icon: FileText },
     { label: "Settings", href: "/settings", icon: SettingsIcon },
   ];
