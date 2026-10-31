@@ -108,7 +108,7 @@ export default function DashboardPage() {
               className="inline-flex items-center gap-2 rounded-xl border border-cyan-500/30 bg-gradient-to-r from-cyan-950/60 to-blue-950/60 px-4 py-3 text-sm font-semibold text-cyan-300 hover:text-white hover:border-cyan-500/60 transition shadow-sm hover:scale-[1.02] active:scale-[0.98]"
             >
               <Mic className="h-4 w-4 text-cyan-400" />
-              <span>700 SDE Speech Drill Room</span>
+              <span>800 SDE & AI/ML Speech Drill Room</span>
             </Link>
 
             <Link
@@ -181,19 +181,19 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* 30-Day Interview Ready Master Roadmap Banner */}
+      {/* 34-Day Interview Ready Master Roadmap Banner */}
       <div className="relative overflow-hidden rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-950/40 via-orange-950/30 to-slate-900/90 p-6 sm:p-7 shadow-xl">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
             <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-0.5 text-xs font-semibold text-amber-400">
               <CalendarCheck2 className="h-3.5 w-3.5" />
-              <span>Full 30-Day Technical Curriculum • November 1 to 30</span>
+              <span>Full 34-Day Technical Curriculum • 10 Phases (Includes AI/ML)</span>
             </div>
             <h2 className="text-xl sm:text-2xl font-extrabold text-white">
               Interview Ready: The Day-by-Day Master Roadmap
             </h2>
             <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-              Tick your daily progress across 9 Phases (Java/OOP, DBMS/SQL, OS, Networks, APIs, Linux/Git, LLD, HLD, Projects).
+              Tick your daily progress across 10 Phases (Java/OOP, DBMS/SQL, OS, Networks, APIs, Linux/Git, LLD, HLD, Projects, and AI/ML Engineering).
               Complete with model answers, under-the-hood interviewer logic, architectural diagrams, and practical coding tasks.
             </p>
           </div>
@@ -202,7 +202,7 @@ export default function DashboardPage() {
               href="/interview-ready"
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 px-5 py-3 text-xs sm:text-sm font-bold text-slate-950 shadow-md shadow-amber-500/20 hover:from-amber-400 hover:to-orange-400 transition hover:scale-[1.02]"
             >
-              <span>Open 30-Day Curriculum</span>
+              <span>Open Master Curriculum</span>
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>

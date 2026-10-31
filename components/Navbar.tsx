@@ -39,7 +39,7 @@ export function Navbar() {
     { label: "Dashboard", href: "/", icon: LayoutDashboard },
     { label: "Start Interview", href: "/interview/new", icon: PlayCircle },
     { label: "Interview Ready", href: "/interview-ready", icon: CalendarCheck2 },
-    { label: "Speech Drill (700)", href: "/speech-drill", icon: Mic },
+    { label: "Speech Drill (800)", href: "/speech-drill", icon: Mic },
     { label: "Coding Arena", href: "/coding", icon: Code2 },
     { label: "Question Bank", href: "/questions", icon: BookOpen },
     { label: "Reports", href: "/reports", icon: FileText },

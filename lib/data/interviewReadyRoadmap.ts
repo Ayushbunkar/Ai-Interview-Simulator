@@ -148,6 +148,17 @@ export const ROADMAP_PHASES: RoadmapPhase[] = [
     dayStart: 30,
     dayEnd: 30,
   },
+  {
+    phaseId: 10,
+    name: "AI & ML ENGINEERING",
+    dateRange: "December 1–4",
+    daysCount: 4,
+    priority: "S",
+    priorityLabel: "S-Tier (Modern High-Growth / GenAI)",
+    summary: "ML foundations, Deep Learning & CNNs, Transformers & Attention, RAG Systems, AI Agents & MLOps.",
+    dayStart: 31,
+    dayEnd: 34,
+  },
 ];
 
 export const DAILY_CHECKLIST_ITEMS = [
@@ -176,6 +187,10 @@ export const DECEMBER_GOALS = [
   { id: "g14", title: "Basic HLD architecture & 3 system design problems (Bitly, Chat, Notify)", phase: "HLD" },
   { id: "g15", title: "Project deep-dive architecture & complete resume defense", phase: "Projects & Resume" },
   { id: "g16", title: "One complete 60-minute technical mock interview", phase: "Mock Interview" },
+  { id: "g17", title: "ML foundations, Bias-Variance, Loss functions & Tree Ensembles", phase: "AI & ML Engineering" },
+  { id: "g18", title: "Deep learning backpropagation, Activations & ResNet Skip Connections", phase: "AI & ML Engineering" },
+  { id: "g19", title: "Transformers, Self-Attention QKV, RoPE & LoRA Fine-Tuning", phase: "AI & ML Engineering" },
+  { id: "g20", title: "Production RAG, Hybrid search, vLLM PagedAttention & AI Agents", phase: "AI & ML Engineering" },
 ];
 
 export const ROADMAP_DAYS: RoadmapDay[] = roadmapDaysData as RoadmapDay[];

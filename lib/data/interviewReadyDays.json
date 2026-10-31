@@ -4787,5 +4787,411 @@
         }
       ]
     }
+  },
+  {
+    "dayNumber": 31,
+    "date": "December 1",
+    "phaseId": 10,
+    "phaseName": "AI & MACHINE LEARNING ENGINEERING",
+    "title": "ML Fundamentals, Loss Functions & Tree Ensembles",
+    "description": "Master the mathematical foundations of machine learning: bias-variance tradeoff, regularization (L1/L2), gradient descent algorithms (SGD, AdamW), decision trees, random forests, and gradient boosting (XGBoost/LightGBM).",
+    "studyTopics": [
+      "Supervised vs Unsupervised vs Reinforcement Learning",
+      "Bias-Variance Decomposition & Mathematical Proof",
+      "L1 (Lasso) vs L2 (Ridge) Regularization geometry",
+      "Gradient Descent Variants & AdamW decoupled weight decay",
+      "Evaluation Metrics: PR-AUC vs ROC-AUC & Confusion Matrix",
+      "Tree Splitting: Gini Impurity vs Information Gain (Entropy)",
+      "Ensemble Paradigms: Bagging vs Boosting vs Stacking",
+      "XGBoost second-order Taylor expansion & LightGBM GOSS"
+    ],
+    "questions": [
+      {
+        "id": "day31_q1",
+        "qNum": 1,
+        "question": "Explain the Bias-Variance Tradeoff mathematically. How does model complexity influence both terms?",
+        "answer": "Expected test MSE decomposes into: Bias^2 + Variance + Irreducible Error. Bias represents error from overly simplistic assumptions (underfitting); Variance represents sensitivity to fluctuations in the training set (overfitting). As model complexity increases, bias decreases monotonically while variance increases exponentially. The optimal model capacity minimizes total test error at the valley of the U-curve.",
+        "logic": "Interviewers test whether you understand the fundamental theoretical tradeoff between underfitting and overfitting, and whether you can write the additive error decomposition.",
+        "codeSnippet": "# Bias-Variance Tradeoff in Scikit-Learn\nfrom sklearn.linear_model import Ridge, Lasso\nfrom sklearn.metrics import mean_squared_error\n\n# L2 Ridge: Controls variance without zeroing features\nridge = Ridge(alpha=1.0)\n# L1 Lasso: Produces sparse weights for feature selection\nlasso = Lasso(alpha=0.1)"
+      },
+      {
+        "id": "day31_q2",
+        "qNum": 2,
+        "question": "Why does L1 regularization produce sparse weights while L2 only shrinks them?",
+        "answer": "L1 adds a penalty proportional to absolute weights |w|, creating a diamond-shaped constraint region in parameter space with sharp corners on the coordinate axes. The elliptical contours of the loss function intersect these sharp corners where one or more weights are exactly zero. L2 adds a quadratic penalty w^2, forming a spherical constraint without sharp vertices, shrinking weights towards zero without making them exactly zero.",
+        "logic": "Tests geometric and mathematical understanding of regularization constraints and feature selection.",
+        "codeSnippet": "# Visualizing L1 vs L2 regularization shrinkage\nimport numpy as np\n# L1 soft thresholding: w = sign(w) * max(0, |w| - lambda)\n# L2 weight decay: w = w / (1 + 2 * lambda)"
+      },
+      {
+        "id": "day31_q3",
+        "qNum": 3,
+        "question": "How does the Adam optimizer combine Momentum and RMSprop, and why is AdamW required for weight decay?",
+        "answer": "Adam maintains an exponential moving average of past gradients (first moment m_t for momentum) and squared gradients (second moment v_t for adaptive learning rates). In standard Adam, L2 weight decay was added to the gradient, which meant weights with large historical gradients received less regularization due to division by sqrt(v_t). AdamW decouples weight decay, applying it directly to the weight update step independent of gradient moments.",
+        "logic": "Crucial modern deep learning question asked by top tech and AI research labs.",
+        "codeSnippet": "# AdamW update rule in PyTorch\n# w = w - lr * weight_decay * w - lr * (m_hat / (sqrt(v_hat) + eps))\nimport torch.optim as optim\noptimizer = optim.AdamW(model.parameters(), lr=1e-4, weight_decay=0.01)"
+      },
+      {
+        "id": "day31_q4",
+        "qNum": 4,
+        "question": "When should you prefer PR-AUC over ROC-AUC for evaluating classification models?",
+        "answer": "ROC-AUC plots TPR vs FPR. Because FPR includes True Negatives (TN) in its denominator (FP / (FP + TN)), when negative samples overwhelmingly dominate (e.g., 99.9% negative in fraud or cancer diagnosis), huge spikes in false positives only result in a tiny change in FPR, artificially inflating the ROC-AUC score. PR-AUC excludes TN entirely, focusing strictly on Precision and Recall, providing an uncorrupted assessment of performance on imbalanced data.",
+        "logic": "Interviewer looks for practical engineering maturity in selecting metric evaluation criteria for production systems.",
+        "codeSnippet": "from sklearn.metrics import precision_recall_curve, auc, roc_auc_score\nprecision, recall, _ = precision_recall_curve(y_true, y_scores)\npr_auc = auc(recall, precision)"
+      },
+      {
+        "id": "day31_q5",
+        "qNum": 5,
+        "question": "Compare Random Forest and XGBoost. Why does Random Forest train in parallel while XGBoost trains sequentially?",
+        "answer": "Random Forest is a Bagging technique: it trains deep, low-bias decision trees independently in parallel on bootstrap samples and averages them to reduce variance. XGBoost is a Boosting technique: it trains shallow, high-bias decision trees sequentially, where each new tree fits the pseudo-residuals (gradients and Hessians) of the ensemble, progressively reducing bias. Because tree t in XGBoost strictly depends on the errors of tree t-1, it cannot be trained in parallel across trees.",
+        "logic": "Tests core ensemble philosophy: variance reduction via independent averaging vs bias reduction via sequential residual fitting.",
+        "codeSnippet": "from xgboost import XGBClassifier\nfrom sklearn.ensemble import RandomForestClassifier\n# Random Forest: parallel bagging\nrf = RandomForestClassifier(n_estimators=100, n_jobs=-1)\n# XGBoost: sequential gradient boosting\nxgb = XGBClassifier(n_estimators=100, learning_rate=0.05, max_depth=6)"
+      }
+    ],
+    "practicalTask": {
+      "title": "Implement Gradient Descent with Momentum & Train XGBoost on Imbalanced Data",
+      "instructions": "1. Implement a custom mini-batch gradient descent optimizer from scratch in Python incorporating Momentum (v = beta * v + (1-beta) * grad). 2. Train an XGBoost classifier on an imbalanced dataset with scale_pos_weight parameter and evaluate PR-AUC vs ROC-AUC curves.",
+      "solutionHint": "Initialize velocity to zeros. Update: v = beta * v + (1 - beta) * grad; w = w - lr * v. Set scale_pos_weight = count(negative) / count(positive).",
+      "codeExample": "# Custom Momentum Optimizer\ndef momentum_step(w, grad, v, lr=0.01, beta=0.9):\n    v = beta * v + (1 - beta) * grad\n    w = w - lr * v\n    return w, v"
+    },
+    "diagram": {
+      "title": "Bias-Variance Tradeoff & Gradient Optimization Contours",
+      "caption": "Underfitting (High Bias) -> Optimal Tradeoff Minimum -> Overfitting (High Variance) with Momentum & AdamW optimization trajectories.",
+      "type": "flowchart",
+      "nodes": [
+        {
+          "label": "1. Low Model Capacity",
+          "desc": "High Bias, Low Variance (Underfitting)"
+        },
+        {
+          "label": "2. Optimal Capacity",
+          "desc": "Minimum Total Test Error (Bias^2 + Var)",
+          "highlight": true
+        },
+        {
+          "label": "3. High Model Capacity",
+          "desc": "Low Bias, High Variance (Overfitting)"
+        },
+        {
+          "label": "4. SGD Optimizer",
+          "desc": "High variance, noisy updates"
+        },
+        {
+          "label": "5. Momentum / AdamW",
+          "desc": "Smooth velocity vector & decoupled decay",
+          "highlight": true
+        }
+      ],
+      "connections": [
+        "1 -> 2",
+        "2 -> 3",
+        "4 -> 5"
+      ]
+    }
+  },
+  {
+    "dayNumber": 32,
+    "date": "December 2",
+    "phaseId": 10,
+    "phaseName": "AI & MACHINE LEARNING ENGINEERING",
+    "title": "Deep Learning, Backpropagation & Computer Vision",
+    "description": "Understand deep neural network mechanics: forward/backward propagation via the chain rule, vanishing/exploding gradients, activation functions (GeLU, ReLU), CNN convolutions, and ResNet skip connections.",
+    "studyTopics": [
+      "Multi-Layer Perceptron (MLP) & Forward Propagation",
+      "Backpropagation Mathematical Derivation via Chain Rule",
+      "Vanishing & Exploding Gradients: Causes & Mitigations",
+      "Weight Initialization: Xavier / Glorot vs He Initialization",
+      "Activation Functions: Sigmoid vs Tanh vs ReLU vs GeLU",
+      "Convolution Mechanics: Kernel, Stride, Padding & Receptive Field",
+      "ResNet Skip Connections: Residual Highway F(x) + x",
+      "Normalization: Batch Normalization vs Layer Normalization"
+    ],
+    "questions": [
+      {
+        "id": "day32_q1",
+        "qNum": 1,
+        "question": "Derive backpropagation conceptually. How does the Chain Rule compute parameter gradients across hidden layers?",
+        "answer": "Backpropagation computes the gradient of the scalar loss L with respect to all network weights by traversing the computational graph in reverse. For weight W_l at layer l, the gradient is: dL/dW_l = (dL/da_l) * (da_l/dz_l) * (dz_l/dW_l). The error term delta_l = dL/dz_l is propagated backward recursively from layer l+1 via: delta_l = (W_{l+1}^T * delta_{l+1}) * sigma'(z_l). This avoids recomputing shared intermediate derivatives.",
+        "logic": "Core deep learning interview question assessing mathematical rigor and understanding of computational graphs.",
+        "codeSnippet": "# PyTorch Autograd Graph\nimport torch\nx = torch.randn(10, 5, requires_grad=True)\nw = torch.randn(5, 1, requires_grad=True)\ny = torch.sigmoid(x @ w)\nloss = y.sum()\nloss.backward() # Computes dloss/dw and dloss/dx via chain rule"
+      },
+      {
+        "id": "day32_q2",
+        "qNum": 2,
+        "question": "Why did ResNet's skip connections solve the degradation problem in very deep networks?",
+        "answer": "Prior to ResNet, stacking layers beyond ~20 increased training error because gradients vanished during backpropagation. ResNet reformulates the layer mapping to learn a residual F(x) = H(x) - x, giving H(x) = F(x) + x. In the backward pass, the gradient dL/dx = (dL/dH) * (dF/dx + 1). The '+1' acts as an uninterrupted gradient highway, allowing gradients to flow directly back to shallow layers regardless of depth, enabling training of 100+ layer networks.",
+        "logic": "Foundational architectural question that paved the way for modern residual architectures including Transformers.",
+        "codeSnippet": "import torch.nn as nn\nclass ResidualBlock(nn.Module):\n    def __init__(self, dim):\n        super().__init__()\n        self.conv1 = nn.Conv2d(dim, dim, 3, padding=1)\n        self.relu = nn.ReLU()\n        self.conv2 = nn.Conv2d(dim, dim, 3, padding=1)\n    def forward(self, x):\n        return x + self.conv2(self.relu(self.conv1(x))) # Skip connection F(x) + x"
+      },
+      {
+        "id": "day32_q3",
+        "qNum": 3,
+        "question": "Why is Layer Normalization preferred over Batch Normalization in sequence models and Transformers?",
+        "answer": "BatchNorm normalizes across the batch dimension for each channel independently. It breaks down when batch size is small or when sequences have variable lengths. Layer Normalization normalizes across all feature dimensions for each individual sequence sample independently: mu_L = (1/D) * sum(x_j). Because LayerNorm is entirely independent of batch size and sequence position, it is stable for autoregressive generation where tokens are generated one by one.",
+        "logic": "Interviewers test whether you understand the exact mathematical difference across normalization axes.",
+        "codeSnippet": "# LayerNorm normalizes across feature dimensions\nimport torch.nn as nn\nln = nn.LayerNorm(normalized_shape=768) # Applied over hidden dimension D"
+      },
+      {
+        "id": "day32_q4",
+        "qNum": 4,
+        "question": "Why is GeLU (Gaussian Error Linear Unit) used instead of standard ReLU in modern LLMs like BERT and GPT?",
+        "answer": "Standard ReLU (max(0, x)) hard-clips negative inputs to 0, which can cause 'Dying ReLU' where neurons become permanently inactive. GeLU scales inputs probabilistically: x * Phi(x), where Phi(x) is the standard normal cumulative distribution function. GeLU is smooth, non-monotonic, and continuously differentiable everywhere, allowing small negative gradient flow while providing stochastic regularization, leading to superior empirical convergence in large language models.",
+        "logic": "Tests awareness of modern architectural decisions in Transformer design.",
+        "codeSnippet": "import torch\ndef gelu(x):\n    return 0.5 * x * (1.0 + torch.tanh(np.sqrt(2.0 / np.pi) * (x + 0.044715 * torch.pow(x, 3.0))))"
+      },
+      {
+        "id": "day32_q5",
+        "qNum": 5,
+        "question": "What is the receptive field of a CNN, and why do two stacked 3x3 convolutions outperform one 5x5 convolution?",
+        "answer": "The receptive field is the spatial area in the input image that directly influences a specific neuron in a deep layer. Two stacked 3x3 convolutions have the exact same effective receptive field (5x5) as a single 5x5 convolution: 1 + (3-1) + (3-1) = 5. However, two 3x3 layers use 2 * (3*3) = 18 parameters per channel compared to 1 * (5*5) = 25 parameters (a 28% parameter reduction) and incorporate two non-linear activation functions instead of one, increasing representational power.",
+        "logic": "VGGNet design principle question testing understanding of convolution geometry and parameter efficiency.",
+        "codeSnippet": "# Receptive field formula: RF_{l} = RF_{l-1} + (k - 1) * stride_product"
+      }
+    ],
+    "practicalTask": {
+      "title": "Build a PyTorch Residual Network with LayerNorm & GeLU",
+      "instructions": "1. Build a modular PyTorch neural network containing a Residual Block with skip connection F(x) + x. 2. Replace standard ReLU with GeLU and standard BatchNorm with LayerNorm. 3. Verify that gradients flow without vanishing over 30 layers.",
+      "solutionHint": "Ensure the residual addition matches dimensions; use a 1x1 projection convolution if channel dimensions change.",
+      "codeExample": "import torch\nimport torch.nn as nn\n\nclass DeepResNet(nn.Module):\n    def __init__(self, in_features, hidden_dim):\n        super().__init__()\n        self.fc1 = nn.Linear(in_features, hidden_dim)\n        self.ln1 = nn.LayerNorm(hidden_dim)\n        self.act = nn.GELU()\n        self.fc2 = nn.Linear(hidden_dim, hidden_dim)\n        self.ln2 = nn.LayerNorm(hidden_dim)\n    def forward(self, x):\n        residual = x\n        out = self.fc2(self.act(self.ln1(self.fc1(x))))\n        return self.act(self.ln2(out + residual))"
+    },
+    "diagram": {
+      "title": "Deep Neural Network Backpropagation & Residual Skip-Connection",
+      "caption": "Forward Pass -> Computational Graph -> Residual Identity Highway (dLoss/dH * (dF/dx + 1)) preventing vanishing gradients.",
+      "type": "flowchart",
+      "nodes": [
+        {
+          "label": "1. Input x",
+          "desc": "Batch activations entering block"
+        },
+        {
+          "label": "2. Conv / Linear + LayerNorm",
+          "desc": "Feature transformation F(x)"
+        },
+        {
+          "label": "3. GeLU Activation",
+          "desc": "Smooth non-monotonic non-linearity"
+        },
+        {
+          "label": "4. Identity Skip Connection",
+          "desc": "Direct gradient highway (+1)",
+          "highlight": true
+        },
+        {
+          "label": "5. Output H(x) = F(x) + x",
+          "desc": "Gradients flow back unattenuated",
+          "highlight": true
+        }
+      ],
+      "connections": [
+        "1 -> 2",
+        "2 -> 3",
+        "1 -> 4",
+        "3 -> 5",
+        "4 -> 5"
+      ]
+    }
+  },
+  {
+    "dayNumber": 33,
+    "date": "December 3",
+    "phaseId": 10,
+    "phaseName": "AI & MACHINE LEARNING ENGINEERING",
+    "title": "NLP, Transformers, Multi-Head Attention & LLMs",
+    "description": "Deep dive into the modern Transformer architecture: Self-Attention mathematics, Query-Key-Value projections, Multi-Head Attention, RoPE rotary positional embeddings, Autoregressive generation, LoRA fine-tuning, and Quantization.",
+    "studyTopics": [
+      "Subword Tokenization: BPE vs WordPiece vs SentencePiece",
+      "Self-Attention Formula: Softmax((Q*K^T)/sqrt(d_k)) * V",
+      "Q, K, V Vectors: Database retrieval analogy & projection weights",
+      "Multi-Head Attention: Subspace diversity & concatenation",
+      "Positional Encodings: Sinusoidal vs Learned vs RoPE (Rotary)",
+      "Autoregressive Causal Masking: Triangular -inf upper mask",
+      "Parameter-Efficient Fine-Tuning: LoRA (W = W0 + B*A) & QLoRA",
+      "Model Quantization: FP32 vs BF16 vs INT8 vs INT4 (AWQ/GPTQ)"
+    ],
+    "questions": [
+      {
+        "id": "day33_q1",
+        "qNum": 1,
+        "question": "Derive the Scaled Dot-Product Attention formula. Why is scaling by sqrt(d_k) strictly necessary?",
+        "answer": "Attention(Q, K, V) = Softmax((Q * K^T) / sqrt(d_k)) * V. For two independent random vectors q and k with mean 0 and variance 1, their dot product sum(q_i * k_i) has mean 0 and variance d_k. For large d_k (e.g., 64 or 128), dot products grow large, pushing Softmax into saturated regions with near-zero gradients. Dividing by sqrt(d_k) normalizes the variance back to 1, preserving healthy gradient flow during backpropagation.",
+        "logic": "The single most frequently asked question in modern NLP and GenAI interviews. Tests mathematical understanding of variance in matrix products.",
+        "codeSnippet": "import torch\nimport torch.nn.functional as F\n\ndef scaled_dot_product_attention(Q, K, V, mask=None):\n    d_k = Q.size(-1)\n    scores = torch.matmul(Q, K.transpose(-2, -1)) / (d_k ** 0.5)\n    if mask is not None:\n        scores = scores.masked_fill(mask == 0, -1e9)\n    attn_weights = F.softmax(scores, dim=-1)\n    return torch.matmul(attn_weights, V), attn_weights"
+      },
+      {
+        "id": "day33_q2",
+        "qNum": 2,
+        "question": "How do Rotary Position Embeddings (RoPE) work, and why do modern LLMs (LLaMA, Mistral) prefer them over learned absolute embeddings?",
+        "answer": "RoPE encodes position directly into the Query and Key vectors by applying an orthogonal 2D rotation matrix in the complex plane: R_{theta, m} * x. Crucially, the inner product (R_m * q)^T * (R_n * k) depends strictly on the relative offset (m - n) rather than absolute positions. This guarantees relative distance awareness, allows seamless context length extrapolation, and avoids allocating fixed lookup tables for position indices.",
+        "logic": "Tests state-of-the-art knowledge of modern open-weights LLM architectures (LLaMA-2/3, Mistral, Gemma).",
+        "codeSnippet": "# RoPE rotation formulation: (q_0 + i*q_1) * exp(i * m * theta)"
+      },
+      {
+        "id": "day33_q3",
+        "qNum": 3,
+        "question": "Explain Low-Rank Adaptation (LoRA) mathematically. Why does it reduce training VRAM by 75%+?",
+        "answer": "LoRA freezes the pre-trained weight matrix W_0 (d x k) and parameterizes updates Delta_W as the product of two low-rank matrices: Delta_W = (alpha / r) * B * A, where A in R^(r x k) is initialized with Gaussian noise and B in R^(d x r) is initialized to zero, with rank r << min(d, k) (e.g., r=8). VRAM usage drops dramatically because gradients and Adam optimizer states (which consume 12-16 bytes per param) are stored only for A and B, reducing trainable parameters by 99%+. During inference, B*A is merged back into W_0 with zero added latency.",
+        "logic": "Essential practical LLM engineering question asked by all companies fine-tuning models.",
+        "codeSnippet": "# PEFT LoRA in HuggingFace\nfrom peft import LoraConfig, get_peft_model\nconfig = LoraConfig(r=16, lora_alpha=32, target_modules=['q_proj', 'v_proj'], lora_dropout=0.05, bias='none')\nmodel = get_peft_model(base_model, config)"
+      },
+      {
+        "id": "day33_q4",
+        "qNum": 4,
+        "question": "What is the difference between Direct Preference Optimization (DPO) and RLHF with PPO?",
+        "answer": "Standard RLHF requires training 4 separate models in GPU memory: Policy, Reference Policy, Reward Model, and Value/Critic Model, training via reinforcement learning (PPO) which is notoriously unstable. DPO analytically reparameterizes the reward function directly in terms of the optimal policy and reference policy: r(x, y) = beta * log(pi(y|x) / pi_ref(y|x)). This allows optimizing human preferences directly on chosen vs rejected responses using simple binary cross-entropy loss without training a reward model or executing RL loops.",
+        "logic": "Cutting-edge alignment interview question testing understanding of modern post-training techniques.",
+        "codeSnippet": "# DPO Loss = -E[log sigma(beta * log(pi(y_w)/pi_ref(y_w)) - beta * log(pi(y_l)/pi_ref(y_l)))]"
+      },
+      {
+        "id": "day33_q5",
+        "qNum": 5,
+        "question": "Compare BF16 and FP16 for training LLMs. Why does FP16 suffer from frequent training crashes?",
+        "answer": "FP16 uses 5 exponent bits and 10 mantissa bits, giving a narrow dynamic range (maximum value ~65,504). During deep model backpropagation, activations and gradients easily exceed this range (causing NaN overflows) or drop below 10^-5 (causing underflows to 0), requiring complex loss scaling. BF16 (Bfloat16) uses 8 exponent bits (identical to FP32) and 7 mantissa bits. Because BF16 shares FP32's massive dynamic range (~10^38), it completely eliminates underflow/overflow crashes without loss scaling while halving memory compared to FP32.",
+        "logic": "Tests practical infrastructure and numerical precision knowledge required for pretraining and fine-tuning.",
+        "codeSnippet": "import torch\ntorch.set_default_dtype(torch.bfloat16) # Standard for modern LLM training"
+      }
+    ],
+    "practicalTask": {
+      "title": "Implement Multi-Head Attention & LoRA Layer in PyTorch",
+      "instructions": "1. Implement a complete Multi-Head Attention module in PyTorch with Q, K, V projections and causal masking. 2. Implement a custom LoRA Linear layer from scratch: forward(x) = W_0(x) + (alpha / r) * B(A(x)). 3. Demonstrate merging weights for zero-latency inference.",
+      "solutionHint": "In Multi-Head Attention, reshape (batch, seq, heads, d_k) and transpose to (batch, heads, seq, d_k). In LoRA, initialize A with Kaiming uniform and B with zeros.",
+      "codeExample": "import torch\nimport torch.nn as nn\n\nclass LoRALinear(nn.Module):\n    def __init__(self, in_features, out_features, r=8, alpha=16):\n        super().__init__()\n        self.linear = nn.Linear(in_features, out_features)\n        self.linear.weight.requires_grad = False # Freeze base weights\n        self.r = r\n        self.scaling = alpha / r\n        self.lora_A = nn.Parameter(torch.randn(r, in_features) * 0.01)\n        self.lora_B = nn.Parameter(torch.zeros(out_features, r))\n    def forward(self, x):\n        base_out = self.linear(x)\n        lora_out = (x @ self.lora_A.T @ self.lora_B.T) * self.scaling\n        return base_out + lora_out"
+    },
+    "diagram": {
+      "title": "Transformer Multi-Head Attention & LoRA Low-Rank Adaptation",
+      "caption": "Input Tokens -> Query/Key/Value Projections -> Scaled Dot-Product -> Multi-Head Output & Parallel LoRA Decomposition (W = W0 + B*A).",
+      "type": "flowchart",
+      "nodes": [
+        {
+          "label": "1. Input Embeddings",
+          "desc": "Token embeddings + RoPE rotary encoding"
+        },
+        {
+          "label": "2. Q, K, V Projections",
+          "desc": "W_q, W_k, W_v matrix multiplications"
+        },
+        {
+          "label": "3. Scaled Dot-Product",
+          "desc": "Softmax((Q*K^T)/sqrt(d_k)) with causal mask",
+          "highlight": true
+        },
+        {
+          "label": "4. Multi-Head Concatenation",
+          "desc": "h heads projected via W_o"
+        },
+        {
+          "label": "5. LoRA Adapter",
+          "desc": "Frozen W_0 + (alpha/r)*B*A low-rank update",
+          "highlight": true
+        }
+      ],
+      "connections": [
+        "1 -> 2",
+        "2 -> 3",
+        "3 -> 4",
+        "1 -> 5",
+        "5 -> 4"
+      ]
+    }
+  },
+  {
+    "dayNumber": 34,
+    "date": "December 4",
+    "phaseId": 10,
+    "phaseName": "AI & MACHINE LEARNING ENGINEERING",
+    "title": "Production GenAI, RAG Architectures, AI Agents & MLOps",
+    "description": "Design enterprise-grade AI systems: production Retrieval-Augmented Generation (RAG), HNSW vector databases, Cross-Encoder reranking, AI Agent ReAct loops, KV cache optimization with vLLM PagedAttention, and production MLOps monitoring.",
+    "studyTopics": [
+      "End-to-End Production RAG Pipeline Architecture",
+      "Chunking Strategies: Recursive vs Parent-Child vs Semantic",
+      "Vector Indexes: Exact Flat vs IVF vs HNSW Proximity Graphs",
+      "Hybrid Search: Dense Vector + BM25 with Reciprocal Rank Fusion",
+      "Two-Stage Retrieval: Bi-Encoder search + Cross-Encoder reranking",
+      "AI Agents: ReAct (Thought-Action-Observation) & Tool Calling",
+      "Inference Engines: vLLM PagedAttention & Continuous Batching",
+      "MLOps: Model Drift (Covariate Shift vs Concept Drift) & Guardrails"
+    ],
+    "questions": [
+      {
+        "id": "day34_q1",
+        "qNum": 1,
+        "question": "Walk through an enterprise end-to-end RAG architecture. How do you mitigate hallucinations and context noise?",
+        "answer": "A production RAG pipeline consists of: 1) Ingestion: Documents are parsed and split into parent-child chunks. 2) Indexing: Hybrid index combining OpenSearch (BM25) and Qdrant/Milvus (HNSW dense embeddings). 3) Retrieval: Queries trigger dense + sparse search fused via Reciprocal Rank Fusion (RRF). 4) Reranking: A Cross-Encoder reranks the top 100 down to the top 5 most relevant passages. 5) Synthesis: Passages are injected into an LLM prompt with strict groundedness instructions. Hallucinations are mitigated by cross-encoder filtering, citation extraction, and output guardrails (Llama Guard/Ragas).",
+        "logic": "High-frequency System Design interview question for AI/ML and full-stack engineering roles.",
+        "codeSnippet": "# Hybrid Search Reciprocal Rank Fusion (RRF)\ndef rrf_score(dense_rank, sparse_rank, k=60):\n    return (1.0 / (k + dense_rank)) + (1.0 / (k + sparse_rank))"
+      },
+      {
+        "id": "day34_q2",
+        "qNum": 2,
+        "question": "How does PagedAttention in vLLM solve the GPU memory fragmentation problem in KV Caching?",
+        "answer": "Traditional LLM serving pre-allocated contiguous GPU memory for the maximum possible sequence length (e.g., 4096 tokens), resulting in 60-80% wasted VRAM due to internal and external fragmentation. PagedAttention borrows virtual memory paging from Operating Systems: it partitions the KV cache into fixed-size physical blocks (e.g., 16 tokens) stored non-contiguously in GPU RAM. A block table dynamically maps logical token sequences to physical blocks on demand, enabling 2x-4x higher concurrency and throughput.",
+        "logic": "Tests understanding of low-level systems engineering behind modern AI inference infrastructure.",
+        "codeSnippet": "# vLLM High-Throughput Engine Execution\nfrom vllm import LLM, SamplingParams\nllm = LLM(model='meta-llama/Meta-Llama-3-8B-Instruct', enable_prefix_caching=True)"
+      },
+      {
+        "id": "day34_q3",
+        "qNum": 3,
+        "question": "Why are Cross-Encoders used for Reranking instead of using them for initial vector retrieval?",
+        "answer": "Bi-Encoders embed Query and Document separately (u = f(Q), v = f(D)) allowing document vectors to be pre-computed offline and searched in O(log N) via vector indexes; however, Q tokens cannot interact with D tokens. Cross-Encoders concatenate [CLS] Q [SEP] D [SEP] into a single joint Transformer pass: all Q tokens attend to all D tokens via full cross-attention. This yields far superior relevance scores, but requires O(N) full model forward passes, which is computationally prohibitive for millions of documents. We use Bi-Encoders to quickly retrieve top 100 candidates and Cross-Encoders to rerank the top 5.",
+        "logic": "Tests understanding of computational complexity vs accuracy trade-offs in search systems.",
+        "codeSnippet": "from sentence_transformers import CrossEncoder\nreranker = CrossEncoder('cross-encoder/ms-marco-MiniLM-L-6-v2')\nscores = reranker.predict([(query, doc) for doc in retrieved_docs])"
+      },
+      {
+        "id": "day34_q4",
+        "qNum": 4,
+        "question": "Explain the ReAct (Reasoning + Acting) pattern in autonomous AI Agents. How does the agent recover from errors?",
+        "answer": "ReAct structures agent execution into an iterative loop of Thought -> Action -> Observation: 1) Thought: The agent breaks down the user request and reasons about the next required sub-task. 2) Action: The agent invokes an external tool (Search, SQL, Python REPL, Calculator) with structured parameters. 3) Observation: The environment executes the tool and returns raw outputs. If the observation contains an error (e.g., database syntax error), the agent inspects the error trace in the next Thought, formulates a corrected query, and retries until reaching the Final Answer.",
+        "logic": "Core architecture question for LangChain, LlamaIndex, and autonomous agent development.",
+        "codeSnippet": "# ReAct Loop Pattern\n# Prompt: Question -> Thought 1 -> Action 1 -> Observation 1 -> Thought 2 -> Final Answer"
+      },
+      {
+        "id": "day34_q5",
+        "qNum": 5,
+        "question": "What is the difference between Covariate Shift and Concept Drift, and how do you detect them in production?",
+        "answer": "Covariate Shift occurs when input feature distributions P(X) change over time while the conditional relationship P(Y|X) remains unchanged (e.g., user age demographic shifts). Concept Drift occurs when the underlying ground-truth relationship P(Y|X) changes (e.g., purchasing patterns change during inflation). Detection: Population Stability Index (PSI) and Kolmogorov-Smirnov (KS) test detect feature shifts; tracking rolling F1-score against verified ground-truth labels detects concept drift.",
+        "logic": "Essential MLOps question evaluating your ability to maintain models in production post-deployment.",
+        "codeSnippet": "# Population Stability Index (PSI) Formula\n# PSI = sum((Actual% - Expected%) * ln(Actual% / Expected%))\n# PSI < 0.1: No shift | PSI > 0.25: Significant drift (triggers retrain)"
+      }
+    ],
+    "practicalTask": {
+      "title": "Build a Complete Hybrid RAG System with Cross-Encoder Reranking",
+      "instructions": "1. Ingest a corpus of documents, chunk with recursive character splitting (500 tokens, 50 overlap). 2. Implement dual retrieval: Dense vector search (sentence-transformers) + BM25 keyword search. 3. Merge results using Reciprocal Rank Fusion (RRF) and rerank the top candidates with a Cross-Encoder.",
+      "solutionHint": "Use rank positions (not raw scores) for RRF: score = 1/(60 + rank_dense) + 1/(60 + rank_bm25). Pass the top 5 reranked texts into the prompt.",
+      "codeExample": "# Production Hybrid Search & Reranking Pipeline\ndef hybrid_rag_pipeline(query, corpus, vector_index, bm25_index, cross_encoder):\n    dense_results = vector_index.search(query, top_k=20)\n    sparse_results = bm25_index.search(query, top_k=20)\n    fused_candidates = merge_rrf(dense_results, sparse_results, top_k=15)\n    rerank_pairs = [(query, doc.text) for doc in fused_candidates]\n    scores = cross_encoder.predict(rerank_pairs)\n    ranked_docs = [doc for _, doc in sorted(zip(scores, fused_candidates), reverse=True)]\n    return ranked_docs[:5]"
+    },
+    "diagram": {
+      "title": "Enterprise Hybrid RAG & vLLM Serving Architecture",
+      "caption": "Documents Ingestion -> Hybrid Search (Vector HNSW + BM25) -> Cross-Encoder Rerank -> Prompt Injection -> vLLM PagedAttention Serving.",
+      "type": "architecture",
+      "nodes": [
+        {
+          "label": "1. Ingestion & Chunking",
+          "desc": "Parent-child recursive chunking"
+        },
+        {
+          "label": "2. Hybrid Storage",
+          "desc": "Qdrant (HNSW) + OpenSearch (BM25)",
+          "highlight": true
+        },
+        {
+          "label": "3. RRF Rank Fusion",
+          "desc": "1/(60 + rank) combines dense & sparse"
+        },
+        {
+          "label": "4. Cross-Encoder Rerank",
+          "desc": "Full joint attention relevance scoring",
+          "highlight": true
+        },
+        {
+          "label": "5. vLLM Engine",
+          "desc": "PagedAttention & KV Cache generation",
+          "highlight": true
+        }
+      ],
+      "connections": [
+        "1 -> 2",
+        "2 -> 3",
+        "3 -> 4",
+        "4 -> 5"
+      ]
+    }
   }
 ]

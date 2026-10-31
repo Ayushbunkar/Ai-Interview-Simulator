@@ -74,7 +74,7 @@ export default function InterviewReadyPage() {
       const savedDay = localStorage.getItem("interviewforge_ready_active_day");
       if (savedDay) {
         const d = parseInt(savedDay);
-        if (d >= 1 && d <= 30) setSelectedDayNumber(d);
+        if (d >= 1 && d <= ROADMAP_DAYS.length) setSelectedDayNumber(d);
       }
     } catch {}
   }, []);
@@ -156,7 +156,7 @@ export default function InterviewReadyPage() {
   const currentPhase = ROADMAP_PHASES.find(p => p.phaseId === currentDay.phaseId) || ROADMAP_PHASES[0];
 
   const totalDaysCompleted = Object.values(completedDays).filter(Boolean).length;
-  const overallPercentage = Math.round((totalDaysCompleted / 30) * 100);
+  const overallPercentage = Math.round((totalDaysCompleted / ROADMAP_DAYS.length) * 100);
 
   const totalQuestionsCount = ROADMAP_DAYS.reduce((acc, d) => acc + d.questions.length, 0);
   const totalQuestionsCompleted = Object.values(completedQuestions).filter(Boolean).length;
@@ -173,7 +173,7 @@ export default function InterviewReadyPage() {
   return (
     <div className="min-h-screen bg-[#070b12] text-slate-100 pb-28">
       {/* Top Sticky Header */}
-      <div className="border-b border-white/[0.08] bg-[#0c1220]/80 backdrop-blur-xl sticky top-14 z-30">
+      <div className="border-b border-white/[0.08] bg-[#0c1222]/80 backdrop-blur-xl sticky top-14 z-30">
         <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 via-orange-500 to-rose-600 text-white shadow-lg shadow-orange-500/20">
@@ -182,10 +182,10 @@ export default function InterviewReadyPage() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-base sm:text-lg font-bold text-white tracking-tight">
-                  Interview Ready: 30-Day Master Roadmap
+                  Interview Ready: Master Roadmap ({ROADMAP_DAYS.length} Days)
                 </h1>
                 <span className="rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 px-2 py-0.5 text-[11px] font-bold text-amber-300 border border-amber-500/30">
-                  Target: 45 LPA SDE
+                  Target: 45 LPA SDE & AI/ML
                 </span>
               </div>
               <p className="text-xs text-slate-400 hidden sm:block">
@@ -199,7 +199,7 @@ export default function InterviewReadyPage() {
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08]">
               <Calendar className="h-3.5 w-3.5 text-amber-400" />
               <span className="text-xs font-semibold text-white">
-                Day {selectedDayNumber}/30
+                Day {selectedDayNumber}/{ROADMAP_DAYS.length}
               </span>
               <span className="text-[11px] text-slate-400 font-mono">
                 ({totalDaysCompleted} done)
@@ -232,14 +232,14 @@ export default function InterviewReadyPage() {
             <div className="md:col-span-8 space-y-3">
               <div className="flex items-center gap-2">
                 <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20 flex items-center gap-1">
-                  <Flame className="h-3.5 w-3.5" /> 30-Day Fresher to 45 LPA Placement Course
+                  <Flame className="h-3.5 w-3.5" /> {ROADMAP_DAYS.length}-Day SDE & AI/ML Master Curriculum
                 </span>
                 <span className="text-xs text-slate-400">
-                  November 1 – November 30
+                  November 1 – December 4
                 </span>
               </div>
               <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-                {currentPhase.name} • Phase {currentPhase.phaseId} of 9
+                {currentPhase.name} • Phase {currentPhase.phaseId} of {ROADMAP_PHASES.length}
               </h2>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
                 {currentPhase.summary} Follow the daily 6-point checklist, master the under-the-hood logic of every question, and inspect visual architecture diagrams.
@@ -264,7 +264,7 @@ export default function InterviewReadyPage() {
             <div className="md:col-span-4 grid grid-cols-2 gap-3">
               <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-center space-y-1">
                 <span className="text-2xl font-extrabold text-white font-mono">
-                  {totalDaysCompleted}/30
+                  {totalDaysCompleted}/{ROADMAP_DAYS.length}
                 </span>
                 <p className="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">
                   Days Mastered
@@ -296,7 +296,7 @@ export default function InterviewReadyPage() {
         {/* Phase Filter Tabs */}
         <div className="space-y-3">
           <div className="flex items-center justify-between text-xs font-semibold text-slate-400 uppercase tracking-wider">
-            <span>Filter by 9 Learning Phases</span>
+            <span>Filter by {ROADMAP_PHASES.length} Learning Phases</span>
             <span>{filteredDays.length} Days in view</span>
           </div>
           <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
@@ -308,7 +308,7 @@ export default function InterviewReadyPage() {
                   : "bg-white/[0.04] text-slate-300 border-white/[0.08] hover:bg-white/[0.08]"
               }`}
             >
-              All 30 Days
+              All {ROADMAP_DAYS.length} Days
             </button>
             {ROADMAP_PHASES.map(phase => (
               <button
@@ -731,7 +731,7 @@ export default function InterviewReadyPage() {
               <div className="space-y-1.5 text-xs">
                 <div className="p-2 rounded-lg bg-rose-950/20 border border-rose-500/20 flex justify-between items-center">
                   <span className="font-bold text-rose-300">Tier S (Must be Strong)</span>
-                  <span className="text-[11px] text-slate-300">OOP, SQL, OS, CN, Projects</span>
+                  <span className="text-[11px] text-slate-300">OOP, SQL, OS, CN, AI/ML & Projects</span>
                 </div>
                 <div className="p-2 rounded-lg bg-amber-950/20 border border-amber-500/20 flex justify-between items-center">
                   <span className="font-bold text-amber-300">Tier A (Practical Level)</span>
@@ -750,12 +750,12 @@ export default function InterviewReadyPage() {
                 <div>
                   <h4 className="text-sm font-bold text-white tracking-tight flex items-center gap-1.5">
                     <Trophy className="h-4 w-4 text-amber-400" />
-                    December 1 Completion Targets
+                    December Completion Targets
                   </h4>
-                  <p className="text-[11px] text-slate-400">16 Master Milestones</p>
+                  <p className="text-[11px] text-slate-400">{DECEMBER_GOALS.length} Master Milestones</p>
                 </div>
                 <span className="text-xs font-mono font-bold text-amber-400">
-                  {Object.values(completedDecGoals).filter(Boolean).length}/16
+                  {Object.values(completedDecGoals).filter(Boolean).length}/{DECEMBER_GOALS.length}
                 </span>
               </div>
 
@@ -792,7 +792,7 @@ export default function InterviewReadyPage() {
             </div>
 
             {/* Next Day Navigation Button */}
-            {selectedDayNumber < 30 && (
+            {selectedDayNumber < ROADMAP_DAYS.length && (
               <button
                 onClick={() => handleSelectDay(selectedDayNumber + 1)}
                 className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-bold shadow-lg shadow-blue-600/25 active:scale-95 transition-all"

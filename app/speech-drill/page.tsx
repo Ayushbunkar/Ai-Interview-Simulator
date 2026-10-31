@@ -29,6 +29,7 @@ import {
   Layers,
   FolderGit2,
   UserCheck,
+  BrainCircuit,
   ChevronDown,
   RefreshCw,
   TrendingUp,
@@ -63,6 +64,7 @@ const ICON_MAP: Record<string, any> = {
   Layers,
   FolderGit2,
   UserCheck,
+  BrainCircuit,
 };
 
 export default function SpeechDrillPage() {
@@ -290,7 +292,7 @@ export default function SpeechDrillPage() {
                   Fresher SDE Speech Drill Room
                 </h1>
                 <span className="rounded-full bg-cyan-500/10 px-2 py-0.5 text-[11px] font-semibold text-cyan-400 border border-cyan-500/20">
-                  700 Questions Bank
+                  {ALL_QUESTIONS.length} Questions Bank (15 Subjects)
                 </span>
               </div>
               <p className="text-xs text-slate-400 hidden sm:block">
@@ -307,7 +309,7 @@ export default function SpeechDrillPage() {
             >
               <CurrentIcon className="h-4 w-4 text-cyan-400" />
               <span>
-                {selectedCatId === "all" ? "All 14 Subjects (700 Qs)" : activeCategoryMeta?.name || "Topic"}
+                {selectedCatId === "all" ? `All 15 Subjects (${ALL_QUESTIONS.length} Qs)` : activeCategoryMeta?.name || "Topic"}
               </span>
               <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
             </button>
@@ -789,18 +791,18 @@ export default function SpeechDrillPage() {
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-sm font-bold text-white flex items-center gap-2">
                     <Flame className="h-4 w-4 text-cyan-400" />
-                    All 14 Subjects
+                    All 15 Subjects
                   </span>
                   <span className="text-[11px] font-mono text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
-                    700 Qs
+                    {ALL_QUESTIONS.length} Qs
                   </span>
                 </div>
                 <p className="text-xs text-slate-400">
-                  Complete randomized mix across all core fresher engineering topics.
+                  Complete randomized mix across all core fresher & AI/ML engineering topics.
                 </p>
               </button>
 
-              {/* Individual 14 Category Cards */}
+              {/* Individual Category Cards */}
               {CATEGORIES.map((cat) => {
                 const CatIcon = ICON_MAP[cat.icon] || BookOpen;
                 const isSelected = selectedCatId === cat.catId;

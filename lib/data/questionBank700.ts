@@ -149,6 +149,15 @@ export const CATEGORIES: CategoryMeta[] = [
     icon: "UserCheck",
     gradient: "from-pink-500/20 to-rose-500/20 text-pink-400 border-pink-500/30",
   },
+  {
+    catId: 15,
+    name: "AI & Machine Learning Engineering",
+    slug: "ai-ml",
+    description: "ML Foundations, Loss Functions, Deep Learning, CNNs, Transformers, LLMs, RAG, PEFT/LoRA & MLOps",
+    count: 100,
+    icon: "BrainCircuit",
+    gradient: "from-violet-500/20 to-fuchsia-500/20 text-fuchsia-400 border-fuchsia-500/30",
+  },
 ];
 
 export const ALL_QUESTIONS: QuestionBankItem[] = questionsData as QuestionBankItem[];
