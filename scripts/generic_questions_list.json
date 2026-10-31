@@ -1,0 +1,807 @@
+[
+  [
+    1,
+    "day1_q1",
+    "What is OOP?"
+  ],
+  [
+    1,
+    "day1_q2",
+    "Why do we use OOP?"
+  ],
+  [
+    1,
+    "day1_q5",
+    "Class vs object?"
+  ],
+  [
+    1,
+    "day1_q8",
+    "Can constructors be inherited?"
+  ],
+  [
+    1,
+    "day1_q9",
+    "What is the this keyword?"
+  ],
+  [
+    1,
+    "day1_q10",
+    "What is a static variable?"
+  ],
+  [
+    1,
+    "day1_q11",
+    "Static method vs instance method?"
+  ],
+  [
+    1,
+    "day1_q13",
+    "Public vs private vs protected?"
+  ],
+  [
+    2,
+    "day2_q1",
+    "Explain the four pillars of OOP."
+  ],
+  [
+    2,
+    "day2_q7",
+    "Compile-time vs runtime polymorphism?"
+  ],
+  [
+    2,
+    "day2_q8",
+    "Overloading vs overriding?"
+  ],
+  [
+    2,
+    "day2_q9",
+    "Can static methods be overridden?"
+  ],
+  [
+    2,
+    "day2_q10",
+    "Can private methods be overridden?"
+  ],
+  [
+    2,
+    "day2_q11",
+    "What is dynamic method dispatch?"
+  ],
+  [
+    2,
+    "day2_q12",
+    "Why is encapsulation useful?"
+  ],
+  [
+    3,
+    "day3_q9",
+    "Association vs aggregation vs composition?"
+  ],
+  [
+    3,
+    "day3_q10",
+    "Inheritance vs composition?"
+  ],
+  [
+    3,
+    "day3_q11",
+    "Why does Java not support multiple class inheritance?"
+  ],
+  [
+    4,
+    "day4_q2",
+    "Explain Single Responsibility Principle."
+  ],
+  [
+    4,
+    "day4_q3",
+    "Explain Open/Closed Principle."
+  ],
+  [
+    4,
+    "day4_q4",
+    "Explain Liskov Substitution Principle."
+  ],
+  [
+    4,
+    "day4_q5",
+    "Explain Interface Segregation Principle."
+  ],
+  [
+    4,
+    "day4_q6",
+    "Explain Dependency Inversion Principle."
+  ],
+  [
+    4,
+    "day4_q9",
+    "What is high cohesion?"
+  ],
+  [
+    4,
+    "day4_q10",
+    "How do you create an immutable class in Java?"
+  ],
+  [
+    4,
+    "day4_q13",
+    "Why override equals() and hashCode() together?"
+  ],
+  [
+    5,
+    "day5_q10",
+    "Can a primary key contain NULL in a database?"
+  ],
+  [
+    5,
+    "day5_q11",
+    "Can a foreign key contain NULL?"
+  ],
+  [
+    6,
+    "day6_q5",
+    "What is a SELECT statement?"
+  ],
+  [
+    6,
+    "day6_q7",
+    "What is DISTINCT?"
+  ],
+  [
+    7,
+    "day7_q1",
+    "What is a JOIN?"
+  ],
+  [
+    7,
+    "day7_q9",
+    "Can we join more than two tables in SQL?"
+  ],
+  [
+    7,
+    "day7_q10",
+    "What happens when there are duplicate rows in a join?"
+  ],
+  [
+    8,
+    "day8_q1",
+    "What is a subquery in SQL?"
+  ],
+  [
+    9,
+    "day9_q13",
+    "How do you find employees hired in the last 30 days?"
+  ],
+  [
+    9,
+    "day9_q15",
+    "How do you find the second-highest salary without using LIMIT or TOP?"
+  ],
+  [
+    10,
+    "day10_q3",
+    "Explain 1NF, 2NF and 3NF."
+  ],
+  [
+    11,
+    "day11_q6",
+    "Why are threads considered lightweight?"
+  ],
+  [
+    12,
+    "day12_q10",
+    "Which scheduling algorithm can cause starvation?"
+  ],
+  [
+    12,
+    "day12_q11",
+    "Why is Round Robin useful in time-sharing systems?"
+  ],
+  [
+    13,
+    "day13_q6",
+    "What is the difference between mutex and semaphore?"
+  ],
+  [
+    13,
+    "day13_q7",
+    "What is the difference between binary and counting semaphore?"
+  ],
+  [
+    13,
+    "day13_q8",
+    "What is a monitor?"
+  ],
+  [
+    13,
+    "day13_q9",
+    "What is the producer-consumer problem?"
+  ],
+  [
+    13,
+    "day13_q10",
+    "What happens if two threads update the same variable simultaneously?"
+  ],
+  [
+    14,
+    "day14_q2",
+    "What are the four Coffman conditions necessary for deadlock?"
+  ],
+  [
+    14,
+    "day14_q3",
+    "How can deadlocks be prevented in operating systems?"
+  ],
+  [
+    14,
+    "day14_q4",
+    "What is the difference between deadlock prevention and deadlock avoidance?"
+  ],
+  [
+    14,
+    "day14_q7",
+    "Deadlock vs starvation?"
+  ],
+  [
+    14,
+    "day14_q8",
+    "What is livelock?"
+  ],
+  [
+    14,
+    "day14_q9",
+    "Can a single-threaded program have deadlock?"
+  ],
+  [
+    14,
+    "day14_q10",
+    "How can database transactions create deadlocks?"
+  ],
+  [
+    15,
+    "day15_q3",
+    "Why is virtual memory required?"
+  ],
+  [
+    15,
+    "day15_q5",
+    "Paging vs segmentation?"
+  ],
+  [
+    15,
+    "day15_q6",
+    "What is a page table?"
+  ],
+  [
+    15,
+    "day15_q10",
+    "What are common page replacement algorithms (FIFO vs LRU)?"
+  ],
+  [
+    15,
+    "day15_q11",
+    "What is demand paging?"
+  ],
+  [
+    16,
+    "day16_q2",
+    "LAN vs WAN?"
+  ],
+  [
+    16,
+    "day16_q5",
+    "What is a default gateway?"
+  ],
+  [
+    16,
+    "day16_q6",
+    "What is the OSI reference model?"
+  ],
+  [
+    16,
+    "day16_q7",
+    "Explain all 7 layers of the OSI model."
+  ],
+  [
+    16,
+    "day16_q9",
+    "What is the difference between the OSI model and the TCP/IP model?"
+  ],
+  [
+    16,
+    "day16_q10",
+    "Which layer handles IP addressing?"
+  ],
+  [
+    16,
+    "day16_q11",
+    "Which layer handles MAC addresses?"
+  ],
+  [
+    16,
+    "day16_q12",
+    "Which layer handles TCP and UDP?"
+  ],
+  [
+    17,
+    "day17_q10",
+    "What is a default gateway?"
+  ],
+  [
+    17,
+    "day17_q12",
+    "What happens when two devices communicate on the same LAN?"
+  ],
+  [
+    18,
+    "day18_q5",
+    "Explain the TCP 3-way handshake."
+  ],
+  [
+    18,
+    "day18_q6",
+    "What is a SYN packet?"
+  ],
+  [
+    18,
+    "day18_q7",
+    "What is an ACK packet?"
+  ],
+  [
+    18,
+    "day18_q8",
+    "How does TCP terminate a connection?"
+  ],
+  [
+    19,
+    "day19_q2",
+    "HTTP vs HTTPS security architecture?"
+  ],
+  [
+    19,
+    "day19_q3",
+    "GET vs POST in HTTP?"
+  ],
+  [
+    19,
+    "day19_q5",
+    "Is HTTP stateless?"
+  ],
+  [
+    19,
+    "day19_q6",
+    "What is a cookie?"
+  ],
+  [
+    19,
+    "day19_q7",
+    "What is a session?"
+  ],
+  [
+    19,
+    "day19_q8",
+    "What is TLS/SSL?"
+  ],
+  [
+    19,
+    "day19_q10",
+    "Explain HTTP status codes by category."
+  ],
+  [
+    19,
+    "day19_q11",
+    "What does HTTP 200 OK mean?"
+  ],
+  [
+    19,
+    "day19_q12",
+    "What does HTTP 201 Created mean?"
+  ],
+  [
+    19,
+    "day19_q13",
+    "301 Moved Permanently vs 302 Found?"
+  ],
+  [
+    19,
+    "day19_q14",
+    "400 vs 401 vs 403 vs 404?"
+  ],
+  [
+    19,
+    "day19_q15",
+    "What does HTTP 500 Internal Server Error mean?"
+  ],
+  [
+    20,
+    "day20_q2",
+    "Why is DNS required on the Internet?"
+  ],
+  [
+    20,
+    "day20_q3",
+    "Explain the complete step-by-step DNS resolution process."
+  ],
+  [
+    20,
+    "day20_q5",
+    "What is an A record in DNS?"
+  ],
+  [
+    20,
+    "day20_q6",
+    "What is a CNAME record?"
+  ],
+  [
+    20,
+    "day20_q7",
+    "What is TTL (Time-To-Live) in DNS and IP packets?"
+  ],
+  [
+    20,
+    "day20_q9",
+    "What is the difference between a forward proxy and a reverse proxy?"
+  ],
+  [
+    20,
+    "day20_q11",
+    "What are ports 80 and 443 used for?"
+  ],
+  [
+    20,
+    "day20_q12",
+    "What is port 53 used for?"
+  ],
+  [
+    20,
+    "day20_q13",
+    "What happens when a server becomes unreachable?"
+  ],
+  [
+    21,
+    "day21_q4",
+    "What makes an API RESTful?"
+  ],
+  [
+    21,
+    "day21_q5",
+    "What is statelessness in REST APIs?"
+  ],
+  [
+    21,
+    "day21_q6",
+    "POST vs PUT in REST?"
+  ],
+  [
+    21,
+    "day21_q7",
+    "PUT vs PATCH in REST?"
+  ],
+  [
+    21,
+    "day21_q8",
+    "What is idempotency in HTTP?"
+  ],
+  [
+    21,
+    "day21_q9",
+    "Which HTTP methods are idempotent?"
+  ],
+  [
+    21,
+    "day21_q10",
+    "How do you implement API versioning?"
+  ],
+  [
+    21,
+    "day21_q11",
+    "What is pagination, and what are its types?"
+  ],
+  [
+    21,
+    "day21_q12",
+    "Offset pagination vs cursor/keyset pagination?"
+  ],
+  [
+    21,
+    "day21_q15",
+    "How do you handle API errors consistently?"
+  ],
+  [
+    22,
+    "day22_q2",
+    "What is a JWT (JSON Web Token), and how does it work?"
+  ],
+  [
+    22,
+    "day22_q3",
+    "What are the three components of a JWT?"
+  ],
+  [
+    22,
+    "day22_q4",
+    "What is the difference between session-based and token-based authentication?"
+  ],
+  [
+    22,
+    "day22_q8",
+    "Why should passwords never be stored in plain text or MD5?"
+  ],
+  [
+    22,
+    "day22_q10",
+    "What is CSRF (Cross-Site Request Forgery), and how do you prevent it?"
+  ],
+  [
+    22,
+    "day22_q11",
+    "What is XSS (Cross-Site Scripting), and what are its types?"
+  ],
+  [
+    22,
+    "day22_q13",
+    "How do prepared statements prevent SQL injection?"
+  ],
+  [
+    22,
+    "day22_q14",
+    "Where should JWT authentication tokens be stored in a browser?"
+  ],
+  [
+    22,
+    "day22_q15",
+    "How would you secure a production REST API?"
+  ],
+  [
+    23,
+    "day23_q6",
+    "What is the difference between git merge and git rebase?"
+  ],
+  [
+    23,
+    "day23_q12",
+    "What is the purpose of a .gitignore file?"
+  ],
+  [
+    24,
+    "day24_q2",
+    "What is the difference between unit testing and integration testing?"
+  ],
+  [
+    24,
+    "day24_q3",
+    "What is the difference between integration testing and end-to-end testing?"
+  ],
+  [
+    24,
+    "day24_q5",
+    "What is the difference between a mock and a stub?"
+  ],
+  [
+    24,
+    "day24_q7",
+    "What are the qualities of a good test case?"
+  ],
+  [
+    24,
+    "day24_q8",
+    "What is the difference between functional and non-functional testing?"
+  ],
+  [
+    24,
+    "day24_q10",
+    "How do you inspect running processes in Linux (ps, top)?"
+  ],
+  [
+    24,
+    "day24_q11",
+    "How do you kill a hanging process (kill vs kill -9)?"
+  ],
+  [
+    24,
+    "day24_q12",
+    "What does chmod 755 mean?"
+  ],
+  [
+    24,
+    "day24_q14",
+    "How do you inspect application logs in real-time (tail -f, journalctl)?"
+  ],
+  [
+    24,
+    "day24_q15",
+    "What does curl do?"
+  ],
+  [
+    25,
+    "day25_q4",
+    "What is a design pattern?"
+  ],
+  [
+    25,
+    "day25_q5",
+    "How do you implement a thread-safe Singleton pattern in Java?"
+  ],
+  [
+    25,
+    "day25_q6",
+    "What is the Factory Pattern, and what problem does it solve?"
+  ],
+  [
+    25,
+    "day25_q9",
+    "Factory vs Singleton pattern?"
+  ],
+  [
+    25,
+    "day25_q10",
+    "Why is composition preferred over inheritance in modern OOP?"
+  ],
+  [
+    26,
+    "day26_q2",
+    "What core classes and interfaces are required?"
+  ],
+  [
+    26,
+    "day26_q3",
+    "What is the relationship between ParkingLot and Floor?"
+  ],
+  [
+    26,
+    "day26_q4",
+    "How do you assign an optimal parking spot to an incoming vehicle?"
+  ],
+  [
+    26,
+    "day26_q5",
+    "How do you calculate parking fees dynamically?"
+  ],
+  [
+    26,
+    "day26_q6",
+    "How would you handle multiple concurrent entry gates?"
+  ],
+  [
+    26,
+    "day26_q7",
+    "How do you avoid two vehicles receiving the exact same parking spot?"
+  ],
+  [
+    26,
+    "day26_q8",
+    "How would you support new vehicle types without modifying existing code?"
+  ],
+  [
+    27,
+    "day27_q6",
+    "How would you handle concurrent seat bookings in BookMyShow?"
+  ],
+  [
+    27,
+    "day27_q7",
+    "How would you prevent duplicate payments in a distributed checkout?"
+  ],
+  [
+    27,
+    "day27_q8",
+    "Where would you apply the State pattern in real software?"
+  ],
+  [
+    27,
+    "day27_q9",
+    "How would you explain your class design choices to an interviewer?"
+  ],
+  [
+    28,
+    "day28_q4",
+    "What is the difference between monolithic and microservices architecture?"
+  ],
+  [
+    28,
+    "day28_q15",
+    "What is synchronous vs asynchronous processing?"
+  ],
+  [
+    29,
+    "day29_q2",
+    "How would you generate unique short URLs (Base62 vs Hashing)?"
+  ],
+  [
+    29,
+    "day29_q3",
+    "What database would you choose for a URL Shortener?"
+  ],
+  [
+    29,
+    "day29_q4",
+    "How would you handle millions of redirects with sub-millisecond latency?"
+  ],
+  [
+    29,
+    "day29_q5",
+    "How would you design a Chat Application like WhatsApp?"
+  ],
+  [
+    29,
+    "day29_q6",
+    "HTTP vs WebSockets for real-time messaging?"
+  ],
+  [
+    29,
+    "day29_q7",
+    "How would you store chat messages at scale?"
+  ],
+  [
+    29,
+    "day29_q8",
+    "How would you notify offline chat users?"
+  ],
+  [
+    29,
+    "day29_q9",
+    "How would you design a Notification Service (Email, SMS, Push)?"
+  ],
+  [
+    29,
+    "day29_q10",
+    "Why use message queues like Kafka or RabbitMQ for notifications?"
+  ],
+  [
+    29,
+    "day29_q11",
+    "How do you prevent duplicate notifications (Idempotency)?"
+  ],
+  [
+    30,
+    "day30_q1",
+    "Explain your capstone project in two minutes."
+  ],
+  [
+    30,
+    "day30_q2",
+    "What real-world problem does your project solve?"
+  ],
+  [
+    30,
+    "day30_q3",
+    "What is the high-level architecture of your project?"
+  ],
+  [
+    30,
+    "day30_q6",
+    "What was the most difficult technical challenge you faced, and how did you resolve it?"
+  ],
+  [
+    30,
+    "day30_q8",
+    "How does your frontend communicate with the backend?"
+  ],
+  [
+    30,
+    "day30_q11",
+    "How did you secure your REST APIs?"
+  ],
+  [
+    30,
+    "day30_q13",
+    "Where and how did you deploy your project?"
+  ],
+  [
+    30,
+    "day30_q16",
+    "How do you structure your backend to handle database connection failures?"
+  ],
+  [
+    30,
+    "day30_q17",
+    "What are React components, props, state, and hooks (useState vs useEffect)?"
+  ],
+  [
+    30,
+    "day30_q18",
+    "How do you optimize frontend performance and handle API errors?"
+  ]
+]
