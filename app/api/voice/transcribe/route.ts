@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AssemblyAI } from "assemblyai";
 import Groq from "groq-sdk";
-import { getAssemblyAIKeys, getActiveGroqKey } from "@/lib/config/cloud-fallback";
+import { getAssemblyAIKeys, getActiveGroqKey, getActiveSpeechmaticsKey } from "@/lib/config/cloud-fallback";
+import { transcribeWithSpeechmatics } from "@/lib/voice/speechmatics-client";
 
 export async function POST(request: NextRequest) {
   try {
@@ -82,12 +83,37 @@ export async function POST(request: NextRequest) {
           throw new Error(transcript.error || "AssemblyAI Secondary returned error status.");
         }
       } catch (err: any) {
-        console.warn("AssemblyAI Secondary STT failed. Trying Groq Whisper Fallback:", err.message || err);
+        console.warn("AssemblyAI Secondary STT failed. Trying Speechmatics Fallback:", err.message || err);
       }
     }
 
     // -------------------------------------------------------------
-    // TIER 3: Groq Whisper Cloud Fallback (whisper-large-v3-turbo)
+    // TIER 3: Speechmatics Fallback Engine (when AssemblyAI tokens exhausted)
+    // -------------------------------------------------------------
+    const speechmaticsKey = getActiveSpeechmaticsKey();
+    if (speechmaticsKey) {
+      try {
+        const speechmaticsRes = await transcribeWithSpeechmatics(
+          audioBuffer,
+          file.name || "interview_answer.webm",
+          speechmaticsKey
+        );
+
+        if (speechmaticsRes.text) {
+          return NextResponse.json({
+            success: true,
+            text: speechmaticsRes.text,
+            provider: "speechmatics-fallback",
+            jobId: speechmaticsRes.jobId,
+          });
+        }
+      } catch (err: any) {
+        console.warn("Speechmatics STT fallback error. Trying Groq Whisper Fallback:", err.message || err);
+      }
+    }
+
+    // -------------------------------------------------------------
+    // TIER 4: Groq Whisper Cloud Fallback (whisper-large-v3-turbo)
     // -------------------------------------------------------------
     if (groqKey) {
       try {
@@ -117,7 +143,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: "All transcription providers (AssemblyAI Primary, Secondary, and Whisper) failed to transcribe audio. Please check your microphone and speak clearly.",
+        error: "All transcription providers (AssemblyAI Primary, AssemblyAI Secondary, Speechmatics, and Whisper) failed to transcribe audio. Please check your microphone and speak clearly.",
       },
       { status: 500 }
     );

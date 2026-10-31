@@ -31,7 +31,12 @@ export const CLOUD_DEFAULTS = {
   ),
   ASSEMBLYAI_KEY_1: "e7560797a28c4dfa8779fad911ac05b9",
   ASSEMBLYAI_KEY_2: "b1f3167ba9a2430cbc43c973f5735028",
+  SPEECHMATICS_KEY: "QZ9ipWOQ0eDcagpoRCWZVxQY989X5UTc",
 };
+
+export function getActiveSpeechmaticsKey(): string {
+  return process.env.SPEECHMATICS_API_KEY || CLOUD_DEFAULTS.SPEECHMATICS_KEY;
+}
 
 export function getAssemblyAIKeys(): string[] {
   const keys = [
