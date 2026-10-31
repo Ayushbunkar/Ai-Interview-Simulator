@@ -468,7 +468,7 @@ export default function SpeechDrillPage() {
                   )}
                   <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/20">
                     <Zap className="h-3 w-3 text-amber-400" />
-                    AssemblyAI Dual Key + Speechmatics + Whisper Backup
+                    AssemblyAI + Speechmatics + Sarvam AI + Whisper
                   </span>
                 </div>
 
@@ -497,7 +497,7 @@ export default function SpeechDrillPage() {
               {isTranscribing && (
                 <div className="flex items-center gap-2.5 p-3 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-cyan-300 text-xs">
                   <RefreshCw className="h-4 w-4 animate-spin text-cyan-400" />
-                  <span className="font-semibold">Transcribing your speech with AssemblyAI / Speechmatics / Whisper Cloud STT... Please wait a moment.</span>
+                  <span className="font-semibold">Transcribing your speech with AI Cloud STT (AssemblyAI / Speechmatics / Sarvam / Whisper)... Please wait.</span>
                 </div>
               )}
 
@@ -509,9 +509,9 @@ export default function SpeechDrillPage() {
                   onChange={(e) => setTranscript(e.target.value)}
                   placeholder={
                     isRecording
-                      ? "🎙️ Listening... Speak your answer now. Words will transcribe in real-time, with automatic AssemblyAI, Speechmatics & Whisper backup when you stop."
+                      ? "🎙️ Listening... Speak your answer now. Words will transcribe in real-time, with automatic AssemblyAI, Speechmatics, Sarvam & Whisper backup when you stop."
                       : isTranscribing
-                      ? "⚡ Transcribing speech with AssemblyAI / Speechmatics / Whisper..."
+                      ? "⚡ Transcribing speech with AI (AssemblyAI / Speechmatics / Sarvam / Whisper)..."
                       : "Click 'Start Speaking Answer' to record your response. Your spoken words will transcribe and be evaluated here automatically."
                   }
                   className="w-full rounded-xl bg-black/40 border border-white/[0.08] px-4 py-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all font-sans leading-relaxed resize-none"

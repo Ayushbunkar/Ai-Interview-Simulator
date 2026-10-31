@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { AssemblyAI } from "assemblyai";
 import Groq from "groq-sdk";
-import { getAssemblyAIKeys, getActiveGroqKey, getActiveSpeechmaticsKey } from "@/lib/config/cloud-fallback";
+import {
+  getAssemblyAIKeys,
+  getActiveGroqKey,
+  getActiveSpeechmaticsKey,
+  getActiveSarvamKey,
+} from "@/lib/config/cloud-fallback";
 import { transcribeWithSpeechmatics } from "@/lib/voice/speechmatics-client";
+import { transcribeWithSarvam } from "@/lib/voice/sarvam-client";
 
 export async function POST(request: NextRequest) {
   try {
@@ -108,12 +114,39 @@ export async function POST(request: NextRequest) {
           });
         }
       } catch (err: any) {
-        console.warn("Speechmatics STT fallback error. Trying Groq Whisper Fallback:", err.message || err);
+        console.warn("Speechmatics STT fallback error. Trying Sarvam AI Fallback:", err.message || err);
       }
     }
 
     // -------------------------------------------------------------
-    // TIER 4: Groq Whisper Cloud Fallback (whisper-large-v3-turbo)
+    // TIER 4: Sarvam AI Indic/English STT Engine (saaras:v4)
+    // -------------------------------------------------------------
+    const sarvamKey = getActiveSarvamKey();
+    if (sarvamKey) {
+      try {
+        const sarvamRes = await transcribeWithSarvam(
+          audioBuffer,
+          file.name || "interview_answer.wav",
+          sarvamKey,
+          "en-IN"
+        );
+
+        if (sarvamRes.text) {
+          return NextResponse.json({
+            success: true,
+            text: sarvamRes.text,
+            provider: "sarvam-ai-fallback",
+            requestId: sarvamRes.requestId,
+            languageCode: sarvamRes.languageCode,
+          });
+        }
+      } catch (err: any) {
+        console.warn("Sarvam AI STT fallback error. Trying Groq Whisper Fallback:", err.message || err);
+      }
+    }
+
+    // -------------------------------------------------------------
+    // TIER 5: Groq Whisper Cloud Fallback (whisper-large-v3-turbo)
     // -------------------------------------------------------------
     if (groqKey) {
       try {
@@ -143,7 +176,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: "All transcription providers (AssemblyAI Primary, AssemblyAI Secondary, Speechmatics, and Whisper) failed to transcribe audio. Please check your microphone and speak clearly.",
+        error: "All transcription providers (AssemblyAI Primary & Secondary, Speechmatics, Sarvam AI, and Whisper) failed to transcribe audio. Please check your microphone and speak clearly.",
       },
       { status: 500 }
     );
