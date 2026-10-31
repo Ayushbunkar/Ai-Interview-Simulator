@@ -173,21 +173,38 @@ export async function POST(request: NextRequest) {
     }
 
     // -------------------------------------------------------------
-    // TIER 6: Groq Whisper Cloud Fallback (whisper-large-v3-turbo)
+    // TIER 6: Groq Whisper Cloud (Ultimate Fallback when all tokens exhausted)
     // -------------------------------------------------------------
     if (groqKey) {
       try {
         const groq = new Groq({ apiKey: groqKey });
-        const whisperRes = await groq.audio.transcriptions.create({
-          file,
-          model: "whisper-large-v3-turbo",
-          response_format: "json",
-          temperature: 0.2,
-          prompt:
-            "Technical software engineering interview answer covering Java, OOP, DBMS, SQL, Operating Systems, Computer Networks, REST APIs, System Design, LLD, HLD, AI/ML engineering, transformers, and algorithms.",
-        });
+        const safeAudioFile = new File(
+          [new Uint8Array(audioBuffer)],
+          file.name || "interview_answer.webm",
+          { type: file.type || "audio/webm" }
+        );
 
-        const text = (whisperRes.text || "").trim();
+        let whisperRes;
+        try {
+          whisperRes = await groq.audio.transcriptions.create({
+            file: safeAudioFile,
+            model: "whisper-large-v3-turbo",
+            response_format: "json",
+            temperature: 0.1,
+            prompt:
+              "Technical software engineering interview answer covering Java, OOP, DBMS, SQL, Operating Systems, Computer Networks, REST APIs, Security, Git, Testing, Linux, LLD, HLD, AI/ML engineering, transformers, and algorithms.",
+          });
+        } catch (turboErr: any) {
+          console.warn("Groq whisper-large-v3-turbo failed, falling back to whisper-large-v3:", turboErr.message || turboErr);
+          whisperRes = await groq.audio.transcriptions.create({
+            file: safeAudioFile,
+            model: "whisper-large-v3",
+            response_format: "json",
+            temperature: 0.1,
+          });
+        }
+
+        const text = (whisperRes?.text || "").trim();
         if (text) {
           return NextResponse.json({
             success: true,
