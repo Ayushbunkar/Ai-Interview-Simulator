@@ -5,9 +5,11 @@ import {
   getAssemblyAIKeys,
   getActiveGroqKey,
   getActiveSpeechmaticsKey,
+  getActiveGladiaKey,
   getActiveSarvamKey,
 } from "@/lib/config/cloud-fallback";
 import { transcribeWithSpeechmatics } from "@/lib/voice/speechmatics-client";
+import { transcribeWithGladia } from "@/lib/voice/gladia-client";
 import { transcribeWithSarvam } from "@/lib/voice/sarvam-client";
 
 export async function POST(request: NextRequest) {
@@ -114,12 +116,37 @@ export async function POST(request: NextRequest) {
           });
         }
       } catch (err: any) {
-        console.warn("Speechmatics STT fallback error. Trying Sarvam AI Fallback:", err.message || err);
+        console.warn("Speechmatics STT fallback error. Trying Gladia Fallback:", err.message || err);
       }
     }
 
     // -------------------------------------------------------------
-    // TIER 4: Sarvam AI Indic/English STT Engine (saaras:v4)
+    // TIER 4: Gladia v2 Multilingual STT Engine (Solaria)
+    // -------------------------------------------------------------
+    const gladiaKey = getActiveGladiaKey();
+    if (gladiaKey) {
+      try {
+        const gladiaRes = await transcribeWithGladia(
+          audioBuffer,
+          file.name || "interview_answer.webm",
+          gladiaKey
+        );
+
+        if (gladiaRes.text) {
+          return NextResponse.json({
+            success: true,
+            text: gladiaRes.text,
+            provider: "gladia-fallback",
+            jobId: gladiaRes.id,
+          });
+        }
+      } catch (err: any) {
+        console.warn("Gladia STT fallback error. Trying Sarvam AI Fallback:", err.message || err);
+      }
+    }
+
+    // -------------------------------------------------------------
+    // TIER 5: Sarvam AI Indic/English STT Engine (saaras:v4)
     // -------------------------------------------------------------
     const sarvamKey = getActiveSarvamKey();
     if (sarvamKey) {
@@ -146,7 +173,7 @@ export async function POST(request: NextRequest) {
     }
 
     // -------------------------------------------------------------
-    // TIER 5: Groq Whisper Cloud Fallback (whisper-large-v3-turbo)
+    // TIER 6: Groq Whisper Cloud Fallback (whisper-large-v3-turbo)
     // -------------------------------------------------------------
     if (groqKey) {
       try {
@@ -176,7 +203,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: false,
-        error: "All transcription providers (AssemblyAI Primary & Secondary, Speechmatics, Sarvam AI, and Whisper) failed to transcribe audio. Please check your microphone and speak clearly.",
+        error: "All transcription providers (AssemblyAI Primary & Secondary, Speechmatics, Gladia, Sarvam AI, and Whisper) failed to transcribe audio. Please check your microphone and speak clearly.",
       },
       { status: 500 }
     );

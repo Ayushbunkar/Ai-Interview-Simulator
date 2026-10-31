@@ -32,11 +32,16 @@ export const CLOUD_DEFAULTS = {
   ASSEMBLYAI_KEY_1: "e7560797a28c4dfa8779fad911ac05b9",
   ASSEMBLYAI_KEY_2: "b1f3167ba9a2430cbc43c973f5735028",
   SPEECHMATICS_KEY: "QZ9ipWOQ0eDcagpoRCWZVxQY989X5UTc",
+  GLADIA_KEY: "sk_gladia_28a4bb32b85d4c4f888c7de41bae9ee9",
   SARVAM_KEY: "sk_uk5bjpmz_v07MY4hwDsF5AZkWCfRuwbcN",
 };
 
 export function getActiveSpeechmaticsKey(): string {
   return process.env.SPEECHMATICS_API_KEY || CLOUD_DEFAULTS.SPEECHMATICS_KEY;
+}
+
+export function getActiveGladiaKey(): string {
+  return process.env.GLADIA_API_KEY || CLOUD_DEFAULTS.GLADIA_KEY;
 }
 
 export function getActiveSarvamKey(): string {
