@@ -669,14 +669,18 @@ export default function SpeechDrillPage() {
                   <div className="text-right">
                     <span
                       className={`inline-block px-3 py-1 rounded-full text-xs font-bold border ${
-                        evaluation.overallScore >= 85
-                          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
-                          : evaluation.overallScore >= 70
-                          ? "bg-blue-500/10 text-blue-400 border-blue-500/30"
-                          : "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                        evaluation.overallScore < 40 || evaluation.isFactuallyIncorrect
+                          ? "bg-red-500/20 text-red-400 border-red-500/40"
+                          : evaluation.overallScore < 60
+                          ? "bg-amber-500/20 text-amber-400 border-amber-500/40"
+                          : evaluation.overallScore < 75
+                          ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
+                          : evaluation.overallScore < 85
+                          ? "bg-purple-500/20 text-purple-400 border-purple-500/30"
+                          : "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
                       }`}
                     >
-                      {evaluation.overallScore >= 85 ? "Interview Ready" : evaluation.overallScore >= 70 ? "Competent" : "Needs Polish"}
+                      {evaluation.verdict || (evaluation.overallScore >= 85 ? "Interview Ready" : evaluation.overallScore >= 70 ? "Competent" : "Needs Major Work")}
                     </span>
                     <div className="text-[11px] text-slate-400 mt-1 font-mono">
                       {evaluation.wordsPerMinute} WPM
@@ -684,56 +688,117 @@ export default function SpeechDrillPage() {
                   </div>
                 </div>
 
-                {/* Sub-Score Bars */}
-                <div className="space-y-3 text-xs">
+                {/* Critical Technical Inaccuracy Warning Banner */}
+                {(evaluation.isFactuallyIncorrect || (evaluation.factualErrors && evaluation.factualErrors.length > 0)) && (
+                  <div className="rounded-xl bg-red-950/40 border border-red-500/40 p-3.5 space-y-1.5 animate-in fade-in">
+                    <div className="flex items-center gap-2 text-xs font-bold text-red-400">
+                      <ShieldAlert className="h-4 w-4 text-red-400 shrink-0" />
+                      <span>Critical Technical Inaccuracy / Concept Confusion</span>
+                    </div>
+                    <p className="text-xs text-red-200/90 leading-relaxed font-sans">
+                      In fresher and SDE technical interviews, factual mistakes (such as confusing fundamental concepts) result in an immediate low score regardless of speaking speed.
+                    </p>
+                    {evaluation.factualErrors && evaluation.factualErrors.length > 0 && (
+                      <div className="space-y-1 pt-1 border-t border-red-500/20 mt-1.5">
+                        {evaluation.factualErrors.map((err, i) => (
+                          <div key={i} className="text-xs text-red-300 font-medium flex items-start gap-1.5">
+                            <span className="text-red-400 font-bold">•</span>
+                            <span>{err}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Sub-Score Bars - Strict Technical Interview Weighting */}
+                <div className="space-y-3.5 text-xs">
+                  {/* Primary Bar: Technical Accuracy (50% Weight) */}
+                  <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                    <div className="flex justify-between items-center text-slate-200 mb-1.5">
+                      <span className="font-semibold flex items-center gap-1.5">
+                        <CheckCircle2 className="h-3.5 w-3.5 text-amber-400" />
+                        Answer Correctness & Technical Accuracy (50% Weight)
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
+                          evaluation.contentAccuracyScore >= 70
+                            ? "bg-emerald-500/20 text-emerald-400"
+                            : evaluation.contentAccuracyScore >= 40
+                            ? "bg-amber-500/20 text-amber-400"
+                            : "bg-red-500/20 text-red-400"
+                        }`}>
+                          {evaluation.contentAccuracyScore >= 70 ? "Accurate" : evaluation.contentAccuracyScore >= 40 ? "Partial" : "Inaccurate"}
+                        </span>
+                        <span className={`font-mono font-bold ${
+                          evaluation.contentAccuracyScore >= 70 ? "text-emerald-400" : evaluation.contentAccuracyScore >= 40 ? "text-amber-400" : "text-red-400"
+                        }`}>
+                          {evaluation.contentAccuracyScore}%
+                        </span>
+                      </div>
+                    </div>
+                    <div className="h-2 w-full bg-black/60 rounded-full overflow-hidden border border-white/[0.04]">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          evaluation.contentAccuracyScore >= 70
+                            ? "bg-gradient-to-r from-emerald-500 to-teal-400"
+                            : evaluation.contentAccuracyScore >= 40
+                            ? "bg-gradient-to-r from-amber-500 to-orange-500"
+                            : "bg-gradient-to-r from-red-600 via-rose-600 to-red-500"
+                        }`}
+                        style={{ width: `${Math.max(4, evaluation.contentAccuracyScore)}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Bar 2: English Grammar & Syntax (20% Weight) */}
                   <div>
                     <div className="flex justify-between text-slate-300 mb-1">
-                      <span>Pronunciation & Articulation</span>
-                      <span className="font-semibold text-cyan-400">{evaluation.articulationScore}%</span>
+                      <span>English Grammar & Sentence Syntax (20% Weight)</span>
+                      <span className={`font-semibold font-mono ${
+                        evaluation.grammarScore >= 70 ? "text-emerald-400" : evaluation.grammarScore >= 50 ? "text-amber-400" : "text-red-400"
+                      }`}>
+                        {evaluation.grammarScore}%
+                      </span>
+                    </div>
+                    <div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full transition-all duration-500 ${
+                          evaluation.grammarScore >= 70
+                            ? "bg-gradient-to-r from-emerald-500 to-teal-500"
+                            : evaluation.grammarScore >= 50
+                            ? "bg-gradient-to-r from-amber-500 to-yellow-500"
+                            : "bg-gradient-to-r from-red-500 to-rose-600"
+                        }`}
+                        style={{ width: `${Math.max(4, evaluation.grammarScore)}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Bar 3: Pronunciation & Articulation (15% Weight) */}
+                  <div>
+                    <div className="flex justify-between text-slate-300 mb-1">
+                      <span>Pronunciation & Articulation Precision (15% Weight)</span>
+                      <span className="font-semibold font-mono text-cyan-400">{evaluation.articulationScore}%</span>
                     </div>
                     <div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-500"
-                        style={{ width: `${evaluation.articulationScore}%` }}
+                        style={{ width: `${Math.max(4, evaluation.articulationScore)}%` }}
                       />
                     </div>
                   </div>
 
+                  {/* Bar 4: Speech Fluency & Rhythm (15% Weight) */}
                   <div>
                     <div className="flex justify-between text-slate-300 mb-1">
-                      <span>Speech Fluency & Rhythm</span>
-                      <span className="font-semibold text-indigo-400">{evaluation.fluencyScore}%</span>
+                      <span>Speech Fluency & Rhythm (15% Weight)</span>
+                      <span className="font-semibold font-mono text-indigo-400">{evaluation.fluencyScore}%</span>
                     </div>
                     <div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden">
                       <div
                         className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-500"
-                        style={{ width: `${evaluation.fluencyScore}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-slate-300 mb-1">
-                      <span>English Grammar & Tone</span>
-                      <span className="font-semibold text-emerald-400">{evaluation.grammarScore}%</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full transition-all duration-500"
-                        style={{ width: `${evaluation.grammarScore}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-slate-300 mb-1">
-                      <span>Technical Concept Coverage</span>
-                      <span className="font-semibold text-amber-400">{evaluation.contentAccuracyScore}%</span>
-                    </div>
-                    <div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full transition-all duration-500"
-                        style={{ width: `${evaluation.contentAccuracyScore}%` }}
+                        style={{ width: `${Math.max(4, evaluation.fluencyScore)}%` }}
                       />
                     </div>
                   </div>
@@ -776,12 +841,22 @@ export default function SpeechDrillPage() {
                 </div>
 
                 {/* Spoken Delivery Coaching */}
-                <div className="rounded-xl bg-blue-950/30 border border-blue-500/20 p-3.5 space-y-1.5">
-                  <span className="text-xs font-semibold text-blue-300 flex items-center gap-1.5">
-                    <Sparkles className="h-3.5 w-3.5 text-blue-400" />
-                    Speech Coaching Guidance
+                <div className={`rounded-xl p-3.5 space-y-1.5 border ${
+                  evaluation.overallScore < 50 || evaluation.isFactuallyIncorrect
+                    ? "bg-red-950/30 border-red-500/30 text-red-200"
+                    : "bg-blue-950/30 border-blue-500/20 text-slate-200"
+                }`}>
+                  <span className={`text-xs font-semibold flex items-center gap-1.5 ${
+                    evaluation.overallScore < 50 || evaluation.isFactuallyIncorrect
+                      ? "text-red-400"
+                      : "text-blue-300"
+                  }`}>
+                    <Sparkles className="h-3.5 w-3.5" />
+                    {evaluation.overallScore < 50 || evaluation.isFactuallyIncorrect
+                      ? "Technical Interviewer Verdict & Coaching"
+                      : "Speech Coaching Guidance"}
                   </span>
-                  <p className="text-xs text-slate-300 leading-relaxed font-sans">
+                  <p className="text-xs leading-relaxed font-sans">
                     {evaluation.deliveryCoaching}
                   </p>
                 </div>
