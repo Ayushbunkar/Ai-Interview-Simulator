@@ -48,6 +48,7 @@ import {
 import { SpeechEvaluationResult } from "@/lib/assessment/speech-articulation-evaluator";
 import { BrowserSpeechSynthesizer } from "@/lib/voice/speech-synthesis";
 import { BrowserSpeechRecognizer } from "@/lib/voice/speech-recognition";
+import { MediaAudioRecorder } from "@/lib/voice/media-audio-recorder";
 
 const ICON_MAP: Record<string, any> = {
   Coffee,
@@ -90,7 +91,14 @@ export default function SpeechDrillPage() {
   const [isPlayingTTS, setIsPlayingTTS] = useState<boolean>(false);
   const synthesizerRef = useRef<BrowserSpeechSynthesizer | null>(null);
   const recognizerRef = useRef<BrowserSpeechRecognizer | null>(null);
+  const audioRecorderRef = useRef<MediaAudioRecorder | null>(null);
+  const liveFinalTranscriptRef = useRef<string>("");
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Whisper Cloud STT & Audio Fallback State
+  const [isTranscribing, setIsTranscribing] = useState<boolean>(false);
+  const [voiceError, setVoiceError] = useState<string | null>(null);
+  const [isAudioDetected, setIsAudioDetected] = useState<boolean>(false);
 
   // Topic selector drawer / modal
   const [isTopicModalOpen, setIsTopicModalOpen] = useState<boolean>(false);
@@ -106,6 +114,7 @@ export default function SpeechDrillPage() {
     return () => {
       if (synthesizerRef.current) synthesizerRef.current.stop();
       if (recognizerRef.current) recognizerRef.current.stop();
+      if (audioRecorderRef.current) audioRecorderRef.current.stop();
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, []);
@@ -177,50 +186,116 @@ export default function SpeechDrillPage() {
     }
   };
 
-  // Start Voice Answer Recording
-  const handleStartRecording = (mode: "initial" | "re-speak" = "initial") => {
+  // Start Voice Answer Recording (Dual-Engine: Live Browser STT + Whisper AI Audio Backup)
+  const handleStartRecording = async (mode: "initial" | "re-speak" = "initial") => {
     if (synthesizerRef.current) synthesizerRef.current.stop();
     setIsPlayingTTS(false);
+    setVoiceError(null);
 
     setPracticeMode(mode);
     setTranscript("");
+    liveFinalTranscriptRef.current = "";
     setIsRecording(true);
+    setIsAudioDetected(false);
+
+    // 1. Initialize & Start MediaAudioRecorder (Local microphone capture for 100% reliable Whisper STT)
+    audioRecorderRef.current = new MediaAudioRecorder({
+      onRecordingStart: () => {
+        setIsAudioDetected(true);
+      },
+      onError: (err) => {
+        console.warn("Audio recorder warning:", err);
+        setVoiceError(err);
+      },
+    });
 
     try {
+      const audioStarted = await audioRecorderRef.current.start();
+      if (audioStarted) {
+        setIsAudioDetected(true);
+      }
+    } catch (e: any) {
+      console.warn("Audio recorder start error:", e);
+      setVoiceError(e.message || "Microphone access could not be initialized.");
+    }
+
+    // 2. Initialize & Start BrowserSpeechRecognizer for real-time live streaming text
+    try {
+      let accumulatedFinal = "";
       recognizerRef.current = new BrowserSpeechRecognizer({
         continuous: true,
         interimResults: true,
         lang: "en-US",
         onInterimTranscript: (interim) => {
-          setTranscript(prev => {
-            const base = prev.split(" [")[0];
-            return `${base} ${interim}`.trim();
-          });
+          setIsAudioDetected(true);
+          const full = (accumulatedFinal ? accumulatedFinal + " " : "") + interim;
+          setTranscript(full.trim());
         },
         onFinalTranscript: (final) => {
-          setTranscript(prev => {
-            const trimmed = prev.replace(/\s*\[.*\]\s*$/, "").trim();
-            return trimmed ? `${trimmed} ${final}`.trim() : final;
-          });
+          setIsAudioDetected(true);
+          accumulatedFinal = final.trim();
+          liveFinalTranscriptRef.current = accumulatedFinal;
+          setTranscript(accumulatedFinal);
         },
         onError: (err) => {
-          console.warn("Speech recognition error:", err);
+          console.warn("Browser live speech warning:", err);
+          // If browser speech API encounters a network or unsupported error,
+          // MediaAudioRecorder continues recording and Whisper AI will transcribe automatically upon stop!
+        },
+        onNetworkFallback: () => {
+          console.warn("Browser Web Speech network error. Whisper AI will automatically transcribe upon stopping.");
         },
       });
 
       recognizerRef.current.start();
-    } catch (err) {
-      console.error("Failed to start speech recognition:", err);
-      setIsRecording(false);
+    } catch (err: any) {
+      console.warn("Live speech recognition start error:", err);
     }
   };
 
-  // Stop Recording
-  const handleStopRecording = () => {
-    if (recognizerRef.current) {
-      recognizerRef.current.stop();
-    }
+  // Stop Recording & Finalize Transcription
+  const handleStopRecording = async () => {
     setIsRecording(false);
+    setIsAudioDetected(false);
+
+    // Stop live browser recognition
+    if (recognizerRef.current) {
+      try {
+        recognizerRef.current.stop();
+      } catch {}
+    }
+
+    // Check if live speech recognition already captured a full response (> 15 chars)
+    const currentLiveText = (liveFinalTranscriptRef.current || transcript).trim();
+    if (currentLiveText.length >= 15) {
+      setTranscript(currentLiveText);
+      // Clean up audio recorder without waiting for network transcribe
+      if (audioRecorderRef.current && audioRecorderRef.current.isRecording()) {
+        try { await audioRecorderRef.current.stop(); } catch {}
+      }
+      return;
+    }
+
+    // If live text is empty or very short, automatically transcribe with Groq Whisper Cloud STT!
+    if (audioRecorderRef.current) {
+      setIsTranscribing(true);
+      try {
+        const whisperText = await audioRecorderRef.current.stopAndTranscribe();
+        if (whisperText && whisperText.trim()) {
+          setTranscript(whisperText.trim());
+          setVoiceError(null);
+        } else if (!currentLiveText) {
+          setVoiceError("No speech detected. Please ensure your microphone is unmuted, speak clearly, and click 'Stop Recording'.");
+        }
+      } catch (err: any) {
+        console.error("Whisper transcription error:", err);
+        if (!currentLiveText) {
+          setVoiceError(err.message || "Failed to transcribe audio. Please check your microphone or type your answer.");
+        }
+      } finally {
+        setIsTranscribing(false);
+      }
+    }
   };
 
   // Evaluate Spoken Answer
@@ -228,7 +303,7 @@ export default function SpeechDrillPage() {
     if (!transcript.trim()) return;
 
     if (isRecording) {
-      handleStopRecording();
+      await handleStopRecording();
     }
 
     setIsEvaluating(true);
@@ -391,15 +466,40 @@ export default function SpeechDrillPage() {
                       Repeating Real Answer
                     </span>
                   )}
+                  <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/20">
+                    <Zap className="h-3 w-3 text-amber-400" />
+                    Live STT + Whisper AI Backup
+                  </span>
                 </div>
 
                 {isRecording && (
-                  <div className="flex items-center gap-1.5 text-xs font-mono text-red-400 font-semibold bg-red-500/10 px-2.5 py-1 rounded-md border border-red-500/20 animate-pulse">
+                  <div className="flex items-center gap-2 text-xs font-mono text-red-400 font-semibold bg-red-500/10 px-2.5 py-1 rounded-md border border-red-500/20 animate-pulse">
                     <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
                     <span>00:{recordingSeconds.toString().padStart(2, "0")}</span>
                   </div>
                 )}
               </div>
+
+              {/* Error Alert Banner */}
+              {voiceError && (
+                <div className="flex items-center justify-between p-3 rounded-xl bg-amber-950/40 border border-amber-500/30 text-amber-300 text-xs">
+                  <div className="flex items-center gap-2">
+                    <AlertCircle className="h-4 w-4 text-amber-400 shrink-0" />
+                    <span>{voiceError}</span>
+                  </div>
+                  <button onClick={() => setVoiceError(null)} className="text-slate-400 hover:text-white px-2 py-0.5 rounded text-xs">
+                    ✕
+                  </button>
+                </div>
+              )}
+
+              {/* Transcribing Indicator Banner */}
+              {isTranscribing && (
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-cyan-300 text-xs">
+                  <RefreshCw className="h-4 w-4 animate-spin text-cyan-400" />
+                  <span className="font-semibold">Transcribing your speech with Groq Whisper AI... Please wait a moment.</span>
+                </div>
+              )}
 
               {/* Transcription Display / Edit Box */}
               <div className="relative">
@@ -409,15 +509,22 @@ export default function SpeechDrillPage() {
                   onChange={(e) => setTranscript(e.target.value)}
                   placeholder={
                     isRecording
-                      ? "Listening to your speech in real-time... Speak clearly into your microphone."
+                      ? "🎙️ Listening... Speak your answer now. Words will transcribe in real-time, with automatic Whisper AI backup when you stop."
+                      : isTranscribing
+                      ? "⚡ Transcribing speech with Whisper AI..."
                       : "Click 'Start Speaking Answer' to record your response. Your spoken words will transcribe and be evaluated here automatically."
                   }
                   className="w-full rounded-xl bg-black/40 border border-white/[0.08] px-4 py-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all font-sans leading-relaxed resize-none"
                 />
 
                 {isRecording && (
-                  <div className="absolute right-3 bottom-3 flex items-center gap-1 text-[11px] text-cyan-400 font-mono bg-cyan-950/80 px-2 py-0.5 rounded border border-cyan-500/30">
-                    <span className="animate-pulse">● Live transcribing</span>
+                  <div className="absolute right-3 bottom-3 flex items-center gap-2 text-[11px] font-mono bg-black/90 px-2.5 py-1 rounded-md border border-red-500/30">
+                    <div className="flex items-center gap-1">
+                      <span className="w-1 h-2.5 bg-red-400 rounded-full animate-bounce [animation-delay:0ms]" />
+                      <span className="w-1 h-4 bg-red-400 rounded-full animate-bounce [animation-delay:150ms]" />
+                      <span className="w-1 h-2.5 bg-red-400 rounded-full animate-bounce [animation-delay:300ms]" />
+                    </div>
+                    <span className="text-red-300 font-semibold">Recording Mic</span>
                   </div>
                 )}
               </div>
@@ -427,8 +534,9 @@ export default function SpeechDrillPage() {
                 <div className="flex items-center gap-2">
                   {!isRecording ? (
                     <button
+                      disabled={isTranscribing}
                       onClick={() => handleStartRecording(practiceMode)}
-                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-600 via-rose-600 to-red-500 hover:from-red-500 hover:to-rose-500 text-white text-xs font-semibold shadow-lg shadow-red-500/20 active:scale-95 transition-all"
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-600 via-rose-600 to-red-500 hover:from-red-500 hover:to-rose-500 disabled:opacity-50 text-white text-xs font-semibold shadow-lg shadow-red-500/20 active:scale-95 transition-all"
                     >
                       <Mic className="h-4 w-4" />
                       <span>{transcript ? "Speak More / Resume" : "Start Speaking Answer"}</span>
@@ -436,14 +544,21 @@ export default function SpeechDrillPage() {
                   ) : (
                     <button
                       onClick={handleStopRecording}
-                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-700 hover:bg-slate-600 text-white text-xs font-semibold shadow-md active:scale-95 transition-all border border-slate-600"
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-slate-800 to-slate-700 hover:bg-slate-600 text-white text-xs font-semibold shadow-md active:scale-95 transition-all border border-red-500/40"
                     >
                       <MicOff className="h-4 w-4 text-red-400" />
-                      <span>Stop Recording</span>
+                      <span>Stop Recording & Transcribe</span>
                     </button>
                   )}
 
-                  {transcript && (
+                  {isTranscribing && (
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 text-xs font-medium">
+                      <RefreshCw className="h-3.5 w-3.5 animate-spin text-cyan-400" />
+                      <span>Whisper AI Transcribing...</span>
+                    </div>
+                  )}
+
+                  {transcript && !isRecording && (
                     <button
                       onClick={() => setTranscript("")}
                       title="Clear answer"

@@ -37,6 +37,10 @@ export class MediaAudioRecorder {
     return this.isCurrentlyRecording;
   }
 
+  public getStream(): MediaStream | null {
+    return this.stream;
+  }
+
   public async start(): Promise<boolean> {
     if (!this.isSupported()) {
       this.options.onError?.("Audio recording is not supported in this browser.");
@@ -109,7 +113,12 @@ export class MediaAudioRecorder {
   }
 
   public async stop(): Promise<Blob | null> {
-    if (!this.mediaRecorder || !this.isCurrentlyRecording) {
+    if (!this.mediaRecorder || this.mediaRecorder.state === "inactive") {
+      this.isCurrentlyRecording = false;
+      this.cleanupStream();
+      if (this.audioChunks.length > 0) {
+        return new Blob(this.audioChunks, { type: "audio/webm" });
+      }
       return null;
     }
 
@@ -130,9 +139,14 @@ export class MediaAudioRecorder {
       };
 
       try {
-        this.mediaRecorder.stop();
+        if (this.mediaRecorder.state === "recording") {
+          try { this.mediaRecorder.requestData(); } catch {}
+          this.mediaRecorder.stop();
+        }
       } catch {
-        resolve(null);
+        this.isCurrentlyRecording = false;
+        this.cleanupStream();
+        resolve(this.audioChunks.length > 0 ? new Blob(this.audioChunks, { type: "audio/webm" }) : null);
       }
     });
   }

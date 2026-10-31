@@ -120,9 +120,13 @@ export class BrowserSpeechRecognizer {
       } else if (error === "no-speech") {
         // Normal silence event in Chrome - onend will fire and restart safely
       } else if (error === "network") {
-        console.warn("Browser Web Speech API network event encountered.");
+        this.isListening = false;
+        this.setStatus("error");
+        console.warn("Browser Web Speech API network event encountered. Delegating to audio recording fallback.");
         if (this.options.onNetworkFallback) {
           this.options.onNetworkFallback();
+        } else {
+          this.options.onError?.("Browser speech recognition network error. Please use Whisper AI audio recording.");
         }
       } else if (error !== "aborted") {
         console.warn(`Speech recognition event (${error}).`);
