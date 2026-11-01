@@ -43,7 +43,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="min-h-screen bg-background text-foreground antialiased selection:bg-blue-600 selection:text-white transition-colors duration-150 flex flex-col">
+      <body className="min-h-screen bg-background text-foreground antialiased selection:bg-blue-500/20 selection:text-foreground transition-colors duration-150 flex flex-col">
         <AuthProvider>
           <ThemeProvider>
             <Navbar />

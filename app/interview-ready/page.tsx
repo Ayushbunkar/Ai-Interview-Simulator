@@ -508,11 +508,11 @@ export default function InterviewReadyPage() {
             )}
 
             {/* INTERVIEW QUESTIONS ACCORDION LIST */}
-            <div className="rounded-2xl border border-white/[0.08] bg-[#0c1222]/90 p-5 sm:p-6 shadow-xl space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-3">
+            <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/70 p-5 sm:p-6 shadow-sm space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 dark:border-zinc-800 pb-3">
                 <div className="flex items-center gap-2">
-                  <HelpCircle className="h-4 w-4 text-amber-400" />
-                  <h4 className="text-sm font-bold text-white tracking-tight">
+                  <HelpCircle className="h-4 w-4 text-amber-500" />
+                  <h4 className="text-sm font-bold text-zinc-900 dark:text-zinc-50 tracking-tight">
                     Interview Questions, Answers & Core Logic ({currentDay.questions.length} Questions)
                   </h4>
                 </div>
@@ -520,13 +520,13 @@ export default function InterviewReadyPage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleToggleAllQuestionsForDay(currentDay, true)}
-                    className="text-[11px] text-slate-400 hover:text-white px-2 py-1 rounded bg-white/[0.04]"
+                    className="text-[11px] text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white px-2 py-1 rounded bg-zinc-100 dark:bg-zinc-800"
                   >
                     Expand All
                   </button>
                   <button
                     onClick={() => handleToggleAllQuestionsForDay(currentDay, false)}
-                    className="text-[11px] text-slate-400 hover:text-white px-2 py-1 rounded bg-white/[0.04]"
+                    className="text-[11px] text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white px-2 py-1 rounded bg-zinc-100 dark:bg-zinc-800"
                   >
                     Collapse All
                   </button>
@@ -544,8 +544,8 @@ export default function InterviewReadyPage() {
                       key={q.id}
                       className={`rounded-xl border transition-all ${
                         isDone
-                          ? "bg-[#09151c]/60 border-emerald-500/30"
-                          : "bg-white/[0.02] border-white/[0.06] hover:border-white/[0.12]"
+                          ? "bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800/40"
+                          : "bg-zinc-50/50 dark:bg-zinc-900/40 border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-700"
                       }`}
                     >
                       {/* Question Header Bar */}

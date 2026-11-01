@@ -443,7 +443,7 @@ export default function ReportDetailPage() {
                 </div>
 
                 {sub.code && (
-                  <pre className="p-3 rounded-lg bg-slate-950 text-slate-100 font-mono text-xs overflow-x-auto">
+                  <pre className="p-3 rounded-lg bg-zinc-900 text-zinc-100 font-mono text-xs overflow-x-auto border border-zinc-800">
                     {sub.code}
                   </pre>
                 )}

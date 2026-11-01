@@ -1331,36 +1331,36 @@ export default function InterviewRoomPage() {
             </div>
 
             {/* Bottom Output / Tests Drawer */}
-            <div className="h-44 border-t border-border bg-slate-950 flex flex-col shrink-0 overflow-hidden">
-              <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900/80 px-3 py-1.5 text-xs text-slate-300 shrink-0">
+            <div className="h-44 border-t border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 flex flex-col shrink-0 overflow-hidden">
+              <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 bg-zinc-100/80 dark:bg-zinc-900/80 px-3 py-1.5 text-xs text-zinc-700 dark:text-zinc-300 shrink-0">
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => setActiveConsoleTab("terminal")}
                     className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-semibold transition ${
-                      activeConsoleTab === "terminal" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-slate-200"
+                      activeConsoleTab === "terminal" ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-xs border border-zinc-200 dark:border-zinc-700" : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
                     }`}
                   >
-                    <Terminal className="h-3 w-3 text-emerald-400" />
+                    <Terminal className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
                     <span>Console Output</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setActiveConsoleTab("tests")}
                     className={`flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-semibold transition ${
-                      activeConsoleTab === "tests" ? "bg-slate-800 text-white" : "text-slate-400 hover:text-slate-200"
+                      activeConsoleTab === "tests" ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-xs border border-zinc-200 dark:border-zinc-700" : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200"
                     }`}
                   >
-                    <CheckCircle2 className="h-3 w-3 text-blue-400" />
+                    <CheckCircle2 className="h-3 w-3 text-blue-600 dark:text-blue-400" />
                     <span>Test Cases {submitResult ? `(${submitResult.passedCount ?? 0}/${submitResult.totalCount ?? 0})` : ""}</span>
                   </button>
                 </div>
 
-                <div className="flex items-center gap-2 text-[11px] text-slate-400">
+                <div className="flex items-center gap-2 text-[11px] text-zinc-500 dark:text-zinc-400">
                   {runResult?.time && <span>Time: {runResult.time}s</span>}
                   {submitResult?.status && (
                     <span className={`px-2 py-0.5 rounded uppercase font-bold text-[10px] ${
-                      submitResult.status === "accepted" ? "bg-emerald-500/20 text-emerald-400" : "bg-red-500/20 text-red-400"
+                      submitResult.status === "accepted" ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400" : "bg-red-500/20 text-red-600 dark:text-red-400"
                     }`}>
                       {submitResult.status}
                     </span>
@@ -1369,31 +1369,31 @@ export default function InterviewRoomPage() {
               </div>
 
               {/* Console Drawer Body */}
-              <div className="flex-1 overflow-y-auto p-3 font-mono text-xs text-slate-200 space-y-2">
+              <div className="flex-1 overflow-y-auto p-3 font-mono text-xs text-zinc-800 dark:text-zinc-200 space-y-2">
                 {activeConsoleTab === "terminal" && (
                   <>
                     {!runResult && !submitResult && !isRunningCode && (
-                      <p className="text-slate-500 text-[11px] italic">
+                      <p className="text-zinc-500 text-[11px] italic">
                         Click &apos;Run Code&apos; to execute against sample tests, or &apos;Submit Solution&apos; to run full evaluation.
                       </p>
                     )}
 
                     {runResult?.stdout && (
                       <div>
-                        <span className="text-emerald-400 font-semibold block text-[11px]">Standard Output:</span>
-                        <pre className="whitespace-pre-wrap mt-0.5 text-slate-100 bg-slate-900/60 p-2 rounded border border-slate-800">{runResult.stdout}</pre>
+                        <span className="text-emerald-600 dark:text-emerald-400 font-semibold block text-[11px]">Standard Output:</span>
+                        <pre className="whitespace-pre-wrap mt-0.5 text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-900/60 p-2 rounded border border-zinc-200 dark:border-zinc-800">{runResult.stdout}</pre>
                       </div>
                     )}
 
                     {runResult?.compileOutput && (
                       <div>
-                        <span className="text-red-400 font-semibold block text-[11px]">Compiler Message:</span>
-                        <pre className="whitespace-pre-wrap mt-0.5 text-red-300 bg-red-950/30 p-2 rounded border border-red-500/30">{runResult.compileOutput}</pre>
+                        <span className="text-red-600 dark:text-red-400 font-semibold block text-[11px]">Compiler Message:</span>
+                        <pre className="whitespace-pre-wrap mt-0.5 text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-950/30 p-2 rounded border border-red-200 dark:border-red-500/30">{runResult.compileOutput}</pre>
                       </div>
                     )}
 
                     {runResult?.error && (
-                      <div className="text-red-400 p-2 rounded bg-red-950/20 border border-red-500/30">
+                      <div className="text-red-600 dark:text-red-400 p-2 rounded bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-500/30">
                         {runResult.error}
                       </div>
                     )}
@@ -1405,28 +1405,28 @@ export default function InterviewRoomPage() {
                     {submitResult?.results ? (
                       submitResult.results.map((r: any, idx: number) => (
                         <div key={idx} className={`p-2 rounded border text-[11px] space-y-1 ${
-                          r.passed ? "bg-emerald-950/20 border-emerald-500/30" : "bg-red-950/20 border-red-500/30"
+                          r.passed ? "bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-500/30" : "bg-red-50/60 dark:bg-red-950/20 border-red-200 dark:border-red-500/30"
                         }`}>
                           <div className="flex items-center justify-between font-semibold">
-                            <span className={r.passed ? "text-emerald-400" : "text-red-400"}>
+                            <span className={r.passed ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}>
                               Test Case {idx + 1}: {r.passed ? "PASSED" : "FAILED"}
                             </span>
                           </div>
-                          <div><span className="text-slate-400">Input:</span> {r.input}</div>
-                          <div><span className="text-slate-400">Expected:</span> {r.expected}</div>
-                          <div><span className="text-slate-400">Actual:</span> {r.actual}</div>
+                          <div><span className="text-zinc-500 dark:text-zinc-400">Input:</span> {r.input}</div>
+                          <div><span className="text-zinc-500 dark:text-zinc-400">Expected:</span> {r.expected}</div>
+                          <div><span className="text-zinc-500 dark:text-zinc-400">Actual:</span> {r.actual}</div>
                         </div>
                       ))
                     ) : codingProblem?.visibleTestCases ? (
                       codingProblem.visibleTestCases.map((tc: any, idx: number) => (
-                        <div key={idx} className="p-2 rounded bg-slate-900/60 border border-slate-800 text-[11px] space-y-1">
-                          <span className="text-slate-400 font-semibold">Sample Test Case {idx + 1}:</span>
-                          <div><span className="text-blue-400">Input:</span> {tc.input}</div>
-                          <div><span className="text-emerald-400">Expected:</span> {tc.expectedOutput}</div>
+                        <div key={idx} className="p-2 rounded bg-white dark:bg-zinc-900/60 border border-zinc-200 dark:border-zinc-800 text-[11px] space-y-1">
+                          <span className="text-zinc-600 dark:text-zinc-400 font-semibold">Sample Test Case {idx + 1}:</span>
+                          <div><span className="text-blue-600 dark:text-blue-400">Input:</span> {tc.input}</div>
+                          <div><span className="text-emerald-600 dark:text-emerald-400">Expected:</span> {tc.expectedOutput}</div>
                         </div>
                       ))
                     ) : (
-                      <p className="text-slate-500 text-[11px]">No test case results yet.</p>
+                      <p className="text-zinc-500 text-[11px]">No test case results yet.</p>
                     )}
                   </div>
                 )}
