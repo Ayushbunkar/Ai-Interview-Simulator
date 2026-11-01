@@ -58,6 +58,20 @@ export default function SignupPage() {
         throw new Error(data.error || "Failed to create account.");
       }
 
+      if (data.require2fa) {
+        try {
+          sessionStorage.setItem(
+            "interviewforge_pending_challenge",
+            JSON.stringify({
+              challengeId: data.challengeId,
+              email: data.email,
+            })
+          );
+        } catch {}
+        router.push(`/verify-otp?challenge=${data.challengeId}&email=${encodeURIComponent(data.email)}&purpose=signup`);
+        return;
+      }
+
       router.push(`/verify-email?email=${encodeURIComponent(email)}`);
     } catch (err: any) {
       setError(err.message || "An unexpected error occurred.");

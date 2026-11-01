@@ -4,7 +4,8 @@ import { db, ensureDbInitialized } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq, sql } from "drizzle-orm";
 import { hashPassword } from "@/lib/auth/password";
-import { generateVerificationToken } from "@/lib/auth/tokens";
+import { createOTPChallenge } from "@/lib/auth/otp";
+import { setPending2FACookie } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
@@ -49,15 +50,22 @@ export async function POST(req: NextRequest) {
       updatedAt: new Date(),
     });
 
-    const token = await generateVerificationToken(normalizedEmail);
+    // Send mandatory Signup Verification OTP via Brevo -> Nodemailer
+    const challenge = await createOTPChallenge(userId, normalizedEmail, "signup");
+    setPending2FACookie(challenge.challengeId, normalizedEmail);
 
     return NextResponse.json({
       success: true,
-      message: "Account created successfully. Please verify your email.",
-      email: normalizedEmail,
-      verificationToken: process.env.NODE_ENV !== "production" ? token : undefined,
+      require2fa: true,
+      purpose: "signup",
+      challengeId: challenge.challengeId,
+      email: challenge.maskedEmail,
+      expiresAt: challenge.expiresAt,
+      resendAvailableInSeconds: challenge.resendAvailableInSeconds,
+      deliveryProvider: challenge.deliveryProvider,
     });
   } catch (err: any) {
+    console.error("Registration error:", err);
     return NextResponse.json({ error: err.message || "Failed to create account." }, { status: 500 });
   }
 }

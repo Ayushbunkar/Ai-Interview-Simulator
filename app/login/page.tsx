@@ -40,11 +40,22 @@ function LoginForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        if (data.error === "EMAIL_NOT_VERIFIED") {
-          router.push(`/verify-email?email=${encodeURIComponent(email)}`);
-          return;
-        }
         throw new Error(data.error || "Failed to log in.");
+      }
+
+      // Mandatory 2FA OTP Challenge
+      if (data.require2fa) {
+        try {
+          sessionStorage.setItem(
+            "interviewforge_pending_challenge",
+            JSON.stringify({
+              challengeId: data.challengeId,
+              email: data.email,
+            })
+          );
+        } catch {}
+        router.push(`/verify-otp?challenge=${data.challengeId}&email=${encodeURIComponent(data.email)}`);
+        return;
       }
 
       await refreshUser();
@@ -178,7 +189,7 @@ function LoginForm() {
                   onChange={e => setRememberMe(e.target.checked)}
                   className="rounded border-border text-primary focus:ring-primary"
                 />
-                <span className="text-xs text-muted-foreground font-medium">Remember me for 30 days</span>
+                <span className="text-xs text-muted-foreground font-medium">Remember me for 7 days</span>
               </label>
             </div>
 

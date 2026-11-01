@@ -4,7 +4,8 @@ import { db, ensureDbInitialized } from "@/lib/db";
 import { users } from "@/lib/db/schema";
 import { eq, sql } from "drizzle-orm";
 import { exchangeGoogleCodeForTokens, getGoogleUserProfile } from "@/lib/auth/google";
-import { createSession, AUTH_COOKIE_NAME, SESSION_DURATION_MS } from "@/lib/auth/session";
+import { createOTPChallenge } from "@/lib/auth/otp";
+import { PENDING_2FA_COOKIE_NAME } from "@/lib/auth/session";
 
 export const dynamic = "force-dynamic";
 
@@ -73,26 +74,30 @@ export async function GET(req: NextRequest) {
       });
     }
 
-    const ip = req.headers.get("x-forwarded-for") || undefined;
-    const userAgent = req.headers.get("user-agent") || undefined;
+    // MANDATORY 2FA FOR GOOGLE LOGIN:
+    // Generate 6-digit OTP and send to verified email address.
+    // DO NOT create an authenticated session yet.
+    const challenge = await createOTPChallenge(userId, normalizedEmail, "login", true);
 
-    const { sessionToken, expiresAt } = await createSession(userId, { ip, userAgent });
-
-    const redirectResponse = NextResponse.redirect(`${baseUrl}/`);
+    const redirectResponse = NextResponse.redirect(
+      `${baseUrl}/verify-otp?challenge=${challenge.challengeId}&email=${encodeURIComponent(normalizedEmail)}`
+    );
 
     redirectResponse.cookies.set({
-      name: AUTH_COOKIE_NAME,
-      value: sessionToken,
+      name: PENDING_2FA_COOKIE_NAME,
+      value: JSON.stringify({ challengeId: challenge.challengeId, email: normalizedEmail, issuedAt: Date.now() }),
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       path: "/",
-      expires: expiresAt,
-      maxAge: Math.floor(SESSION_DURATION_MS / 1000),
+      maxAge: 10 * 60,
     });
 
     return redirectResponse;
   } catch (err: any) {
-    return NextResponse.redirect(`${baseUrl}/login?error=${encodeURIComponent(err.message || "Failed to sign in with Google.")}`);
+    console.error("Google OAuth Callback Error:", err);
+    return NextResponse.redirect(
+      `${baseUrl}/login?error=${encodeURIComponent(err.message || "Authentication failed during Google login.")}`
+    );
   }
 }

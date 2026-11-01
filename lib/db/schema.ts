@@ -306,8 +306,28 @@ export const authSessions = pgTable("auth_sessions", {
   userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
   sessionToken: text("session_token").notNull().unique(),
   expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+  rememberMe: boolean("remember_me").notNull().default(false),
+  revokedAt: timestamp("revoked_at", { mode: "date" }),
+  lastActivityAt: timestamp("last_activity_at", { mode: "date" }).notNull().defaultNow(),
   ipAddress: text("ip_address"),
   userAgent: text("user_agent"),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+});
+
+export const otpChallenges = pgTable("otp_challenges", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  email: text("email").notNull(),
+  otpHash: text("otp_hash").notNull(),
+  purpose: text("purpose").notNull(), // 'login' | 'signup' | 'password_reset'
+  expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+  attempts: integer("attempts").notNull().default(0),
+  maxAttempts: integer("max_attempts").notNull().default(5),
+  verifiedAt: timestamp("verified_at", { mode: "date" }),
+  consumedAt: timestamp("consumed_at", { mode: "date" }),
+  deliveryProvider: text("delivery_provider"), // 'brevo' | 'nodemailer' | 'dev_fallback'
+  rememberMe: boolean("remember_me").notNull().default(false),
+  lastResentAt: timestamp("last_resent_at", { mode: "date" }).notNull().defaultNow(),
   createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
 });
 
