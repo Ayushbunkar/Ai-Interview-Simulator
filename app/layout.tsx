@@ -47,15 +47,19 @@ export default function RootLayout({
           <div className="flex min-h-screen flex-col">
             <Navbar />
             <main className="flex-1">{children}</main>
-            <footer className="border-t border-white/[0.08] bg-slate-950/70 py-6 text-center text-xs text-slate-400 transition-colors">
+            <footer className="border-t border-white/[0.08] bg-slate-950/70 py-5 text-center text-xs text-slate-400 transition-colors">
               <div className="mx-auto max-w-7xl px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <p>InterviewForge AI © 2026. Built for realistic placement & tech hiring preparation.</p>
-                <div className="flex items-center gap-4 text-slate-400">
-                  <span>Production AI Ready</span>
-                  <span>•</span>
-                  <span>Interactive Speech Drill</span>
-                  <span>•</span>
-                  <span>Offline Seeded Bank</span>
+                <p className="flex items-center gap-1.5 text-slate-400">
+                  <span>InterviewForge AI © 2026.</span>
+                  <span className="hidden sm:inline">Built for realistic placement & tech hiring preparation.</span>
+                </p>
+                <div className="flex items-center gap-1.5 text-xs font-medium text-slate-300">
+                  <span>Made with</span>
+                  <span className="text-red-500 animate-pulse text-sm inline-block">❤️</span>
+                  <span>by</span>
+                  <span className="author-badge font-semibold text-slate-100 px-2.5 py-0.5 rounded-full border border-white/[0.1] bg-slate-900/80 shadow-sm">
+                    Ayush Bunkar
+                  </span>
                 </div>
               </div>
             </footer>

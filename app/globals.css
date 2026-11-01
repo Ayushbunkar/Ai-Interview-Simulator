@@ -337,8 +337,15 @@ html.light footer {
 }
 
 html.light footer p,
-html.light footer span {
+html.light footer span:not(.author-badge) {
   color: #64748b !important;
+}
+
+html.light footer .author-badge {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
 }
 
 /* Custom Scrollbars in Light Mode */
