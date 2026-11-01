@@ -38,8 +38,7 @@ import {
   Shuffle,
   Building2,
 } from "lucide-react";
-import { ROUND_NAMES, DEFAULT_ROUND_QUESTION_COUNT } from "@/lib/interview/engine";
-import { RoundNumber, VoiceState } from "@/lib/types";
+import { RoundNumber, VoiceState, ROUND_NAMES, DEFAULT_ROUND_QUESTION_COUNT } from "@/lib/types";
 import { VoiceSessionController } from "@/lib/voice/voice-session-controller";
 import { VoiceControls } from "@/components/voice/VoiceControls";
 import { LiveTranscriptPanel } from "@/components/voice/LiveTranscriptPanel";

@@ -7,6 +7,13 @@ export const ROUND_NAMES: Record<RoundNumber, string> = {
   4: "Behavioral & HR",
 };
 
+export const DEFAULT_ROUND_QUESTION_COUNT: Record<RoundNumber, number> = {
+  1: 4,
+  2: 4,
+  3: 1,
+  4: 4,
+};
+
 export type InterviewRoundName =
   | "Technical Fundamentals"
   | "Advanced CS & Projects"

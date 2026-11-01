@@ -1,5 +1,6 @@
 import fs from "fs";
-import { Pool } from "@neondatabase/serverless";
+import pg from "pg";
+const { Pool } = pg;
 
 function loadEnv() {
   const envPath = fs.existsSync(".env.local") ? ".env.local" : (fs.existsSync(".env") ? ".env" : null);
@@ -20,7 +21,10 @@ if (!connectionString) {
   console.error("Error: DATABASE_URL is not configured in .env.local or environment.");
   process.exit(1);
 }
-const pool = new Pool({ connectionString });
+const pool = new Pool({
+  connectionString,
+  ssl: connectionString.includes("localhost") ? false : { rejectUnauthorized: false },
+});
 
 async function seedNeon() {
   console.log("Seeding Neon database with question bank and coding problems...");

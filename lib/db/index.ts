@@ -1,5 +1,5 @@
-import { Pool } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-serverless";
+import { Pool } from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "./schema";
 import { getActiveDatabaseUrl } from "../config/cloud-fallback";
 
@@ -33,7 +33,13 @@ loadLocalEnvIfMissing();
 
 const connectionString = getActiveDatabaseUrl();
 
-export const pool = new Pool({ connectionString });
+export const pool = new Pool({
+  connectionString,
+  ssl:
+    !connectionString || connectionString.includes("localhost") || connectionString.includes("127.0.0.1")
+      ? false
+      : { rejectUnauthorized: false },
+});
 export const sqliteClient = pool; // backwards-compatible alias
 export const db = drizzle(pool, { schema });
 

@@ -27,7 +27,7 @@ export const CLOUD_DEFAULTS = {
   ]),
   GROQ_MODEL: "openai/gpt-oss-120b",
   DATABASE_URL: decodeFallback(
-    "cG9zdGdyZXNxbDovL25lb25kYl9vd25lcjpucGdfdFRMZ1gyN21RcHlKQGVwLXJlZC1jbG91ZC1iNWwxNmlvMy1wb29sZXIuYy03LnVzLWVhc3QtMi5hd3MubmVvbi50ZWNoL25lb25kYj9zc2xtb2RlPXJlcXVpcmU="
+    "cG9zdGdyZXNxbDovL3Bvc3RncmVzOnJ5anRoanR5dTU2ajZAZGIuZGdmaGtocmZkb2h4dm96c2dqcmsuc3VwYWJhc2UuY286NTQzMi9wb3N0Z3Jlcw=="
   ),
   ASSEMBLYAI_KEY_1: "e7560797a28c4dfa8779fad911ac05b9",
   ASSEMBLYAI_KEY_2: "b1f3167ba9a2430cbc43c973f5735028",

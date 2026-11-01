@@ -17,7 +17,7 @@ export async function GET() {
       timestamp: new Date().toISOString(),
       database: {
         connected: true,
-        type: "Neon Serverless PostgreSQL",
+        type: "Supabase PostgreSQL",
         questionsCount: parseInt(dbCheck.rows[0]?.count || "0", 10),
       },
       ai: {
