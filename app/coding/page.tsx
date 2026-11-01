@@ -75,7 +75,7 @@ function CodingArenaContent() {
   const [currentProblem, setCurrentProblem] = useState<Problem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { theme } = useTheme();
+  const { theme, resolvedTheme } = useTheme();
 
   // Editor states
   const [language, setLanguage] = useState<"java" | "python" | "cpp">("java");
@@ -279,32 +279,32 @@ function CodingArenaContent() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-65px)] flex-col bg-[#0b0f17]">
+    <div className="flex h-[calc(100vh-65px)] flex-col bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 transition-colors">
       {/* Top Problem Navigation Toolbar */}
-      <div className="flex items-center justify-between border-b border-gray-800 bg-gray-950/80 px-4 py-2 text-xs">
+      <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 px-4 py-2 text-xs transition-colors">
         <div className="flex items-center gap-3">
           {sessionId ? (
             <Link
               href={`/interview/${sessionId}`}
-              className="inline-flex items-center gap-1 rounded bg-blue-600/20 border border-blue-500/30 px-2.5 py-1 text-xs font-semibold text-blue-400 hover:bg-blue-600/30 transition"
+              className="inline-flex items-center gap-1 rounded bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 px-2.5 py-1 text-xs font-semibold text-blue-700 dark:text-blue-300 hover:bg-blue-100 transition"
             >
               <ArrowLeft className="h-3.5 w-3.5" />
               <span>Return to Live Interview</span>
             </Link>
           ) : (
-            <Link href="/" className="text-gray-400 hover:text-white flex items-center gap-1">
+            <Link href="/" className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 flex items-center gap-1 font-medium transition">
               <ArrowLeft className="h-3.5 w-3.5" />
               <span>Dashboard</span>
             </Link>
           )}
 
-          <div className="h-4 w-px bg-gray-800" />
+          <div className="h-4 w-px bg-zinc-200 dark:bg-zinc-800" />
 
           {/* Problem Selector Dropdown */}
           <select
             value={querySlug}
             onChange={e => router.push(`/coding?slug=${e.target.value}${sessionId ? `&sessionId=${sessionId}` : ""}`)}
-            className="rounded border border-gray-800 bg-gray-900 px-2 py-1 font-semibold text-white focus:outline-none"
+            className="rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-2 py-1 font-semibold text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-400"
           >
             {problemList.map(p => (
               <option key={p.slug} value={p.slug}>
@@ -318,7 +318,7 @@ function CodingArenaContent() {
             <button
               disabled={!prevProblem}
               onClick={() => prevProblem && router.push(`/coding?slug=${prevProblem.slug}${sessionId ? `&sessionId=${sessionId}` : ""}`)}
-              className="p-1 rounded text-gray-400 hover:text-white hover:bg-gray-800 disabled:opacity-30"
+              className="p-1 rounded text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-30 transition"
               title="Previous Problem"
             >
               <ChevronLeft className="h-4 w-4" />
@@ -326,7 +326,7 @@ function CodingArenaContent() {
             <button
               disabled={!nextProblem}
               onClick={() => nextProblem && router.push(`/coding?slug=${nextProblem.slug}${sessionId ? `&sessionId=${sessionId}` : ""}`)}
-              className="p-1 rounded text-gray-400 hover:text-white hover:bg-gray-800 disabled:opacity-30"
+              className="p-1 rounded text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 disabled:opacity-30 transition"
               title="Next Problem"
             >
               <ChevronRight className="h-4 w-4" />
@@ -338,17 +338,17 @@ function CodingArenaContent() {
         <div className="flex items-center gap-3">
           <button
             onClick={handleToggleBookmark}
-            className={`p-1.5 rounded transition ${isBookmarked ? "text-amber-400" : "text-gray-400 hover:text-white"}`}
+            className={`p-1.5 rounded transition ${isBookmarked ? "text-amber-500" : "text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"}`}
             title="Bookmark Problem"
           >
-            <Bookmark className={`h-4 w-4 ${isBookmarked ? "fill-amber-400" : ""}`} />
+            <Bookmark className={`h-4 w-4 ${isBookmarked ? "fill-amber-500" : ""}`} />
           </button>
 
           {/* Language Selector */}
           <select
             value={language}
             onChange={e => handleLanguageChange(e.target.value as any)}
-            className="rounded border border-gray-800 bg-gray-900 px-2.5 py-1 text-xs font-medium text-emerald-400 focus:outline-none"
+            className="rounded border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-2.5 py-1 text-xs font-semibold text-emerald-600 dark:text-emerald-400 focus:outline-none focus:ring-1 focus:ring-zinc-400"
           >
             <option value="java">Java (OpenJDK 25)</option>
             <option value="python">Python 3.14</option>
@@ -358,7 +358,7 @@ function CodingArenaContent() {
           {/* Reset Code */}
           <button
             onClick={handleResetCode}
-            className="flex items-center gap-1 text-gray-400 hover:text-white transition p-1"
+            className="flex items-center gap-1 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 transition p-1"
             title="Reset to starter code"
           >
             <RotateCcw className="h-3.5 w-3.5" />
@@ -369,13 +369,13 @@ function CodingArenaContent() {
       {/* Main Split-Pane Workspace */}
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
         {/* Left Pane: Problem Description & Tabs (5 cols) */}
-        <div className="lg:col-span-5 flex flex-col border-r border-gray-800 bg-gray-950/40 overflow-hidden">
+        <div className="lg:col-span-5 flex flex-col border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 overflow-hidden transition-colors">
           {/* Tabs */}
-          <div className="flex items-center gap-4 border-b border-gray-800 px-4 text-xs font-semibold">
+          <div className="flex items-center gap-4 border-b border-zinc-200 dark:border-zinc-800 px-4 text-xs font-semibold">
             <button
               onClick={() => setActiveTab("description")}
               className={`py-3 border-b-2 transition ${
-                activeTab === "description" ? "border-blue-500 text-white" : "border-transparent text-gray-400 hover:text-gray-200"
+                activeTab === "description" ? "border-zinc-900 dark:border-zinc-100 text-zinc-900 dark:text-zinc-100 font-bold" : "border-transparent text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
               }`}
             >
               Description
@@ -383,33 +383,33 @@ function CodingArenaContent() {
             <button
               onClick={() => setActiveTab("hints")}
               className={`py-3 border-b-2 flex items-center gap-1 transition ${
-                activeTab === "hints" ? "border-blue-500 text-white" : "border-transparent text-gray-400 hover:text-gray-200"
+                activeTab === "hints" ? "border-zinc-900 dark:border-zinc-100 text-zinc-900 dark:text-zinc-100 font-bold" : "border-transparent text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
               }`}
             >
               <span>Hints</span>
-              <span className="rounded-full bg-gray-800 px-1.5 text-[10px] text-gray-400">
+              <span className="rounded-full bg-zinc-100 dark:bg-zinc-800 px-1.5 text-[10px] text-zinc-600 dark:text-zinc-400">
                 {currentProblem?.hints.length || 0}
               </span>
             </button>
           </div>
 
           {/* Tab Content */}
-          <div className="flex-1 overflow-y-auto p-5 space-y-6 text-xs text-gray-300">
+          <div className="flex-1 overflow-y-auto p-5 space-y-6 text-xs text-zinc-700 dark:text-zinc-300">
             {loading && (
               <div className="py-20 text-center space-y-3">
-                <div className="inline-block h-7 w-7 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
-                <div className="text-xs text-gray-400">Loading problem details...</div>
+                <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-zinc-900 dark:border-zinc-100 border-t-transparent" />
+                <div className="text-xs text-zinc-500">Loading problem details...</div>
               </div>
             )}
 
             {!loading && (error || !currentProblem) && (
               <div className="py-16 text-center space-y-3">
                 <AlertTriangle className="mx-auto h-8 w-8 text-amber-500" />
-                <div className="text-sm font-semibold text-white">Problem could not be loaded</div>
-                <p className="text-xs text-gray-400">{error || "Unable to reach coding problems service."}</p>
+                <div className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Problem could not be loaded</div>
+                <p className="text-xs text-zinc-500">{error || "Unable to reach coding problems service."}</p>
                 <button
                   onClick={() => router.push(`/coding?slug=two-sum${sessionId ? `&sessionId=${sessionId}` : ""}`)}
-                  className="rounded-lg bg-blue-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-blue-500 transition"
+                  className="rounded-lg bg-zinc-900 dark:bg-zinc-100 px-3.5 py-1.5 text-xs font-semibold text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-white transition"
                 >
                   Load Default Problem (Two Sum)
                 </button>
@@ -421,14 +421,14 @@ function CodingArenaContent() {
                 {/* Title & Metadata */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-2">
-                    <h1 className="text-lg font-bold text-white">{currentProblem.title}</h1>
+                    <h1 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">{currentProblem.title}</h1>
                     <span
                       className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
                         currentProblem.difficulty === "easy"
-                          ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                          ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800"
                           : currentProblem.difficulty === "medium"
-                          ? "bg-amber-500/20 text-amber-400 border border-amber-500/30"
-                          : "bg-red-500/20 text-red-400 border border-red-500/30"
+                          ? "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800"
+                          : "bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800"
                       }`}
                     >
                       {currentProblem.difficulty}
@@ -438,7 +438,7 @@ function CodingArenaContent() {
                   {/* Topics */}
                   <div className="flex flex-wrap gap-1.5 pt-1">
                     {currentProblem.topicTags.map(tag => (
-                      <span key={tag} className="rounded bg-gray-800 px-2 py-0.5 text-[10px] text-gray-300">
+                      <span key={tag} className="rounded bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 text-[10px] font-medium text-zinc-700 dark:text-zinc-300">
                         {tag}
                       </span>
                     ))}
@@ -446,7 +446,7 @@ function CodingArenaContent() {
                 </div>
 
                 {/* Problem Statement */}
-                <div className="leading-relaxed whitespace-pre-line text-gray-200">
+                <div className="leading-relaxed whitespace-pre-line text-zinc-800 dark:text-zinc-200">
                   {currentProblem.description}
                 </div>
 
@@ -527,7 +527,7 @@ function CodingArenaContent() {
         </div>
 
         {/* Right Pane: Monaco Editor & Test Runner (7 cols) */}
-        <div className="lg:col-span-7 flex flex-col bg-[#1e1e1e]">
+        <div className="lg:col-span-7 flex flex-col bg-zinc-100 dark:bg-[#1e1e1e]">
           {/* Top Monaco Editor (flex-1) */}
           <div className="flex-1 relative min-h-[300px]">
             <Editor
@@ -535,7 +535,7 @@ function CodingArenaContent() {
               language={language === "cpp" ? "cpp" : language}
               value={code}
               onChange={val => setCode(val || "")}
-              theme={theme === "light" ? "light" : "vs-dark"}
+              theme={resolvedTheme === "light" ? "light" : "vs-dark"}
               options={{
                 minimap: { enabled: false },
                 fontSize: 13,
@@ -549,14 +549,14 @@ function CodingArenaContent() {
           </div>
 
           {/* Lower Test Results & Console Pane */}
-          <div className="h-64 border-t border-gray-800 bg-[#0d1117] flex flex-col">
+          <div className="h-64 border-t border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-950 flex flex-col">
             {/* Console Toolbar */}
-            <div className="flex items-center justify-between border-b border-gray-800 px-4 py-2 text-xs bg-gray-950/60">
+            <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 px-4 py-2 text-xs bg-zinc-50 dark:bg-zinc-900/80">
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setConsoleTab("testcase")}
                   className={`font-semibold transition ${
-                    consoleTab === "testcase" ? "text-white" : "text-gray-400 hover:text-gray-200"
+                    consoleTab === "testcase" ? "text-zinc-900 dark:text-zinc-100 font-bold" : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
                   }`}
                 >
                   Test Cases
@@ -564,14 +564,14 @@ function CodingArenaContent() {
                 <button
                   onClick={() => setConsoleTab("result")}
                   className={`font-semibold flex items-center gap-1.5 transition ${
-                    consoleTab === "result" ? "text-white" : "text-gray-400 hover:text-gray-200"
+                    consoleTab === "result" ? "text-zinc-900 dark:text-zinc-100 font-bold" : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
                   }`}
                 >
                   <span>Results</span>
                   {submitResult && (
                     <span
                       className={`h-2 w-2 rounded-full ${
-                        submitResult.status === "accepted" ? "bg-emerald-400" : "bg-red-400"
+                        submitResult.status === "accepted" ? "bg-emerald-500" : "bg-red-500"
                       }`}
                     />
                   )}
@@ -583,16 +583,16 @@ function CodingArenaContent() {
                 <button
                   onClick={handleRunCode}
                   disabled={isRunning || isSubmitting}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-gray-700 bg-gray-800 px-3.5 py-1.5 text-xs font-semibold text-gray-200 hover:bg-gray-700 hover:text-white disabled:opacity-40 transition"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 px-3.5 py-1.5 text-xs font-semibold text-zinc-800 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-700 disabled:opacity-40 transition shadow-sm"
                 >
-                  <Play className="h-3 w-3 fill-gray-300" />
+                  <Play className="h-3 w-3 fill-current" />
                   <span>{isRunning ? "Running..." : "Run Code"}</span>
                 </button>
 
                 <button
                   onClick={handleSubmit}
                   disabled={isRunning || isSubmitting}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-emerald-500 disabled:opacity-40 transition shadow-sm"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 px-4 py-1.5 text-xs font-semibold text-white disabled:opacity-40 transition shadow-sm"
                 >
                   <Check className="h-3.5 w-3.5" />
                   <span>{isSubmitting ? "Compiling..." : "Submit Solution"}</span>

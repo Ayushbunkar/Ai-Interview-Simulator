@@ -435,24 +435,24 @@ function SpeechDrillContent() {
   const CurrentIcon = activeCategoryMeta ? ICON_MAP[activeCategoryMeta.icon] || BookOpen : BookOpen;
 
   return (
-    <div className="min-h-screen bg-[#070b12] text-slate-100 pb-20">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 pb-20 transition-colors">
       {/* Top Banner Header */}
-      <div className="border-b border-white/[0.08] bg-[#0c1220]/70 backdrop-blur-xl sticky top-14 z-40">
+      <div className="border-b border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md sticky top-14 z-40 transition-colors">
         <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-cyan-500 via-blue-600 to-indigo-600 text-white shadow-lg shadow-cyan-500/20">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
               <Mic className="h-5 w-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-bold text-white tracking-tight">
+                <h1 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-50 tracking-tight">
                   Fresher SDE Speech Drill Room
                 </h1>
-                <span className="rounded-full bg-cyan-500/10 px-2 py-0.5 text-[11px] font-semibold text-cyan-400 border border-cyan-500/20">
+                <span className="rounded-full bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 text-[11px] font-semibold text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                   {ALL_QUESTIONS.length} Questions Bank (15 Subjects)
                 </span>
               </div>
-              <p className="text-xs text-slate-400 hidden sm:block">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 hidden sm:block">
                 Select any topic • Speak your answer • Get instant articulation & English fluency feedback • Learn the real answer
               </p>
             </div>
@@ -462,19 +462,19 @@ function SpeechDrillContent() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setIsTopicModalOpen(true)}
-              className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.1] text-xs font-medium text-slate-200 transition-colors shadow-sm"
+              className="flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 text-xs font-semibold text-zinc-800 dark:text-zinc-200 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition-colors shadow-sm"
             >
-              <CurrentIcon className="h-4 w-4 text-cyan-400" />
+              <CurrentIcon className="h-4 w-4 text-blue-500" />
               <span>
                 {selectedCatId === "all" ? `All 15 Subjects (${ALL_QUESTIONS.length} Qs)` : activeCategoryMeta?.name || "Topic"}
               </span>
-              <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+              <ChevronDown className="h-3.5 w-3.5 text-zinc-400" />
             </button>
 
             {/* Next Question Explicit Button */}
             <button
               onClick={handleNextQuestion}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-md shadow-blue-600/25 transition-all active:scale-95"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-white text-xs font-semibold shadow-sm transition-all active:scale-95"
             >
               <span>Next Question</span>
               <ArrowRight className="h-3.5 w-3.5" />
@@ -491,35 +491,35 @@ function SpeechDrillContent() {
           <div className="lg:col-span-7 space-y-5">
             {/* If navigated from roadmap, show return trail */}
             {((currentQuestion as any).source || qIdParam) && (
-              <div className="flex items-center justify-between p-2.5 rounded-xl bg-cyan-950/30 border border-cyan-500/20">
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/40">
                 <Link
                   href="/interview-ready"
-                  className="text-xs text-cyan-300 hover:text-cyan-200 flex items-center gap-1.5 font-semibold hover:underline group"
+                  className="text-xs text-blue-700 dark:text-blue-300 hover:underline flex items-center gap-1.5 font-semibold group"
                 >
                   <ArrowRight className="h-3.5 w-3.5 rotate-180 group-hover:-translate-x-0.5 transition-transform" />
                   <span>Return to Interview Ready Roadmap</span>
                 </Link>
-                <span className="text-[11px] text-cyan-400/80 font-mono bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
+                <span className="text-[11px] text-blue-700 dark:text-blue-300 font-mono bg-blue-100 dark:bg-blue-900/50 px-2 py-0.5 rounded border border-blue-200 dark:border-blue-800">
                   Target Question Loaded
                 </span>
               </div>
             )}
 
             {/* Question Card */}
-            <div className="rounded-2xl border border-white/[0.08] bg-[#0c1222]/90 p-5 sm:p-6 shadow-xl relative overflow-hidden backdrop-blur-md">
+            <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/70 p-5 sm:p-6 shadow-sm relative overflow-hidden transition-colors">
               <div className="flex items-center justify-between gap-2 mb-3">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold border ${activeCategoryMeta?.gradient || "bg-blue-500/10 text-blue-400 border-blue-500/20"}`}>
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-zinc-100 dark:bg-zinc-800 text-zinc-800 dark:text-zinc-200 border border-zinc-200 dark:border-zinc-700">
                     <CurrentIcon className="h-3 w-3" />
                     {currentQuestion.category}
                   </span>
                   {(currentQuestion as any).source ? (
-                    <span className="text-[11px] text-amber-300 font-semibold bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20 flex items-center gap-1">
-                      <Sparkles className="h-3 w-3 text-amber-400" />
+                    <span className="text-[11px] text-amber-700 dark:text-amber-300 font-semibold bg-amber-50 dark:bg-amber-950/40 px-2.5 py-1 rounded-md border border-amber-200 dark:border-amber-800 flex items-center gap-1">
+                      <Sparkles className="h-3 w-3 text-amber-500" />
                       {(currentQuestion as any).source}
                     </span>
                   ) : (
-                    <span className="text-xs text-slate-400 font-mono">
+                    <span className="text-xs text-zinc-500 dark:text-zinc-400 font-mono">
                       Q{currentQuestion.num} of 50
                     </span>
                   )}
@@ -529,10 +529,10 @@ function SpeechDrillContent() {
                   <button
                     onClick={handleToggleQuestionAudio}
                     title="Listen to question"
-                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border transition-colors ${
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold border transition-colors ${
                       isPlayingTTS
-                        ? "bg-cyan-500/20 border-cyan-500/40 text-cyan-300 animate-pulse"
-                        : "bg-white/[0.04] border-white/[0.08] text-slate-300 hover:bg-white/[0.08]"
+                        ? "bg-blue-50 dark:bg-blue-950/40 border-blue-300 dark:border-blue-700 text-blue-700 dark:text-blue-300 animate-pulse"
+                        : "bg-zinc-100 dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700"
                     }`}
                   >
                     {isPlayingTTS ? <VolumeX className="h-3.5 w-3.5" /> : <Volume2 className="h-3.5 w-3.5" />}
@@ -542,43 +542,43 @@ function SpeechDrillContent() {
               </div>
 
               {/* Question Text */}
-              <h2 className="text-lg sm:text-xl font-bold text-white leading-relaxed tracking-tight">
+              <h2 className="text-lg sm:text-xl font-bold text-zinc-900 dark:text-zinc-50 leading-relaxed tracking-tight">
                 {currentQuestion.question}
               </h2>
 
               {/* Starter Helper */}
-              <div className="mt-4 pt-3 border-t border-white/[0.06] flex items-center justify-between text-xs text-slate-400">
-                <span className="flex items-center gap-1.5 text-slate-300">
-                  <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+              <div className="mt-4 pt-3 border-t border-zinc-200 dark:border-zinc-800 flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
+                <span className="flex items-center gap-1.5 text-zinc-600 dark:text-zinc-300">
+                  <Sparkles className="h-3.5 w-3.5 text-amber-500" />
                   <span>Tip: Speak naturally for 20-45 seconds. Question stays until you click <strong>Next Question</strong>.</span>
                 </span>
-                <span className="px-2 py-0.5 rounded bg-white/[0.04] text-[10px] text-slate-400 border border-white/[0.06]">
+                <span className="px-2 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-[10px] text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700">
                   {currentQuestion.difficulty}
                 </span>
               </div>
             </div>
 
             {/* Voice Answer Recording Station */}
-            <div className="rounded-2xl border border-white/[0.08] bg-[#0c1222]/90 p-5 sm:p-6 shadow-xl space-y-4">
+            <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/70 p-5 sm:p-6 shadow-sm space-y-4 transition-colors">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className={`h-2.5 w-2.5 rounded-full ${isRecording ? "bg-red-500 animate-ping" : "bg-emerald-500"}`} />
-                  <span className="text-sm font-semibold text-white">
+                  <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                     {practiceMode === "re-speak" ? "Re-Speak Practice Mode" : "Voice Answer Input"}
                   </span>
                   {practiceMode === "re-speak" && (
-                    <span className="rounded bg-amber-500/10 text-amber-300 px-2 py-0.5 text-[10px] font-bold border border-amber-500/20">
+                    <span className="rounded bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 px-2 py-0.5 text-[10px] font-bold border border-amber-200 dark:border-amber-800">
                       Repeating Real Answer
                     </span>
                   )}
-                  <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded border border-cyan-500/20">
-                    <Zap className="h-3 w-3 text-amber-400" />
+                  <span className="hidden sm:inline-flex items-center gap-1 text-[11px] font-mono text-zinc-600 dark:text-zinc-400 bg-zinc-100 dark:bg-zinc-800 px-2 py-0.5 rounded border border-zinc-200 dark:border-zinc-700">
+                    <Zap className="h-3 w-3 text-amber-500" />
                     AssemblyAI + Speechmatics + Gladia + Sarvam + Whisper
                   </span>
                 </div>
 
                 {isRecording && (
-                  <div className="flex items-center gap-2 text-xs font-mono text-red-400 font-semibold bg-red-500/10 px-2.5 py-1 rounded-md border border-red-500/20 animate-pulse">
+                  <div className="flex items-center gap-2 text-xs font-mono text-red-600 dark:text-red-400 font-semibold bg-red-50 dark:bg-red-950/40 px-2.5 py-1 rounded-md border border-red-200 dark:border-red-800 animate-pulse">
                     <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
                     <span>00:{recordingSeconds.toString().padStart(2, "0")}</span>
                   </div>
@@ -587,12 +587,12 @@ function SpeechDrillContent() {
 
               {/* Error Alert Banner */}
               {voiceError && (
-                <div className="flex items-center justify-between p-3 rounded-xl bg-amber-950/40 border border-amber-500/30 text-amber-300 text-xs">
+                <div className="flex items-center justify-between p-3 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-xs">
                   <div className="flex items-center gap-2">
-                    <AlertCircle className="h-4 w-4 text-amber-400 shrink-0" />
+                    <AlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
                     <span>{voiceError}</span>
                   </div>
-                  <button onClick={() => setVoiceError(null)} className="text-slate-400 hover:text-white px-2 py-0.5 rounded text-xs">
+                  <button onClick={() => setVoiceError(null)} className="text-zinc-400 hover:text-zinc-600 px-2 py-0.5 rounded text-xs">
                     ✕
                   </button>
                 </div>
@@ -600,8 +600,8 @@ function SpeechDrillContent() {
 
               {/* Transcribing Indicator Banner */}
               {isTranscribing && (
-                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-cyan-950/40 border border-cyan-500/30 text-cyan-300 text-xs">
-                  <RefreshCw className="h-4 w-4 animate-spin text-cyan-400" />
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-xs">
+                  <RefreshCw className="h-4 w-4 animate-spin text-blue-600 dark:text-blue-400" />
                   <span className="font-semibold">Transcribing your speech with AI Cloud STT (AssemblyAI / Speechmatics / Gladia / Sarvam / Whisper)... Please wait.</span>
                 </div>
               )}
@@ -619,17 +619,17 @@ function SpeechDrillContent() {
                       ? "⚡ Transcribing speech with AI (AssemblyAI / Speechmatics / Gladia / Sarvam / Whisper)..."
                       : "Click 'Start Speaking Answer' to record your response. Your spoken words will transcribe and be evaluated here automatically."
                   }
-                  className="w-full rounded-xl bg-black/40 border border-white/[0.08] px-4 py-3 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-cyan-500/50 focus:ring-1 focus:ring-cyan-500/50 transition-all font-sans leading-relaxed resize-none"
+                  className="w-full rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 px-4 py-3 text-sm text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400 focus:outline-none focus:ring-1 focus:ring-zinc-400 transition-all font-sans leading-relaxed resize-none"
                 />
 
                 {isRecording && (
-                  <div className="absolute right-3 bottom-3 flex items-center gap-2 text-[11px] font-mono bg-black/90 px-2.5 py-1 rounded-md border border-red-500/30">
+                  <div className="absolute right-3 bottom-3 flex items-center gap-2 text-[11px] font-mono bg-white dark:bg-zinc-900 px-2.5 py-1 rounded-md border border-red-200 dark:border-red-800 shadow-sm">
                     <div className="flex items-center gap-1">
-                      <span className="w-1 h-2.5 bg-red-400 rounded-full animate-bounce [animation-delay:0ms]" />
-                      <span className="w-1 h-4 bg-red-400 rounded-full animate-bounce [animation-delay:150ms]" />
-                      <span className="w-1 h-2.5 bg-red-400 rounded-full animate-bounce [animation-delay:300ms]" />
+                      <span className="w-1 h-2.5 bg-red-500 rounded-full animate-bounce [animation-delay:0ms]" />
+                      <span className="w-1 h-4 bg-red-500 rounded-full animate-bounce [animation-delay:150ms]" />
+                      <span className="w-1 h-2.5 bg-red-500 rounded-full animate-bounce [animation-delay:300ms]" />
                     </div>
-                    <span className="text-red-300 font-semibold">Recording Mic</span>
+                    <span className="text-red-600 dark:text-red-400 font-semibold">Recording Mic</span>
                   </div>
                 )}
               </div>
@@ -641,7 +641,7 @@ function SpeechDrillContent() {
                     <button
                       disabled={isTranscribing}
                       onClick={() => handleStartRecording(practiceMode)}
-                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-red-600 via-rose-600 to-red-500 hover:from-red-500 hover:to-rose-500 disabled:opacity-50 text-white text-xs font-semibold shadow-lg shadow-red-500/20 active:scale-95 transition-all"
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 hover:bg-red-500 disabled:opacity-50 text-white text-xs font-semibold shadow-sm active:scale-95 transition-all"
                     >
                       <Mic className="h-4 w-4" />
                       <span>{transcript ? "Speak More / Resume" : "Start Speaking Answer"}</span>
@@ -649,7 +649,7 @@ function SpeechDrillContent() {
                   ) : (
                     <button
                       onClick={handleStopRecording}
-                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-slate-800 to-slate-700 hover:bg-slate-600 text-white text-xs font-semibold shadow-md active:scale-95 transition-all border border-red-500/40"
+                      className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-semibold shadow-sm active:scale-95 transition-all border border-red-500"
                     >
                       <MicOff className="h-4 w-4 text-red-400" />
                       <span>Stop Recording & Transcribe</span>
@@ -657,8 +657,8 @@ function SpeechDrillContent() {
                   )}
 
                   {isTranscribing && (
-                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-cyan-950/60 border border-cyan-500/40 text-cyan-300 text-xs font-medium">
-                      <RefreshCw className="h-3.5 w-3.5 animate-spin text-cyan-400" />
+                    <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-xs font-medium">
+                      <RefreshCw className="h-3.5 w-3.5 animate-spin text-blue-500" />
                       <span>Cloud STT Transcribing...</span>
                     </div>
                   )}
@@ -667,7 +667,7 @@ function SpeechDrillContent() {
                     <button
                       onClick={() => setTranscript("")}
                       title="Clear answer"
-                      className="p-2.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-400 hover:text-slate-200 transition-colors"
+                      className="p-2 rounded-lg bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 dark:hover:bg-zinc-700 border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-400 transition-colors"
                     >
                       <RotateCcw className="h-3.5 w-3.5" />
                     </button>
@@ -678,16 +678,16 @@ function SpeechDrillContent() {
                   <button
                     disabled={!transcript.trim() || isEvaluating}
                     onClick={handleEvaluateAnswer}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:to-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-xs font-semibold shadow-lg shadow-cyan-600/20 active:scale-95 transition-all"
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed text-xs font-semibold shadow-sm active:scale-95 transition-all"
                   >
                     {isEvaluating ? (
                       <>
-                        <RefreshCw className="h-4 w-4 animate-spin text-white" />
+                        <RefreshCw className="h-4 w-4 animate-spin text-current" />
                         <span>Evaluating Speech...</span>
                       </>
                     ) : (
                       <>
-                        <Zap className="h-4 w-4 text-amber-300" />
+                        <Zap className="h-4 w-4 text-amber-500" />
                         <span>Evaluate Articulation</span>
                       </>
                     )}
@@ -698,11 +698,11 @@ function SpeechDrillContent() {
 
             {/* Official Model Answer Section */}
             {(showModelAnswer || evaluation) && (
-              <div className="rounded-2xl border border-blue-500/20 bg-[#0a1020]/90 p-5 sm:p-6 shadow-xl space-y-4">
-                <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+              <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/70 p-5 sm:p-6 shadow-sm space-y-4 transition-colors">
+                <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-3">
                   <div className="flex items-center gap-2">
-                    <Award className="h-4 w-4 text-amber-400" />
-                    <h3 className="text-sm font-bold text-white tracking-tight">
+                    <Award className="h-4 w-4 text-amber-500" />
+                    <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">
                       Official Model Answer & Talking Points
                     </h3>
                   </div>
@@ -710,7 +710,7 @@ function SpeechDrillContent() {
                   {/* Re-Speak Button */}
                   <button
                     onClick={handleStartModelAnswerPractice}
-                    className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-semibold transition-colors shadow-sm"
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-amber-50 dark:bg-amber-950/40 hover:bg-amber-100 dark:hover:bg-amber-900/40 border border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300 text-xs font-semibold transition-colors shadow-sm"
                   >
                     <Mic className="h-3.5 w-3.5" />
                     <span>Practice Speaking Real Answer</span>
@@ -718,23 +718,23 @@ function SpeechDrillContent() {
                 </div>
 
                 {/* Model Answer Body */}
-                <div className="space-y-3 text-sm text-slate-300 leading-relaxed font-sans bg-black/30 p-4 rounded-xl border border-white/[0.06]">
+                <div className="space-y-3 text-sm text-zinc-800 dark:text-zinc-200 leading-relaxed font-sans bg-zinc-50 dark:bg-zinc-950 p-4 rounded-xl border border-zinc-200 dark:border-zinc-800">
                   <p>{currentQuestion.modelAnswer}</p>
                 </div>
 
                 {/* Key Talking Points */}
                 <div className="space-y-2">
-                  <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                    Essential Technical Buzzwords & Concepts
+                  <div className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                    Essential Technical Concepts
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {currentQuestion.keyPoints.map((kp, idx) => (
                       <div
                         key={idx}
-                        className="flex items-start gap-2 text-xs bg-white/[0.03] p-2 rounded-lg border border-white/[0.05]"
+                        className="flex items-start gap-2 text-xs bg-zinc-50 dark:bg-zinc-950 p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-800"
                       >
-                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0 mt-0.5" />
-                        <span className="text-slate-300">{kp}</span>
+                        <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                        <span className="text-zinc-700 dark:text-zinc-300">{kp}</span>
                       </div>
                     ))}
                   </div>
@@ -746,22 +746,22 @@ function SpeechDrillContent() {
           {/* RIGHT COLUMN: Articulation & Speech Evaluation Report (5 cols) */}
           <div className="lg:col-span-5 space-y-5">
             {evaluation ? (
-              <div className="rounded-2xl border border-white/[0.08] bg-[#0c1222]/90 p-5 sm:p-6 shadow-xl space-y-5 backdrop-blur-md">
+              <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/70 p-5 sm:p-6 shadow-sm space-y-5 transition-colors">
                 {/* Score Header */}
-                <div className="flex items-center justify-between border-b border-white/[0.08] pb-4">
+                <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-4">
                   <div>
-                    <span className="text-xs text-slate-400 font-medium">Spoken Articulation Score</span>
+                    <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium">Spoken Articulation Score</span>
                     <div className="flex items-baseline gap-2 mt-1">
-                      <span className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+                      <span className="text-3xl sm:text-4xl font-extrabold text-zinc-900 dark:text-zinc-50 tracking-tight">
                         {evaluation.overallScore}
                       </span>
-                      <span className="text-sm font-semibold text-slate-400">/ 100</span>
+                      <span className="text-sm font-semibold text-zinc-400">/ 100</span>
                       {evaluation.scoreDelta !== undefined && (
                         <span
                           className={`text-xs font-bold px-2 py-0.5 rounded-full flex items-center gap-0.5 ${
                             evaluation.scoreDelta >= 0
-                              ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                              : "bg-red-500/20 text-red-400 border border-red-500/30"
+                              ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800"
+                              : "bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-800"
                           }`}
                         >
                           <TrendingUp className="h-3 w-3" />
@@ -773,21 +773,21 @@ function SpeechDrillContent() {
 
                   <div className="text-right">
                     <span
-                      className={`inline-block px-3 py-1 rounded-full text-xs font-bold border ${
+                      className={`inline-block px-3 py-1 rounded-full text-xs font-semibold border ${
                         evaluation.overallScore < 40 || evaluation.isFactuallyIncorrect
-                          ? "bg-red-500/20 text-red-400 border-red-500/40"
+                          ? "bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800"
                           : evaluation.overallScore < 60
-                          ? "bg-amber-500/20 text-amber-400 border-amber-500/40"
+                          ? "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800"
                           : evaluation.overallScore < 75
-                          ? "bg-blue-500/20 text-blue-400 border-blue-500/30"
+                          ? "bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800"
                           : evaluation.overallScore < 85
-                          ? "bg-purple-500/20 text-purple-400 border-purple-500/30"
-                          : "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
+                          ? "bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-400 border border-purple-200 dark:border-purple-800"
+                          : "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800"
                       }`}
                     >
                       {evaluation.verdict || (evaluation.overallScore >= 85 ? "Interview Ready" : evaluation.overallScore >= 70 ? "Competent" : "Needs Major Work")}
                     </span>
-                    <div className="text-[11px] text-slate-400 mt-1 font-mono">
+                    <div className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1 font-mono">
                       {evaluation.wordsPerMinute} WPM
                     </div>
                   </div>
@@ -795,19 +795,19 @@ function SpeechDrillContent() {
 
                 {/* Critical Technical Inaccuracy Warning Banner */}
                 {(evaluation.isFactuallyIncorrect || (evaluation.factualErrors && evaluation.factualErrors.length > 0)) && (
-                  <div className="rounded-xl bg-red-950/40 border border-red-500/40 p-3.5 space-y-1.5 animate-in fade-in">
-                    <div className="flex items-center gap-2 text-xs font-bold text-red-400">
-                      <ShieldAlert className="h-4 w-4 text-red-400 shrink-0" />
+                  <div className="rounded-xl bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900/40 p-3.5 space-y-1.5 animate-in fade-in">
+                    <div className="flex items-center gap-2 text-xs font-semibold text-red-700 dark:text-red-300">
+                      <ShieldAlert className="h-4 w-4 text-red-500 shrink-0" />
                       <span>Critical Technical Inaccuracy / Concept Confusion</span>
                     </div>
-                    <p className="text-xs text-red-200/90 leading-relaxed font-sans">
+                    <p className="text-xs text-red-600 dark:text-red-300 leading-relaxed font-sans">
                       In fresher and SDE technical interviews, factual mistakes (such as confusing fundamental concepts) result in an immediate low score regardless of speaking speed.
                     </p>
                     {evaluation.factualErrors && evaluation.factualErrors.length > 0 && (
-                      <div className="space-y-1 pt-1 border-t border-red-500/20 mt-1.5">
+                      <div className="space-y-1 pt-1 border-t border-red-200 dark:border-red-900/40 mt-1.5">
                         {evaluation.factualErrors.map((err, i) => (
-                          <div key={i} className="text-xs text-red-300 font-medium flex items-start gap-1.5">
-                            <span className="text-red-400 font-bold">•</span>
+                          <div key={i} className="text-xs text-red-700 dark:text-red-300 font-medium flex items-start gap-1.5">
+                            <span className="text-red-500 font-bold">•</span>
                             <span>{err}</span>
                           </div>
                         ))}
@@ -819,37 +819,35 @@ function SpeechDrillContent() {
                 {/* Sub-Score Bars - Strict Technical Interview Weighting */}
                 <div className="space-y-3.5 text-xs">
                   {/* Primary Bar: Technical Accuracy (50% Weight) */}
-                  <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                    <div className="flex justify-between items-center text-slate-200 mb-1.5">
+                  <div className="p-3 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800">
+                    <div className="flex justify-between items-center text-zinc-800 dark:text-zinc-200 mb-1.5">
                       <span className="font-semibold flex items-center gap-1.5">
-                        <CheckCircle2 className="h-3.5 w-3.5 text-amber-400" />
+                        <CheckCircle2 className="h-3.5 w-3.5 text-amber-500" />
                         Answer Correctness & Technical Accuracy (50% Weight)
                       </span>
                       <div className="flex items-center gap-2">
                         <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold ${
                           evaluation.contentAccuracyScore >= 70
-                            ? "bg-emerald-500/20 text-emerald-400"
+                            ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400"
                             : evaluation.contentAccuracyScore >= 40
-                            ? "bg-amber-500/20 text-amber-400"
-                            : "bg-red-500/20 text-red-400"
+                            ? "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400"
+                            : "bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-400"
                         }`}>
                           {evaluation.contentAccuracyScore >= 70 ? "Accurate" : evaluation.contentAccuracyScore >= 40 ? "Partial" : "Inaccurate"}
                         </span>
-                        <span className={`font-mono font-bold ${
-                          evaluation.contentAccuracyScore >= 70 ? "text-emerald-400" : evaluation.contentAccuracyScore >= 40 ? "text-amber-400" : "text-red-400"
-                        }`}>
+                        <span className="font-mono font-bold">
                           {evaluation.contentAccuracyScore}%
                         </span>
                       </div>
                     </div>
-                    <div className="h-2 w-full bg-black/60 rounded-full overflow-hidden border border-white/[0.04]">
+                    <div className="h-2 w-full bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all duration-500 ${
                           evaluation.contentAccuracyScore >= 70
-                            ? "bg-gradient-to-r from-emerald-500 to-teal-400"
+                            ? "bg-emerald-500"
                             : evaluation.contentAccuracyScore >= 40
-                            ? "bg-gradient-to-r from-amber-500 to-orange-500"
-                            : "bg-gradient-to-r from-red-600 via-rose-600 to-red-500"
+                            ? "bg-amber-500"
+                            : "bg-red-500"
                         }`}
                         style={{ width: `${Math.max(4, evaluation.contentAccuracyScore)}%` }}
                       />
@@ -858,23 +856,13 @@ function SpeechDrillContent() {
 
                   {/* Bar 2: English Grammar & Syntax (20% Weight) */}
                   <div>
-                    <div className="flex justify-between text-slate-300 mb-1">
+                    <div className="flex justify-between text-zinc-700 dark:text-zinc-300 mb-1">
                       <span>English Grammar & Sentence Syntax (20% Weight)</span>
-                      <span className={`font-semibold font-mono ${
-                        evaluation.grammarScore >= 70 ? "text-emerald-400" : evaluation.grammarScore >= 50 ? "text-amber-400" : "text-red-400"
-                      }`}>
-                        {evaluation.grammarScore}%
-                      </span>
+                      <span className="font-semibold font-mono">{evaluation.grammarScore}%</span>
                     </div>
-                    <div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden">
+                    <div className="h-1.5 w-full bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
                       <div
-                        className={`h-full rounded-full transition-all duration-500 ${
-                          evaluation.grammarScore >= 70
-                            ? "bg-gradient-to-r from-emerald-500 to-teal-500"
-                            : evaluation.grammarScore >= 50
-                            ? "bg-gradient-to-r from-amber-500 to-yellow-500"
-                            : "bg-gradient-to-r from-red-500 to-rose-600"
-                        }`}
+                        className="h-full bg-zinc-800 dark:bg-zinc-200 rounded-full transition-all duration-500"
                         style={{ width: `${Math.max(4, evaluation.grammarScore)}%` }}
                       />
                     </div>
@@ -882,13 +870,13 @@ function SpeechDrillContent() {
 
                   {/* Bar 3: Pronunciation & Articulation (15% Weight) */}
                   <div>
-                    <div className="flex justify-between text-slate-300 mb-1">
+                    <div className="flex justify-between text-zinc-700 dark:text-zinc-300 mb-1">
                       <span>Pronunciation & Articulation Precision (15% Weight)</span>
-                      <span className="font-semibold font-mono text-cyan-400">{evaluation.articulationScore}%</span>
+                      <span className="font-semibold font-mono">{evaluation.articulationScore}%</span>
                     </div>
-                    <div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden">
+                    <div className="h-1.5 w-full bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-500"
+                        className="h-full bg-blue-500 rounded-full transition-all duration-500"
                         style={{ width: `${Math.max(4, evaluation.articulationScore)}%` }}
                       />
                     </div>
@@ -896,13 +884,13 @@ function SpeechDrillContent() {
 
                   {/* Bar 4: Speech Fluency & Rhythm (15% Weight) */}
                   <div>
-                    <div className="flex justify-between text-slate-300 mb-1">
+                    <div className="flex justify-between text-zinc-700 dark:text-zinc-300 mb-1">
                       <span>Speech Fluency & Rhythm (15% Weight)</span>
-                      <span className="font-semibold font-mono text-indigo-400">{evaluation.fluencyScore}%</span>
+                      <span className="font-semibold font-mono">{evaluation.fluencyScore}%</span>
                     </div>
-                    <div className="h-1.5 w-full bg-white/[0.06] rounded-full overflow-hidden">
+                    <div className="h-1.5 w-full bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full transition-all duration-500"
+                        className="h-full bg-indigo-500 rounded-full transition-all duration-500"
                         style={{ width: `${Math.max(4, evaluation.fluencyScore)}%` }}
                       />
                     </div>
@@ -910,17 +898,17 @@ function SpeechDrillContent() {
                 </div>
 
                 {/* Filler Words Metric Box */}
-                <div className="rounded-xl bg-black/40 border border-white/[0.06] p-3.5 space-y-2">
+                <div className="rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 p-3.5 space-y-2">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-semibold text-slate-300 flex items-center gap-1.5">
-                      <AlertCircle className="h-3.5 w-3.5 text-amber-400" />
+                    <span className="font-semibold text-zinc-700 dark:text-zinc-300 flex items-center gap-1.5">
+                      <AlertCircle className="h-3.5 w-3.5 text-amber-500" />
                       Filler Words Analysis
                     </span>
                     <span
                       className={`font-mono font-bold px-2 py-0.5 rounded text-[11px] ${
                         evaluation.fillerWordCount === 0
-                          ? "bg-emerald-500/20 text-emerald-400"
-                          : "bg-amber-500/20 text-amber-400"
+                          ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400"
+                          : "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400"
                       }`}
                     >
                       {evaluation.fillerWordCount} detected
@@ -932,14 +920,14 @@ function SpeechDrillContent() {
                       {evaluation.fillerWordsFound.map((f, i) => (
                         <span
                           key={i}
-                          className="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 text-[11px] font-mono"
+                          className="px-2 py-0.5 rounded bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-[11px] font-mono"
                         >
                           "{f.word}" ({f.count})
                         </span>
                       ))}
                     </div>
                   ) : (
-                    <p className="text-[11px] text-emerald-400 font-sans">
+                    <p className="text-[11px] text-emerald-600 dark:text-emerald-400 font-sans">
                       Clean delivery! No filler words like "basically" or "um" were found.
                     </p>
                   )}
@@ -948,13 +936,13 @@ function SpeechDrillContent() {
                 {/* Spoken Delivery Coaching */}
                 <div className={`rounded-xl p-3.5 space-y-1.5 border ${
                   evaluation.overallScore < 50 || evaluation.isFactuallyIncorrect
-                    ? "bg-red-950/30 border-red-500/30 text-red-200"
-                    : "bg-blue-950/30 border-blue-500/20 text-slate-200"
+                    ? "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-900/40 text-red-800 dark:text-red-200"
+                    : "bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-900/40 text-blue-900 dark:text-blue-200"
                 }`}>
                   <span className={`text-xs font-semibold flex items-center gap-1.5 ${
                     evaluation.overallScore < 50 || evaluation.isFactuallyIncorrect
-                      ? "text-red-400"
-                      : "text-blue-300"
+                      ? "text-red-600 dark:text-red-400"
+                      : "text-blue-600 dark:text-blue-400"
                   }`}>
                     <Sparkles className="h-3.5 w-3.5" />
                     {evaluation.overallScore < 50 || evaluation.isFactuallyIncorrect
@@ -970,14 +958,14 @@ function SpeechDrillContent() {
                 <div className="space-y-3 pt-1">
                   {evaluation.strengths.length > 0 && (
                     <div className="space-y-1.5">
-                      <span className="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
+                      <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
                         <CheckCircle2 className="h-3.5 w-3.5" />
                         What You Articulated Well
                       </span>
-                      <ul className="space-y-1 text-xs text-slate-300">
+                      <ul className="space-y-1 text-xs text-zinc-600 dark:text-zinc-400">
                         {evaluation.strengths.map((s, idx) => (
                           <li key={idx} className="flex items-start gap-1.5">
-                            <span className="text-emerald-400 mt-0.5">•</span>
+                            <span className="text-emerald-500 mt-0.5">•</span>
                             <span>{s}</span>
                           </li>
                         ))}
@@ -986,15 +974,15 @@ function SpeechDrillContent() {
                   )}
 
                   {evaluation.areasToImprove.length > 0 && (
-                    <div className="space-y-1.5 pt-2 border-t border-white/[0.06]">
-                      <span className="text-xs font-semibold text-amber-400 flex items-center gap-1.5">
+                    <div className="space-y-1.5 pt-2 border-t border-zinc-200 dark:border-zinc-800">
+                      <span className="text-xs font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
                         <AlertCircle className="h-3.5 w-3.5" />
                         Articulation Improvement Pointers
                       </span>
-                      <ul className="space-y-1 text-xs text-slate-300">
+                      <ul className="space-y-1 text-xs text-zinc-600 dark:text-zinc-400">
                         {evaluation.areasToImprove.map((a, idx) => (
                           <li key={idx} className="flex items-start gap-1.5">
-                            <span className="text-amber-400 mt-0.5">•</span>
+                            <span className="text-amber-500 mt-0.5">•</span>
                             <span>{a}</span>
                           </li>
                         ))}
@@ -1004,10 +992,10 @@ function SpeechDrillContent() {
                 </div>
 
                 {/* Bottom Action: Next Question CTA */}
-                <div className="pt-2 border-t border-white/[0.08]">
+                <div className="pt-2 border-t border-zinc-200 dark:border-zinc-800">
                   <button
                     onClick={handleNextQuestion}
-                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold shadow-lg shadow-blue-500/20 active:scale-95 transition-all"
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-white text-xs font-semibold shadow-sm active:scale-95 transition-all"
                   >
                     <span>Done with this question? Next Question</span>
                     <ArrowRight className="h-4 w-4" />
@@ -1016,31 +1004,31 @@ function SpeechDrillContent() {
               </div>
             ) : (
               /* Idle Empty State Card */
-              <div className="rounded-2xl border border-white/[0.08] bg-[#0c1222]/80 p-6 shadow-xl text-center space-y-4">
-                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 shadow-md">
-                  <Mic className="h-7 w-7" />
+              <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/70 p-6 shadow-sm text-center space-y-4 transition-colors">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-600 dark:text-blue-400">
+                  <Mic className="h-6 w-6" />
                 </div>
                 <div className="space-y-1.5">
-                  <h3 className="text-base font-bold text-white tracking-tight">
+                  <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">
                     Speech & Communication Analysis
                   </h3>
-                  <p className="text-xs text-slate-400 leading-relaxed max-w-sm mx-auto">
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed max-w-sm mx-auto">
                     Speak your answer out loud into the microphone. Our speech engine evaluates your articulation, speech pace (WPM), filler words, and technical accuracy.
                   </p>
                 </div>
 
                 <div className="pt-2 grid grid-cols-2 gap-2 text-left">
-                  <div className="p-2.5 rounded-lg bg-white/[0.03] border border-white/[0.05] space-y-1">
-                    <span className="text-[11px] font-semibold text-cyan-400 flex items-center gap-1">
+                  <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 space-y-1">
+                    <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 flex items-center gap-1">
                       <Sparkles className="h-3 w-3" /> Pacing Check
                     </span>
-                    <p className="text-[10px] text-slate-400">Measures your speaking tempo against the ideal 120-150 WPM pocket.</p>
+                    <p className="text-[10px] text-zinc-500 dark:text-zinc-400">Measures speaking tempo against 120-150 WPM pocket.</p>
                   </div>
-                  <div className="p-2.5 rounded-lg bg-white/[0.03] border border-white/[0.05] space-y-1">
-                    <span className="text-[11px] font-semibold text-amber-400 flex items-center gap-1">
+                  <div className="p-2.5 rounded-lg bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 space-y-1">
+                    <span className="text-[11px] font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-1">
                       <AlertCircle className="h-3 w-3" /> Filler Detection
                     </span>
-                    <p className="text-[10px] text-slate-400">Flags "um", "basically", "like" so you sound crisp and confident.</p>
+                    <p className="text-[10px] text-zinc-500 dark:text-zinc-400">Flags "um", "basically", "like" so you sound confident.</p>
                   </div>
                 </div>
               </div>
@@ -1052,21 +1040,21 @@ function SpeechDrillContent() {
 
       {/* TOPIC SELECTION MODAL DRAWER */}
       {isTopicModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-md p-4 animate-in fade-in duration-200">
-          <div className="bg-[#0b101e] border border-white/[0.12] rounded-2xl max-w-4xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 rounded-2xl max-w-4xl w-full max-h-[85vh] flex flex-col shadow-xl overflow-hidden">
             {/* Modal Header */}
-            <div className="px-6 py-4 border-b border-white/[0.08] flex items-center justify-between">
+            <div className="px-6 py-4 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
               <div>
-                <h3 className="text-base font-bold text-white tracking-tight">
+                <h3 className="text-base font-bold text-zinc-900 dark:text-zinc-50 tracking-tight">
                   Choose a Subject Category (14 Topics • 50 Questions Each)
                 </h3>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
                   Select a specific topic to drill random questions from that domain, or choose All Subjects.
                 </p>
               </div>
               <button
                 onClick={() => setIsTopicModalOpen(false)}
-                className="text-slate-400 hover:text-white p-1 rounded-md"
+                className="text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 p-1 rounded-md"
               >
                 ✕
               </button>
@@ -1079,20 +1067,20 @@ function SpeechDrillContent() {
                 onClick={() => handleSelectCategory("all")}
                 className={`p-4 rounded-xl text-left border transition-all ${
                   selectedCatId === "all"
-                    ? "bg-gradient-to-r from-blue-600/30 to-indigo-600/30 border-blue-500/50 shadow-md"
-                    : "bg-white/[0.03] hover:bg-white/[0.07] border-white/[0.06]"
+                    ? "bg-zinc-100 dark:bg-zinc-800 border-zinc-900 dark:border-zinc-100 shadow-sm"
+                    : "bg-zinc-50 dark:bg-zinc-950/50 hover:bg-zinc-100 dark:hover:bg-zinc-800 border-zinc-200 dark:border-zinc-800"
                 }`}
               >
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-sm font-bold text-white flex items-center gap-2">
-                    <Flame className="h-4 w-4 text-cyan-400" />
+                  <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+                    <Flame className="h-4 w-4 text-amber-500" />
                     All 15 Subjects
                   </span>
-                  <span className="text-[11px] font-mono text-cyan-400 bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
+                  <span className="text-[11px] font-mono text-zinc-600 dark:text-zinc-400 bg-zinc-200 dark:bg-zinc-800 px-2 py-0.5 rounded">
                     {ALL_QUESTIONS.length} Qs
                   </span>
                 </div>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
                   Complete randomized mix across all core fresher & AI/ML engineering topics.
                 </p>
               </button>
@@ -1108,22 +1096,22 @@ function SpeechDrillContent() {
                     onClick={() => handleSelectCategory(cat.catId)}
                     className={`p-3.5 rounded-xl text-left border transition-all ${
                       isSelected
-                        ? "bg-blue-600/20 border-blue-500/60 shadow-md ring-1 ring-blue-500/40"
-                        : "bg-white/[0.02] hover:bg-white/[0.06] border-white/[0.06]"
+                        ? "bg-blue-50 dark:bg-blue-950/40 border-blue-600 dark:border-blue-500 shadow-sm ring-1 ring-blue-500"
+                        : "bg-zinc-50 dark:bg-zinc-950/50 hover:bg-zinc-100 dark:hover:bg-zinc-800 border-zinc-200 dark:border-zinc-800"
                     }`}
                   >
                     <div className="flex items-center justify-between mb-1.5">
                       <div className="flex items-center gap-2">
-                        <CatIcon className="h-4 w-4 text-cyan-400 shrink-0" />
-                        <span className="text-xs font-bold text-white truncate max-w-[170px]">
+                        <CatIcon className="h-4 w-4 text-blue-500 shrink-0" />
+                        <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 truncate max-w-[170px]">
                           {cat.name}
                         </span>
                       </div>
-                      <span className="text-[10px] font-mono text-slate-400 bg-white/[0.04] px-1.5 py-0.5 rounded border border-white/[0.06]">
+                      <span className="text-[10px] font-mono text-zinc-500 bg-zinc-200 dark:bg-zinc-800 px-1.5 py-0.5 rounded">
                         50 Qs
                       </span>
                     </div>
-                    <p className="text-[11px] text-slate-400 line-clamp-2 leading-relaxed">
+                    <p className="text-[11px] text-zinc-500 dark:text-zinc-400 line-clamp-2 leading-relaxed">
                       {cat.description}
                     </p>
                   </button>
@@ -1141,7 +1129,7 @@ export default function SpeechDrillPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#070b14] flex flex-col items-center justify-center text-slate-400 gap-3">
+        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex flex-col items-center justify-center text-zinc-500 gap-3">
           <div className="h-8 w-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
           <span className="text-xs font-mono">Loading Speech Drill Station...</span>
         </div>

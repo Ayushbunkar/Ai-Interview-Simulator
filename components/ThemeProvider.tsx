@@ -2,27 +2,39 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-type Theme = "dark" | "light";
+export type ThemeMode = "dark" | "light" | "system";
+export type ResolvedTheme = "dark" | "light";
 
 interface ThemeContextType {
-  theme: Theme;
+  theme: ThemeMode;
+  resolvedTheme: ResolvedTheme;
+  setTheme: (t: ThemeMode) => void;
   toggleTheme: () => void;
-  setTheme: (t: Theme) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType>({
   theme: "dark",
-  toggleTheme: () => {},
+  resolvedTheme: "dark",
   setTheme: () => {},
+  toggleTheme: () => {},
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>("dark");
+  const [theme, setThemeState] = useState<ThemeMode>("dark");
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>("dark");
 
-  const applyTheme = (t: Theme) => {
+  const getSystemTheme = (): ResolvedTheme => {
+    if (typeof window === "undefined") return "dark";
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  };
+
+  const applyTheme = (t: ThemeMode) => {
     if (typeof document === "undefined") return;
     const root = document.documentElement;
-    if (t === "light") {
+    const resolved = t === "system" ? getSystemTheme() : t;
+    setResolvedTheme(resolved);
+
+    if (resolved === "light") {
       root.classList.add("light");
       root.classList.remove("dark");
       root.setAttribute("data-theme", "light");
@@ -37,25 +49,26 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     try {
-      const saved = localStorage.getItem("interviewforge-theme") as Theme;
-      const initial = saved === "light" ? "light" : "dark";
-      setThemeState(initial);
-      applyTheme(initial);
+      const saved = (localStorage.getItem("interviewforge-theme") as ThemeMode) || "dark";
+      setThemeState(saved);
+      applyTheme(saved);
     } catch {
       applyTheme("dark");
     }
+
+    // Listen for OS system theme changes
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = () => {
+      const current = localStorage.getItem("interviewforge-theme") as ThemeMode;
+      if (current === "system") {
+        applyTheme("system");
+      }
+    };
+    mediaQuery.addEventListener("change", handleChange);
+    return () => mediaQuery.removeEventListener("change", handleChange);
   }, []);
 
-  const toggleTheme = () => {
-    const next = theme === "dark" ? "light" : "dark";
-    setThemeState(next);
-    try {
-      localStorage.setItem("interviewforge-theme", next);
-    } catch {}
-    applyTheme(next);
-  };
-
-  const setTheme = (t: Theme) => {
+  const setTheme = (t: ThemeMode) => {
     setThemeState(t);
     try {
       localStorage.setItem("interviewforge-theme", t);
@@ -63,8 +76,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     applyTheme(t);
   };
 
+  const toggleTheme = () => {
+    const next: ThemeMode = resolvedTheme === "dark" ? "light" : "dark";
+    setTheme(next);
+  };
+
   return (
-    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
+    <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );

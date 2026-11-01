@@ -197,24 +197,24 @@ export default function InterviewReadyPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070b12] text-slate-100 pb-28">
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 pb-28 transition-colors">
       {/* Top Sticky Header */}
-      <div className="border-b border-white/[0.08] bg-[#0c1222]/80 backdrop-blur-xl sticky top-14 z-30">
+      <div className="border-b border-zinc-200 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md sticky top-14 z-30 transition-colors">
         <div className="max-w-7xl mx-auto px-4 py-3 sm:px-6 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-amber-500 via-orange-500 to-rose-600 text-white shadow-lg shadow-orange-500/20">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500 text-white shadow-sm">
               <Trophy className="h-5 w-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-base sm:text-lg font-bold text-white tracking-tight">
+                <h1 className="text-base sm:text-lg font-bold text-zinc-900 dark:text-zinc-50 tracking-tight">
                   Interview Ready: Master Roadmap ({ROADMAP_DAYS.length} Days)
                 </h1>
-                <span className="rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 px-2 py-0.5 text-[11px] font-bold text-amber-300 border border-amber-500/30">
+                <span className="rounded-full bg-amber-50 dark:bg-amber-950/40 px-2.5 py-0.5 text-[11px] font-semibold text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
                   Target: 45 LPA SDE & AI/ML
                 </span>
               </div>
-              <p className="text-xs text-slate-400 hidden sm:block">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 hidden sm:block">
                 Day-by-day complete curriculum • Theory, Question Logic, Visual Diagrams & Daily Task Ticking
               </p>
             </div>
@@ -222,26 +222,26 @@ export default function InterviewReadyPage() {
 
           {/* Quick Metrics Header */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08]">
-              <Calendar className="h-3.5 w-3.5 text-amber-400" />
-              <span className="text-xs font-semibold text-white">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
+              <Calendar className="h-3.5 w-3.5 text-amber-500" />
+              <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
                 Day {selectedDayNumber}/{ROADMAP_DAYS.length}
               </span>
-              <span className="text-[11px] text-slate-400 font-mono">
+              <span className="text-[11px] text-zinc-500 font-mono">
                 ({totalDaysCompleted} done)
               </span>
             </div>
 
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08]">
-              <Target className="h-3.5 w-3.5 text-cyan-400" />
-              <span className="text-xs font-semibold text-white">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700">
+              <Target className="h-3.5 w-3.5 text-blue-500" />
+              <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">
                 {totalQuestionsCompleted}/{totalQuestionsCount} Qs
               </span>
             </div>
 
             <Link
               href="/speech-drill"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white text-xs font-semibold shadow-md shadow-cyan-600/20 transition-all active:scale-95"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-white text-xs font-semibold shadow-sm transition-all active:scale-95"
             >
               <Mic className="h-3.5 w-3.5" />
               <span>Voice Speech Drill</span>
@@ -253,33 +253,33 @@ export default function InterviewReadyPage() {
       <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 space-y-8">
         
         {/* Progress & Milestone Master Card */}
-        <div className="rounded-2xl border border-white/[0.08] bg-gradient-to-r from-[#0c1222] via-[#0d162b] to-[#0a1020] p-5 sm:p-6 shadow-2xl relative overflow-hidden backdrop-blur-md">
+        <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/70 p-5 sm:p-6 shadow-sm relative overflow-hidden transition-colors">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
             <div className="md:col-span-8 space-y-3">
               <div className="flex items-center gap-2">
-                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20 flex items-center gap-1">
-                  <Flame className="h-3.5 w-3.5" /> {ROADMAP_DAYS.length}-Day SDE & AI/ML Master Curriculum
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800 flex items-center gap-1">
+                  <Flame className="h-3.5 w-3.5 text-amber-500" /> {ROADMAP_DAYS.length}-Day SDE & AI/ML Master Curriculum
                 </span>
-                <span className="text-xs text-slate-400">
+                <span className="text-xs text-zinc-500">
                   November 1 – December 4
                 </span>
               </div>
-              <h2 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+              <h2 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-50 tracking-tight">
                 {currentPhase.name} • Phase {currentPhase.phaseId} of {ROADMAP_PHASES.length}
               </h2>
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
+              <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed max-w-2xl">
                 {currentPhase.summary} Follow the daily 6-point checklist, master the under-the-hood logic of every question, and inspect visual architecture diagrams.
               </p>
 
               {/* Progress Bar */}
               <div className="space-y-1.5 pt-2">
                 <div className="flex justify-between text-xs font-semibold">
-                  <span className="text-slate-300">Course Completion Roadmap</span>
-                  <span className="text-amber-400 font-mono">{overallPercentage}% Completed</span>
+                  <span className="text-zinc-700 dark:text-zinc-300">Curriculum Completion</span>
+                  <span className="text-amber-600 dark:text-amber-400 font-mono">{overallPercentage}% Completed</span>
                 </div>
-                <div className="h-2.5 w-full bg-white/[0.06] rounded-full overflow-hidden p-0.5 border border-white/[0.06]">
+                <div className="h-2 w-full bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 rounded-full transition-all duration-500 shadow-sm"
+                    className="h-full bg-amber-500 rounded-full transition-all duration-500 shadow-sm"
                     style={{ width: `${Math.max(3, overallPercentage)}%` }}
                   />
                 </div>
@@ -288,30 +288,30 @@ export default function InterviewReadyPage() {
 
             {/* Right KPI Badges */}
             <div className="md:col-span-4 grid grid-cols-2 gap-3">
-              <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-center space-y-1">
-                <span className="text-2xl font-extrabold text-white font-mono">
+              <div className="p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 text-center space-y-1">
+                <span className="text-2xl font-bold text-zinc-900 dark:text-zinc-100 font-mono">
                   {totalDaysCompleted}/{ROADMAP_DAYS.length}
                 </span>
-                <p className="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">
+                <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold">
                   Days Mastered
                 </p>
               </div>
 
-              <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/[0.06] text-center space-y-1">
-                <span className="text-2xl font-extrabold text-cyan-400 font-mono">
+              <div className="p-3.5 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 text-center space-y-1">
+                <span className="text-2xl font-bold text-blue-600 dark:text-blue-400 font-mono">
                   {totalQuestionsCompleted}
                 </span>
-                <p className="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">
+                <p className="text-[11px] text-zinc-500 uppercase tracking-wider font-semibold">
                   Questions Ticked
                 </p>
               </div>
 
-              <div className="col-span-2 p-3 rounded-xl bg-gradient-to-r from-blue-950/40 to-indigo-950/40 border border-blue-500/20 flex items-center justify-between text-xs">
-                <span className="text-slate-300 flex items-center gap-1.5">
-                  <Award className="h-4 w-4 text-amber-400" />
+              <div className="col-span-2 p-3 rounded-xl bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 flex items-center justify-between text-xs">
+                <span className="text-zinc-600 dark:text-zinc-400 flex items-center gap-1.5 font-medium">
+                  <Award className="h-4 w-4 text-amber-500" />
                   Priority Tier
                 </span>
-                <span className="font-bold text-amber-300">
+                <span className="font-semibold text-amber-700 dark:text-amber-300">
                   {currentPhase.priorityLabel}
                 </span>
               </div>
@@ -321,7 +321,7 @@ export default function InterviewReadyPage() {
 
         {/* Phase Filter Tabs */}
         <div className="space-y-3">
-          <div className="flex items-center justify-between text-xs font-semibold text-slate-400 uppercase tracking-wider">
+          <div className="flex items-center justify-between text-xs font-semibold text-zinc-500 uppercase tracking-wider">
             <span>Filter by {ROADMAP_PHASES.length} Learning Phases</span>
             <span>{filteredDays.length} Days in view</span>
           </div>
@@ -330,8 +330,8 @@ export default function InterviewReadyPage() {
               onClick={() => setSelectedPhaseFilter("all")}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 border transition-all ${
                 selectedPhaseFilter === "all"
-                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-500 shadow-md"
-                  : "bg-white/[0.04] text-slate-300 border-white/[0.08] hover:bg-white/[0.08]"
+                  ? "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 border-zinc-900 dark:border-zinc-100 shadow-sm"
+                  : "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-200"
               }`}
             >
               All {ROADMAP_DAYS.length} Days
@@ -342,13 +342,13 @@ export default function InterviewReadyPage() {
                 onClick={() => setSelectedPhaseFilter(phase.phaseId)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-semibold shrink-0 border transition-all flex items-center gap-1.5 ${
                   selectedPhaseFilter === phase.phaseId
-                    ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white border-blue-500 shadow-md"
-                    : "bg-white/[0.04] text-slate-300 border-white/[0.08] hover:bg-white/[0.08]"
+                    ? "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 border-zinc-900 dark:border-zinc-100 shadow-sm"
+                    : "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700 hover:bg-zinc-200"
                 }`}
               >
                 <span>Phase {phase.phaseId}: {phase.name}</span>
                 <span className={`text-[10px] px-1.5 py-0.2 rounded font-bold ${
-                  phase.priority === "S" ? "bg-rose-500/20 text-rose-300" : "bg-blue-500/20 text-blue-300"
+                  phase.priority === "S" ? "bg-rose-500/20 text-rose-600 dark:text-rose-300" : "bg-blue-500/20 text-blue-600 dark:text-blue-300"
                 }`}>
                   {phase.priority}
                 </span>
@@ -368,18 +368,18 @@ export default function InterviewReadyPage() {
                 onClick={() => handleSelectDay(d.dayNumber)}
                 className={`p-2 rounded-xl text-center border transition-all flex flex-col items-center justify-center gap-1 ${
                   isSelected
-                    ? "bg-gradient-to-b from-blue-600 to-indigo-700 text-white border-blue-400 shadow-lg scale-105 z-10"
+                    ? "bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 border-zinc-900 dark:border-zinc-100 shadow-md scale-105 z-10 font-bold"
                     : isDone
-                    ? "bg-emerald-950/30 text-emerald-300 border-emerald-500/30 hover:bg-emerald-900/40"
-                    : "bg-white/[0.03] text-slate-300 border-white/[0.06] hover:bg-white/[0.07]"
+                    ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800"
+                    : "bg-white dark:bg-zinc-900/60 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800"
                 }`}
               >
                 <span className="text-[10px] font-mono opacity-70">Nov {d.dayNumber}</span>
                 <span className="text-xs font-bold">D{d.dayNumber}</span>
                 {isDone ? (
-                  <CheckCircle2 className="h-3 w-3 text-emerald-400 shrink-0" />
+                  <CheckCircle2 className="h-3 w-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 ) : (
-                  <div className="h-1.5 w-1.5 rounded-full bg-slate-600" />
+                  <div className="h-1.5 w-1.5 rounded-full bg-zinc-300 dark:bg-zinc-600" />
                 )}
               </button>
             );
@@ -393,18 +393,18 @@ export default function InterviewReadyPage() {
           <div className="lg:col-span-8 space-y-6">
             
             {/* Day Header Showcase */}
-            <div className="rounded-2xl border border-white/[0.08] bg-[#0c1222]/90 p-5 sm:p-6 shadow-xl space-y-4">
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/[0.08] pb-4">
+            <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/70 p-5 sm:p-6 shadow-sm space-y-4 transition-colors">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 dark:border-zinc-800 pb-4">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                    <span className="px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                       Day {currentDay.dayNumber} • {currentDay.date}
                     </span>
-                    <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                    <span className="px-2.5 py-0.5 rounded-md text-[11px] font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
                       {currentDay.phaseName}
                     </span>
                   </div>
-                  <h3 className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
+                  <h3 className="text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-50 tracking-tight">
                     {currentDay.title}
                   </h3>
                 </div>
@@ -412,10 +412,10 @@ export default function InterviewReadyPage() {
                 {/* Mark Day Complete Button */}
                 <button
                   onClick={() => toggleDayCompletion(currentDay.dayNumber)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-md active:scale-95 border ${
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all shadow-sm active:scale-95 border ${
                     completedDays[currentDay.dayNumber]
-                      ? "bg-emerald-600 text-white border-emerald-500 shadow-emerald-600/20"
-                      : "bg-white/[0.05] hover:bg-white/[0.1] text-slate-200 border-white/[0.1]"
+                      ? "bg-emerald-600 text-white border-emerald-600 shadow-sm"
+                      : "bg-zinc-100 dark:bg-zinc-800 hover:bg-zinc-200 text-zinc-800 dark:text-zinc-200 border-zinc-200 dark:border-zinc-700"
                   }`}
                 >
                   <CheckCircle2 className="h-4 w-4" />
@@ -425,20 +425,20 @@ export default function InterviewReadyPage() {
                 </button>
               </div>
 
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">
+              <p className="text-xs sm:text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed font-sans">
                 {currentDay.description}
               </p>
 
               {/* Study Topics Chips */}
               <div className="space-y-2 pt-2">
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">
                   Today's Core Study Topics ({currentDay.studyTopics.length})
                 </span>
                 <div className="flex flex-wrap gap-2">
                   {currentDay.studyTopics.map((topic, idx) => (
                     <span
                       key={idx}
-                      className="px-2.5 py-1 rounded-lg bg-white/[0.04] text-slate-300 text-xs border border-white/[0.06] font-medium"
+                      className="px-2.5 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs border border-zinc-200 dark:border-zinc-700 font-medium"
                     >
                       • {topic}
                     </span>
@@ -554,13 +554,13 @@ export default function InterviewReadyPage() {
                           {/* Checkbox */}
                           <button
                             onClick={() => toggleQuestionCompletion(q.id)}
-                            className="mt-0.5 text-slate-400 hover:text-white shrink-0"
+                            className="mt-0.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 shrink-0"
                             title={isDone ? "Mark Incomplete" : "Mark Mastered"}
                           >
                             {isDone ? (
-                              <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                              <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                             ) : (
-                              <Circle className="h-4 w-4 text-slate-500 hover:text-slate-300" />
+                              <Circle className="h-4 w-4 text-zinc-400 hover:text-zinc-600" />
                             )}
                           </button>
 
@@ -568,7 +568,7 @@ export default function InterviewReadyPage() {
                             onClick={() => toggleQuestionAccordion(q.id)}
                             className="cursor-pointer flex-1"
                           >
-                            <span className="text-xs sm:text-sm font-semibold text-white leading-snug">
+                            <span className="text-xs sm:text-sm font-semibold text-zinc-900 dark:text-zinc-100 leading-snug">
                               {q.qNum}. {q.question}
                             </span>
                           </div>
@@ -580,15 +580,15 @@ export default function InterviewReadyPage() {
                             href={`/speech-drill?qId=${encodeURIComponent(q.id)}`}
                             onClick={() => handleLaunchSpeechDrill(q)}
                             title={`Practice speaking this answer: "${q.question}"`}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all border border-transparent hover:border-cyan-500/20 group"
+                            className="p-1.5 rounded-lg text-zinc-400 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all border border-transparent group"
                           >
-                            <Mic className="h-4 w-4 group-hover:scale-110 text-slate-400 group-hover:text-cyan-400 transition-transform" />
+                            <Mic className="h-4 w-4 group-hover:scale-110 transition-transform" />
                           </Link>
 
                           {/* Accordion toggle */}
                           <button
                             onClick={() => toggleQuestionAccordion(q.id)}
-                            className="p-1 text-slate-400 hover:text-white transition-colors"
+                            className="p-1 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition-colors"
                           >
                             {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                           </button>
@@ -597,23 +597,23 @@ export default function InterviewReadyPage() {
 
                       {/* Expandable Answer & Logic Content */}
                       {isExpanded && (
-                        <div className="px-4 pb-4 pt-1 border-t border-white/[0.06] space-y-3 font-sans text-xs sm:text-sm">
+                        <div className="px-4 pb-4 pt-1 border-t border-zinc-200 dark:border-zinc-800 space-y-3 font-sans text-xs sm:text-sm">
                           {/* Model Answer */}
                           <div className="space-y-1">
-                            <span className="text-[11px] font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1">
+                            <span className="text-[11px] font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider flex items-center gap-1">
                               <Check className="h-3 w-3" /> Interview-Ready Answer
                             </span>
-                            <p className="text-slate-200 leading-relaxed bg-black/30 p-3 rounded-lg border border-white/[0.05]">
+                            <p className="text-zinc-800 dark:text-zinc-200 leading-relaxed bg-zinc-50 dark:bg-zinc-950 p-3 rounded-lg border border-zinc-200 dark:border-zinc-800">
                               {q.answer}
                             </p>
                           </div>
 
                           {/* Under-the-Hood Logic */}
                           <div className="space-y-1">
-                            <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1">
+                            <span className="text-[11px] font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1">
                               <Zap className="h-3 w-3" /> Underlying Logic & Interviewer Rationale
                             </span>
-                            <p className="text-slate-300 leading-relaxed bg-amber-950/20 p-3 rounded-lg border border-amber-500/20">
+                            <p className="text-zinc-700 dark:text-zinc-300 leading-relaxed bg-amber-50 dark:bg-amber-950/20 p-3 rounded-lg border border-amber-200 dark:border-amber-900/40">
                               {q.logic}
                             </p>
                           </div>
@@ -621,24 +621,24 @@ export default function InterviewReadyPage() {
                           {/* Code Snippet if present */}
                           {q.codeSnippet && (
                             <div className="space-y-1">
-                              <span className="text-[11px] font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1">
+                              <span className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1">
                                 <Code2 className="h-3 w-3" /> Code / Query Implementation
                               </span>
-                              <pre className="p-3 rounded-lg bg-black/60 border border-white/[0.08] text-emerald-300 font-mono text-xs overflow-x-auto leading-relaxed">
+                              <pre className="p-3 rounded-lg bg-zinc-900 text-emerald-400 font-mono text-xs overflow-x-auto leading-relaxed border border-zinc-800">
                                 {q.codeSnippet}
                               </pre>
                             </div>
                           )}
 
-                          <div className="flex items-center justify-between pt-1 text-[11px] text-slate-400">
+                          <div className="flex items-center justify-between pt-1 text-[11px] text-zinc-500">
                             <span>Mastered this concept? Tick the checkbox on the left.</span>
                             <Link
                               href={`/speech-drill?qId=${encodeURIComponent(q.id)}`}
                               onClick={() => handleLaunchSpeechDrill(q)}
-                              className="text-cyan-400 hover:text-cyan-300 font-semibold hover:underline flex items-center gap-1.5 transition-colors"
+                              className="text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-1.5 transition-colors"
                             >
-                              <Mic className="h-3.5 w-3.5 text-cyan-400" />
-                              <span>Practice Speaking this Answer in Speech Drill</span>
+                              <Mic className="h-3.5 w-3.5" />
+                              <span>Practice Speaking this Answer</span>
                               <ExternalLink className="h-3 w-3" />
                             </Link>
                           </div>
@@ -651,27 +651,27 @@ export default function InterviewReadyPage() {
             </div>
 
             {/* PRACTICAL TASK CARD */}
-            <div className="rounded-2xl border border-white/[0.08] bg-[#0c1222]/90 p-5 sm:p-6 shadow-xl space-y-4">
-              <div className="flex items-center gap-2 border-b border-white/[0.08] pb-3">
-                <Code2 className="h-4 w-4 text-emerald-400" />
-                <h4 className="text-sm font-bold text-white tracking-tight">
+            <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/70 p-5 sm:p-6 shadow-sm space-y-4 transition-colors">
+              <div className="flex items-center gap-2 border-b border-zinc-200 dark:border-zinc-800 pb-3">
+                <Code2 className="h-4 w-4 text-emerald-500" />
+                <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">
                   Today's Practical Task: {currentDay.practicalTask.title}
                 </h4>
               </div>
 
-              <div className="space-y-2 text-xs sm:text-sm text-slate-300 font-sans leading-relaxed">
-                <p className="font-medium text-white">{currentDay.practicalTask.instructions}</p>
-                <div className="p-3 rounded-xl bg-emerald-950/20 border border-emerald-500/20 text-xs text-emerald-300">
+              <div className="space-y-2 text-xs sm:text-sm text-zinc-700 dark:text-zinc-300 font-sans leading-relaxed">
+                <p className="font-medium text-zinc-900 dark:text-zinc-100">{currentDay.practicalTask.instructions}</p>
+                <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-900/40 text-xs text-emerald-800 dark:text-emerald-300">
                   <strong>Engineering Hint:</strong> {currentDay.practicalTask.solutionHint}
                 </div>
               </div>
 
               {currentDay.practicalTask.codeExample && (
                 <div className="space-y-1 pt-1">
-                  <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider font-mono">
+                  <span className="text-xs font-semibold text-zinc-500 uppercase tracking-wider font-mono">
                     Reference Implementation / Starter
                   </span>
-                  <pre className="p-3.5 rounded-xl bg-black/50 border border-white/[0.08] text-xs font-mono text-cyan-300 overflow-x-auto leading-relaxed">
+                  <pre className="p-3.5 rounded-xl bg-zinc-900 border border-zinc-800 text-xs font-mono text-emerald-400 overflow-x-auto leading-relaxed">
                     {currentDay.practicalTask.codeExample}
                   </pre>
                 </div>
@@ -684,18 +684,18 @@ export default function InterviewReadyPage() {
           <div className="lg:col-span-4 space-y-6">
             
             {/* DAILY 6-POINT COMPLETION CHECKLIST */}
-            <div className="rounded-2xl border border-white/[0.08] bg-[#0c1222]/90 p-5 shadow-xl space-y-4 backdrop-blur-md">
-              <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+            <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/70 p-5 shadow-sm space-y-4 transition-colors">
+              <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-3">
                 <div>
-                  <h4 className="text-sm font-bold text-white tracking-tight flex items-center gap-1.5">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                  <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight flex items-center gap-1.5">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-500" />
                     Daily Completion Checklist
                   </h4>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-zinc-500 mt-0.5">
                     Day {currentDay.dayNumber} verification
                   </p>
                 </div>
-                <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                   {currentDayChecklistDoneCount}/6 Done
                 </span>
               </div>
@@ -710,15 +710,15 @@ export default function InterviewReadyPage() {
                       onClick={() => toggleChecklistItem(currentDay.dayNumber, idx)}
                       className={`p-2.5 rounded-xl border cursor-pointer transition-all flex items-start gap-2.5 ${
                         isChecked
-                          ? "bg-emerald-950/30 border-emerald-500/40 text-emerald-200"
-                          : "bg-white/[0.02] border-white/[0.06] text-slate-300 hover:bg-white/[0.04]"
+                          ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200"
+                          : "bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100"
                       }`}
                     >
-                      <button className="mt-0.5 shrink-0 text-slate-400">
+                      <button className="mt-0.5 shrink-0 text-zinc-400">
                         {isChecked ? (
-                          <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                          <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                         ) : (
-                          <Circle className="h-4 w-4 text-slate-500" />
+                          <Circle className="h-4 w-4 text-zinc-400" />
                         )}
                       </button>
                       <span className="text-xs leading-snug">{item}</span>
@@ -741,49 +741,49 @@ export default function InterviewReadyPage() {
                     return next;
                   });
                 }}
-                className="w-full text-center py-1.5 text-[11px] text-slate-400 hover:text-slate-200 transition-colors"
+                className="w-full text-center py-1.5 text-[11px] text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300 transition-colors"
               >
                 Reset Day {currentDay.dayNumber} Checklist
               </button>
             </div>
 
             {/* SUBJECT PRIORITY MATRIX CARD */}
-            <div className="rounded-2xl border border-white/[0.08] bg-[#0c1222]/90 p-5 shadow-xl space-y-3">
-              <div className="border-b border-white/[0.08] pb-2.5">
-                <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
-                  <Award className="h-4 w-4 text-amber-400" />
+            <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/70 p-5 shadow-sm space-y-3 transition-colors">
+              <div className="border-b border-zinc-200 dark:border-zinc-800 pb-2.5">
+                <h4 className="text-xs font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-wider flex items-center gap-1.5">
+                  <Award className="h-4 w-4 text-amber-500" />
                   Subject Priority Ranking Matrix
                 </h4>
-                <p className="text-[11px] text-slate-400">Do not give every subject equal importance.</p>
+                <p className="text-[11px] text-zinc-500">Focus your time by importance tier.</p>
               </div>
 
               <div className="space-y-1.5 text-xs">
-                <div className="p-2 rounded-lg bg-rose-950/20 border border-rose-500/20 flex justify-between items-center">
-                  <span className="font-bold text-rose-300">Tier S (Must be Strong)</span>
-                  <span className="text-[11px] text-slate-300">OOP, SQL, OS, CN, AI/ML & Projects</span>
+                <div className="p-2 rounded-lg bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/40 flex justify-between items-center">
+                  <span className="font-bold text-rose-700 dark:text-rose-300">Tier S (Must be Strong)</span>
+                  <span className="text-[11px] text-zinc-600 dark:text-zinc-400">OOP, SQL, OS, CN, AI/ML & Projects</span>
                 </div>
-                <div className="p-2 rounded-lg bg-amber-950/20 border border-amber-500/20 flex justify-between items-center">
-                  <span className="font-bold text-amber-300">Tier A (Practical Level)</span>
-                  <span className="text-[11px] text-slate-300">LLD, REST APIs, Security, HLD</span>
+                <div className="p-2 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-900/40 flex justify-between items-center">
+                  <span className="font-bold text-amber-700 dark:text-amber-300">Tier A (Practical Level)</span>
+                  <span className="text-[11px] text-zinc-600 dark:text-zinc-400">LLD, REST APIs, Security, HLD</span>
                 </div>
-                <div className="p-2 rounded-lg bg-blue-950/20 border border-blue-500/20 flex justify-between items-center">
-                  <span className="font-bold text-blue-300">Tier B (Working Basics)</span>
-                  <span className="text-[11px] text-slate-300">Git, Linux, Software Testing</span>
+                <div className="p-2 rounded-lg bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900/40 flex justify-between items-center">
+                  <span className="font-bold text-blue-700 dark:text-blue-300">Tier B (Working Basics)</span>
+                  <span className="text-[11px] text-zinc-600 dark:text-zinc-400">Git, Linux, Software Testing</span>
                 </div>
               </div>
             </div>
 
             {/* DECEMBER 1 COMPLETION TARGETS CHECKLIST */}
-            <div className="rounded-2xl border border-white/[0.08] bg-[#0c1222]/90 p-5 shadow-xl space-y-4">
-              <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+            <div className="rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/70 p-5 shadow-sm space-y-4 transition-colors">
+              <div className="flex items-center justify-between border-b border-zinc-200 dark:border-zinc-800 pb-3">
                 <div>
-                  <h4 className="text-sm font-bold text-white tracking-tight flex items-center gap-1.5">
-                    <Trophy className="h-4 w-4 text-amber-400" />
+                  <h4 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight flex items-center gap-1.5">
+                    <Trophy className="h-4 w-4 text-amber-500" />
                     December Completion Targets
                   </h4>
-                  <p className="text-[11px] text-slate-400">{DECEMBER_GOALS.length} Master Milestones</p>
+                  <p className="text-[11px] text-zinc-500">{DECEMBER_GOALS.length} Master Milestones</p>
                 </div>
-                <span className="text-xs font-mono font-bold text-amber-400">
+                <span className="text-xs font-mono font-bold text-amber-600 dark:text-amber-400">
                   {Object.values(completedDecGoals).filter(Boolean).length}/{DECEMBER_GOALS.length}
                 </span>
               </div>
@@ -797,21 +797,21 @@ export default function InterviewReadyPage() {
                       onClick={() => toggleDecGoal(goal.id)}
                       className={`p-2 rounded-lg border cursor-pointer transition-all flex items-center justify-between text-xs ${
                         isChecked
-                          ? "bg-amber-950/30 border-amber-500/40 text-amber-200"
-                          : "bg-white/[0.02] border-white/[0.05] text-slate-300 hover:bg-white/[0.04]"
+                          ? "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-900/40 text-amber-900 dark:text-amber-200"
+                          : "bg-zinc-50 dark:bg-zinc-950 border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100"
                       }`}
                     >
                       <div className="flex items-center gap-2">
-                        <button className="text-slate-400">
+                        <button className="text-zinc-400">
                           {isChecked ? (
-                            <CheckCircle2 className="h-3.5 w-3.5 text-amber-400" />
+                            <CheckCircle2 className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
                           ) : (
-                            <Circle className="h-3.5 w-3.5 text-slate-500" />
+                            <Circle className="h-3.5 w-3.5 text-zinc-400" />
                           )}
                         </button>
                         <span>{goal.title}</span>
                       </div>
-                      <span className="text-[10px] text-slate-500 font-mono shrink-0">
+                      <span className="text-[10px] text-zinc-500 font-mono shrink-0">
                         {goal.phase}
                       </span>
                     </div>
@@ -824,7 +824,7 @@ export default function InterviewReadyPage() {
             {selectedDayNumber < ROADMAP_DAYS.length && (
               <button
                 onClick={() => handleSelectDay(selectedDayNumber + 1)}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white text-xs font-bold shadow-lg shadow-blue-600/25 active:scale-95 transition-all"
+                className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-white text-xs font-semibold shadow-sm active:scale-95 transition-all"
               >
                 <span>Advance to Day {selectedDayNumber + 1}: {ROADMAP_DAYS[selectedDayNumber]?.title}</span>
                 <ArrowRight className="h-4 w-4" />

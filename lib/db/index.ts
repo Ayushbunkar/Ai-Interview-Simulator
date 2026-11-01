@@ -346,6 +346,45 @@ export async function ensureDbInitialized() {
         raw_blueprint_json TEXT NOT NULL DEFAULT '{}',
         created_at TIMESTAMP NOT NULL DEFAULT NOW()
       );
+
+      CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        email TEXT NOT NULL UNIQUE,
+        name TEXT,
+        password_hash TEXT,
+        role TEXT NOT NULL DEFAULT 'user',
+        email_verified BOOLEAN NOT NULL DEFAULT FALSE,
+        image TEXT,
+        google_id TEXT,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS auth_sessions (
+        id TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        session_token TEXT NOT NULL UNIQUE,
+        expires_at TIMESTAMP NOT NULL,
+        ip_address TEXT,
+        user_agent TEXT,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS email_verification_tokens (
+        id TEXT PRIMARY KEY,
+        email TEXT NOT NULL,
+        token TEXT NOT NULL UNIQUE,
+        expires_at TIMESTAMP NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS password_reset_tokens (
+        id TEXT PRIMARY KEY,
+        email TEXT NOT NULL,
+        token TEXT NOT NULL UNIQUE,
+        expires_at TIMESTAMP NOT NULL,
+        created_at TIMESTAMP NOT NULL DEFAULT NOW()
+      );
     `);
 
     // 2. Check if questions are seeded, if not auto-seed

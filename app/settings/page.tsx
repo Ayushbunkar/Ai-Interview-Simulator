@@ -7,18 +7,22 @@ import {
   Terminal,
   Sun,
   Moon,
+  Laptop,
   Trash2,
-  Download,
   CheckCircle2,
   XCircle,
   AlertCircle,
   RefreshCw,
-  Sparkles,
-  Info,
+  Activity,
+  ShieldCheck,
+  User,
+  Mic,
+  Volume2,
+  Lock,
 } from "lucide-react";
-import { useTheme } from "@/components/ThemeProvider";
+import { useTheme, ThemeMode } from "@/components/ThemeProvider";
+import { useAuth } from "@/components/AuthProvider";
 import { APIUsageSummary } from "@/lib/types";
-import { Activity, ShieldCheck } from "lucide-react";
 
 interface SettingsState {
   ai: {
@@ -42,7 +46,8 @@ interface SettingsState {
 }
 
 export default function SettingsPage() {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
+  const { user } = useAuth();
 
   const [settings, setSettings] = useState<SettingsState | null>(null);
   const [usageSummary, setUsageSummary] = useState<APIUsageSummary | null>(null);
@@ -128,6 +133,7 @@ export default function SettingsPage() {
       });
       if (res.ok) {
         setMessage({ text: "Preferences saved successfully.", type: "success" });
+        setTimeout(() => setMessage(null), 4000);
       }
     } catch {
       setMessage({ text: "Failed to save preferences.", type: "error" });
@@ -150,10 +156,10 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="flex h-[80vh] items-center justify-center">
+      <div className="flex h-[70vh] items-center justify-center">
         <div className="text-center space-y-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-blue-500 border-t-transparent mx-auto" />
-          <p className="text-xs text-gray-400">Loading settings...</p>
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-zinc-900 dark:border-zinc-100 border-t-transparent mx-auto" />
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">Loading settings...</p>
         </div>
       </div>
     );
@@ -163,62 +169,160 @@ export default function SettingsPage() {
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 space-y-8">
       {/* Header */}
       <div>
-        <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 px-2.5 py-0.5 text-xs font-semibold text-blue-400 mb-2">
+        <div className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/60 px-2.5 py-0.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 mb-2">
           <SettingsIcon className="h-3 w-3" />
-          <span>Application Configuration</span>
+          <span>System & Account Configuration</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-white">
-          Settings & Provider Status
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+          Settings
         </h1>
-        <p className="mt-1 text-xs text-gray-400">
-          Manage AI models, online compiler configuration, local database storage, and default interview parameters.
+        <p className="mt-1 text-xs sm:text-sm text-zinc-600 dark:text-zinc-400">
+          Manage your account profile, theme appearance, AI reasoning providers, compiler execution, and speech engines.
         </p>
       </div>
 
       {message && (
         <div
-          className={`rounded-lg p-3 text-xs ${
+          className={`rounded-lg p-3 text-xs flex items-center gap-2 border ${
             message.type === "success"
-              ? "bg-emerald-950/40 border border-emerald-500/30 text-emerald-300"
-              : "bg-red-950/40 border border-red-500/30 text-red-300"
+              ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300"
+              : "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800 text-red-800 dark:text-red-300"
           }`}
         >
-          {message.text}
+          {message.type === "success" ? <CheckCircle2 className="h-4 w-4 shrink-0" /> : <AlertCircle className="h-4 w-4 shrink-0" />}
+          <span>{message.text}</span>
         </div>
       )}
 
-      {/* 1. AI Provider Configuration */}
-      <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-5 space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Cpu className="h-4 w-4 text-blue-400" />
-            <h2 className="text-sm font-bold text-white">AI Provider (Groq API)</h2>
+      {/* 1. Account Profile Card */}
+      {user && (
+        <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 p-5 space-y-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <User className="h-4 w-4 text-zinc-700 dark:text-zinc-300" />
+              <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">User Account</h2>
+            </div>
+            <span className="rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 px-2 py-0.5 text-xs font-semibold capitalize">
+              {user.role} Account
+            </span>
           </div>
-          <span
-            className={`rounded px-2 py-0.5 text-[10px] font-bold ${
-              settings?.ai.configured
-                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                : "bg-blue-500/15 text-blue-400 border border-blue-500/30"
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+            <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/50 p-3">
+              <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Full Name</span>
+              <div className="mt-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100">{user.name || "Candidate"}</div>
+            </div>
+
+            <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/50 p-3">
+              <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Email Address</span>
+              <div className="mt-1 text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">{user.email}</div>
+            </div>
+
+            <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/50 p-3">
+              <span className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">Verification & Provider</span>
+              <div className="mt-1 flex items-center gap-2 text-xs">
+                {user.emailVerified ? (
+                  <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
+                    <CheckCircle2 className="h-3.5 w-3.5" /> Verified
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium">
+                    <AlertCircle className="h-3.5 w-3.5" /> Unverified
+                  </span>
+                )}
+                <span className="text-zinc-400">•</span>
+                <span className="text-zinc-600 dark:text-zinc-400 uppercase font-mono text-[10px]">
+                  {user.authProvider || "Local / OAuth"}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 2. Theme & Display Selector */}
+      <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 p-5 space-y-4 shadow-sm">
+        <div>
+          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Display Theme</h2>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+            Choose your preferred color theme. Light mode provides high contrast readability, dark mode is tuned for low-light focus.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3 max-w-md">
+          <button
+            type="button"
+            onClick={() => setTheme("light")}
+            className={`flex items-center justify-center gap-2 rounded-lg border py-2.5 px-3 text-xs font-semibold transition ${
+              theme === "light"
+                ? "border-zinc-900 dark:border-zinc-100 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-sm"
+                : "border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/60 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
             }`}
           >
-            {settings?.ai.configured ? "Live Groq AI Configured" : "Local Dev Engine (Active)"}
+            <Sun className="h-4 w-4" />
+            <span>Light</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setTheme("dark")}
+            className={`flex items-center justify-center gap-2 rounded-lg border py-2.5 px-3 text-xs font-semibold transition ${
+              theme === "dark"
+                ? "border-zinc-900 dark:border-zinc-100 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-sm"
+                : "border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/60 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+            }`}
+          >
+            <Moon className="h-4 w-4" />
+            <span>Dark</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setTheme("system")}
+            className={`flex items-center justify-center gap-2 rounded-lg border py-2.5 px-3 text-xs font-semibold transition ${
+              theme === "system"
+                ? "border-zinc-900 dark:border-zinc-100 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-sm"
+                : "border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/60 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800"
+            }`}
+          >
+            <Laptop className="h-4 w-4" />
+            <span>System</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 3. AI Provider Configuration */}
+      <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 p-5 space-y-4 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Cpu className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+            <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">AI Reasoning Provider (Groq Cloud)</h2>
+          </div>
+          <span
+            className={`rounded px-2 py-0.5 text-[10px] font-semibold border ${
+              settings?.ai.configured
+                ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
+                : "bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 border-zinc-200 dark:border-zinc-700"
+            }`}
+          >
+            {settings?.ai.configured ? "Live Groq AI Configured" : "Offline Rule Engine Active"}
           </span>
         </div>
 
-        <p className="text-xs text-gray-400 leading-relaxed">
-          InterviewForge uses a provider-independent AI interface. When{" "}
-          <code className="text-gray-300 font-mono">GROQ_API_KEY</code> is configured, interviews use live LLM reasoning (model: <strong className="text-white">{settings?.ai.model}</strong>). Without an API key, the deterministic offline engine evaluates candidate answers using calibrated rubrics.
+        <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+          InterviewForge uses high-speed LLM reasoning for dynamic question generation and strict rubric scoring.
+          When an API key is present, requests route to Groq (<strong className="text-zinc-800 dark:text-zinc-200">{settings?.ai.model}</strong>).
         </p>
 
-        <div className="rounded-lg border border-gray-800 bg-gray-950/80 p-3.5 space-y-2 text-xs">
+        <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/50 p-3 space-y-2 text-xs">
           <div className="flex items-center justify-between">
-            <span className="text-gray-400">Configured Model:</span>
-            <span className="font-mono text-gray-200">{settings?.ai.model}</span>
+            <span className="text-zinc-500 dark:text-zinc-400">Configured Model:</span>
+            <span className="font-mono text-zinc-800 dark:text-zinc-200">{settings?.ai.model}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-gray-400">API Key Status:</span>
-            <span className="font-mono text-gray-200">
-              {settings?.ai.configured ? `Active (${settings.ai.maskedKey})` : "Not Set (Offline Dev Mode)"}
+            <span className="text-zinc-500 dark:text-zinc-400">API Key Status:</span>
+            <span className="font-mono text-zinc-800 dark:text-zinc-200">
+              {settings?.ai.configured ? `Active (${settings.ai.maskedKey})` : "Missing (Fallback rule engine)"}
             </span>
           </div>
         </div>
@@ -227,7 +331,7 @@ export default function SettingsPage() {
           <button
             onClick={handleTestAi}
             disabled={testingAi}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-700 bg-gray-800 px-3.5 py-1.5 text-xs font-semibold text-gray-200 hover:bg-gray-700 hover:text-white disabled:opacity-50 transition"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 px-3.5 py-1.5 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100 disabled:opacity-50 transition"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${testingAi ? "animate-spin" : ""}`} />
             <span>{testingAi ? "Testing..." : "Test AI Connection"}</span>
@@ -236,48 +340,90 @@ export default function SettingsPage() {
 
         {aiTestResult && (
           <div
-            className={`rounded-lg p-3 text-xs flex items-start gap-2 ${
+            className={`rounded-lg p-3 text-xs flex items-start gap-2 border ${
               aiTestResult.success
-                ? "bg-emerald-950/30 border border-emerald-500/30 text-emerald-300"
-                : "bg-amber-950/30 border border-amber-500/30 text-amber-300"
+                ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300"
+                : "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800 text-amber-800 dark:text-amber-300"
             }`}
           >
-            {aiTestResult.success ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400 mt-0.5" /> : <AlertCircle className="h-4 w-4 shrink-0 text-amber-400 mt-0.5" />}
+            {aiTestResult.success ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400 mt-0.5" /> : <AlertCircle className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />}
             <span>{aiTestResult.message}</span>
           </div>
         )}
       </div>
 
-      {/* 2. Compiler Provider Configuration */}
-      <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-5 space-y-4">
+      {/* 4. Speech Transcription Fallback Cascade Status */}
+      <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 p-5 space-y-4 shadow-sm">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Terminal className="h-4 w-4 text-emerald-400" />
-            <h2 className="text-sm font-bold text-white">Online Compiler (OnlineCompiler.io / Judge0)</h2>
+            <Mic className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+            <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+              Voice Transcription Engine Cascade
+            </h2>
+          </div>
+          <span className="rounded bg-cyan-50 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800 px-2 py-0.5 text-[10px] font-semibold">
+            Auto-Failover Active
+          </span>
+        </div>
+
+        <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+          The speech engine implements an automated fallback cascade. If tokens deplete or rate limits occur on the primary engine, it switches seamlessly to the next configured provider:
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 text-xs">
+          <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/50 p-2.5">
+            <div className="font-semibold text-zinc-900 dark:text-zinc-100">1. AssemblyAI</div>
+            <div className="text-[10px] text-zinc-500 mt-0.5">Primary STT Engine</div>
+          </div>
+          <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/50 p-2.5">
+            <div className="font-semibold text-zinc-900 dark:text-zinc-100">2. Speechmatics</div>
+            <div className="text-[10px] text-zinc-500 mt-0.5">Fallback 1 (Configured)</div>
+          </div>
+          <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/50 p-2.5">
+            <div className="font-semibold text-zinc-900 dark:text-zinc-100">3. Sarvam AI</div>
+            <div className="text-[10px] text-zinc-500 mt-0.5">Fallback 2 (Configured)</div>
+          </div>
+          <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/50 p-2.5">
+            <div className="font-semibold text-zinc-900 dark:text-zinc-100">4. Gladia</div>
+            <div className="text-[10px] text-zinc-500 mt-0.5">Fallback 3 (Configured)</div>
+          </div>
+          <div className="rounded-lg border border-emerald-200 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/30 p-2.5">
+            <div className="font-semibold text-emerald-800 dark:text-emerald-300">5. Groq Whisper</div>
+            <div className="text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5">Final Safeguard</div>
+          </div>
+        </div>
+      </div>
+
+      {/* 5. Online Compiler Configuration */}
+      <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 p-5 space-y-4 shadow-sm">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Terminal className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+            <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Online Compiler (OnlineCompiler.io / Judge0)</h2>
           </div>
           <span
-            className={`rounded px-2 py-0.5 text-[10px] font-bold ${
+            className={`rounded px-2 py-0.5 text-[10px] font-semibold border ${
               settings?.compiler.configured
-                ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                : "bg-amber-500/20 text-amber-400 border border-amber-500/30"
+                ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800"
+                : "bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800"
             }`}
           >
             {settings?.compiler.configured ? "Compiler Connected" : "Compiler Key Missing"}
           </span>
         </div>
 
-        <p className="text-xs text-gray-400 leading-relaxed">
+        <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
           Executes Java, Python, and C++ code against real test cases via the Judge0-compatible endpoint.
         </p>
 
-        <div className="rounded-lg border border-gray-800 bg-gray-950/80 p-3.5 space-y-2 text-xs">
+        <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/50 p-3 space-y-2 text-xs">
           <div className="flex items-center justify-between">
-            <span className="text-gray-400">Execution Endpoint:</span>
-            <span className="font-mono text-gray-200">{settings?.compiler.url}</span>
+            <span className="text-zinc-500 dark:text-zinc-400">Execution Endpoint:</span>
+            <span className="font-mono text-zinc-800 dark:text-zinc-200">{settings?.compiler.url}</span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-gray-400">API Key Status:</span>
-            <span className="font-mono text-gray-200">
+            <span className="text-zinc-500 dark:text-zinc-400">API Key Status:</span>
+            <span className="font-mono text-zinc-800 dark:text-zinc-200">
               {settings?.compiler.configured ? `Active (${settings.compiler.maskedKey})` : "Missing (Execution Disabled)"}
             </span>
           </div>
@@ -287,7 +433,7 @@ export default function SettingsPage() {
           <button
             onClick={handleTestCompiler}
             disabled={testingCompiler}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-700 bg-gray-800 px-3.5 py-1.5 text-xs font-semibold text-gray-200 hover:bg-gray-700 hover:text-white disabled:opacity-50 transition"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 px-3.5 py-1.5 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 hover:text-zinc-900 dark:hover:text-zinc-100 disabled:opacity-50 transition"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${testingCompiler ? "animate-spin" : ""}`} />
             <span>{testingCompiler ? "Testing..." : "Test Compiler API"}</span>
@@ -296,43 +442,34 @@ export default function SettingsPage() {
 
         {compilerTestResult && (
           <div
-            className={`rounded-lg p-3 text-xs flex items-start gap-2 ${
+            className={`rounded-lg p-3 text-xs flex items-start gap-2 border ${
               compilerTestResult.success
-                ? "bg-emerald-950/30 border border-emerald-500/30 text-emerald-300"
-                : "bg-red-950/30 border border-red-500/30 text-red-300"
+                ? "bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300"
+                : "bg-red-50 dark:bg-red-950/30 border-red-200 dark:border-red-800 text-red-800 dark:text-red-300"
             }`}
           >
-            {compilerTestResult.success ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-400 mt-0.5" /> : <XCircle className="h-4 w-4 shrink-0 text-red-400 mt-0.5" />}
+            {compilerTestResult.success ? <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400 mt-0.5" /> : <XCircle className="h-4 w-4 shrink-0 text-red-600 dark:text-red-400 mt-0.5" />}
             <span>{compilerTestResult.message}</span>
           </div>
         )}
       </div>
 
-      {/* 3. General Preferences Form */}
-      <form onSubmit={handleSavePreferences} className="rounded-xl border border-gray-800 bg-gray-900/60 p-5 space-y-4">
-        <h2 className="text-sm font-bold text-white">Default Preferences</h2>
+      {/* 6. General Simulation Preferences */}
+      <form onSubmit={handleSavePreferences} className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 p-5 space-y-4 shadow-sm">
+        <div>
+          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Default Simulation Preferences</h2>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+            Configure initial defaults for newly launched interview simulations.
+          </p>
+        </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="space-y-1.5">
-            <label className="text-xs text-gray-400">Display Theme</label>
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="w-full flex items-center justify-between rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-xs text-white hover:border-gray-700 transition"
-            >
-              <span>{theme === "dark" ? "Dark (Night)" : "Light (Day)"}</span>
-              <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-blue-600/30 text-blue-400 border border-blue-500/30">
-                Toggle
-              </span>
-            </button>
-          </div>
-
-          <div className="space-y-1.5">
-            <label className="text-xs text-gray-400">Default Language</label>
+            <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">Default Language</label>
             <select
               value={defaultLanguage}
               onChange={e => setDefaultLanguage(e.target.value)}
-              className="w-full rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-xs text-white focus:outline-none"
+              className="w-full rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-400"
             >
               <option value="java">Java (OpenJDK)</option>
               <option value="python">Python 3</option>
@@ -341,24 +478,23 @@ export default function SettingsPage() {
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs text-gray-400">Default Duration (mins)</label>
+            <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">Default Duration (mins)</label>
             <input
               type="number"
               min={15}
               max={180}
               value={defaultDuration}
               onChange={e => setDefaultDuration(Number(e.target.value))}
-              className="w-full rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-xs text-white focus:outline-none"
-            >
-            </input>
+              className="w-full rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-400"
+            />
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs text-gray-400">Default Difficulty</label>
+            <label className="text-xs font-medium text-zinc-700 dark:text-zinc-300">Default Difficulty</label>
             <select
               value={defaultDifficulty}
               onChange={e => setDefaultDifficulty(e.target.value)}
-              className="w-full rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-xs text-white focus:outline-none"
+              className="w-full rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 px-3 py-2 text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-zinc-400"
             >
               <option value="fresher">Fresher (Campus)</option>
               <option value="entry_level">Entry Level</option>
@@ -371,61 +507,60 @@ export default function SettingsPage() {
         <div className="flex justify-end pt-2">
           <button
             type="submit"
-            className="rounded-lg bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-500 transition"
+            className="rounded-lg bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 px-4 py-2 text-xs font-semibold hover:bg-zinc-800 dark:hover:bg-white transition"
           >
             Save Preferences
           </button>
         </div>
       </form>
 
-      {/* 3B. API Usage & Reliability Dashboard */}
-      <div className="rounded-xl border border-gray-800 bg-gray-900/60 p-5 space-y-4">
+      {/* 7. API Usage & Diagnostics */}
+      <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/60 p-5 space-y-4 shadow-sm">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-bold text-white flex items-center gap-2">
-            <Activity className="h-4 w-4 text-cyan-400" />
-            <span>API Usage & Reliability Dashboard</span>
+          <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+            <Activity className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+            <span>API Usage & Telemetry</span>
           </h2>
-          <span className="rounded bg-cyan-500/10 border border-cyan-500/30 px-2 py-0.5 text-[10px] font-semibold text-cyan-300">
+          <span className="rounded bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 px-2 py-0.5 text-[10px] font-semibold text-zinc-600 dark:text-zinc-400">
             Local Application Auditing
           </span>
         </div>
 
-        <p className="text-xs text-gray-400">
+        <p className="text-xs text-zinc-500 dark:text-zinc-400">
           Tracks application-side request counts, latency, and error states.
-          <strong className="text-gray-300"> Disclaimer:</strong> All token numbers and request metrics represent application-side approximations rather than provider-confirmed quota consumption.
         </p>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="rounded-lg border border-gray-800 bg-gray-950 p-3 text-center">
-            <div className="text-xl font-bold text-blue-400">{usageSummary?.totalAiRequests ?? 0}</div>
-            <div className="text-[10px] text-gray-500 mt-0.5">Groq AI Requests</div>
+          <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/50 p-3 text-center">
+            <div className="text-xl font-bold text-zinc-900 dark:text-zinc-100">{usageSummary?.totalAiRequests ?? 0}</div>
+            <div className="text-[10px] text-zinc-500 mt-0.5">Groq AI Requests</div>
           </div>
-          <div className="rounded-lg border border-gray-800 bg-gray-950 p-3 text-center">
-            <div className="text-xl font-bold text-emerald-400">{usageSummary?.totalCompilerRequests ?? 0}</div>
-            <div className="text-[10px] text-gray-500 mt-0.5">Compiler Executions</div>
+          <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/50 p-3 text-center">
+            <div className="text-xl font-bold text-zinc-900 dark:text-zinc-100">{usageSummary?.totalCompilerRequests ?? 0}</div>
+            <div className="text-[10px] text-zinc-500 mt-0.5">Compiler Executions</div>
           </div>
-          <div className="rounded-lg border border-gray-800 bg-gray-950 p-3 text-center">
-            <div className="text-xl font-bold text-purple-400">~{usageSummary?.estimatedTokens ?? 0}</div>
-            <div className="text-[10px] text-gray-500 mt-0.5">Estimated Tokens</div>
+          <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/50 p-3 text-center">
+            <div className="text-xl font-bold text-zinc-900 dark:text-zinc-100">~{usageSummary?.estimatedTokens ?? 0}</div>
+            <div className="text-[10px] text-zinc-500 mt-0.5">Estimated Tokens</div>
           </div>
-          <div className="rounded-lg border border-gray-800 bg-gray-950 p-3 text-center">
-            <div className="text-xl font-bold text-amber-400">{usageSummary?.totalErrors ?? 0}</div>
-            <div className="text-[10px] text-gray-500 mt-0.5">Recorded Exceptions</div>
+          <div className="rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950/50 p-3 text-center">
+            <div className="text-xl font-bold text-zinc-900 dark:text-zinc-100">{usageSummary?.totalErrors ?? 0}</div>
+            <div className="text-[10px] text-zinc-500 mt-0.5">Exceptions</div>
           </div>
         </div>
 
         {usageSummary?.recentLogs && usageSummary.recentLogs.length > 0 && (
           <div className="space-y-1.5 pt-2">
-            <h4 className="text-[11px] font-semibold text-gray-300">Recent API Audit Log</h4>
-            <div className="max-h-36 overflow-y-auto space-y-1 rounded-lg border border-gray-800 bg-gray-950 p-2 font-mono text-[10px]">
+            <h4 className="text-[11px] font-semibold text-zinc-700 dark:text-zinc-300">Recent API Audit Log</h4>
+            <div className="max-h-36 overflow-y-auto space-y-1 rounded-lg border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-950 p-2 font-mono text-[10px]">
               {usageSummary.recentLogs.map((log, idx) => (
-                <div key={idx} className="flex items-center justify-between text-gray-400">
-                  <span className="text-gray-300">[{log.service.toUpperCase()}] {log.endpoint}</span>
+                <div key={idx} className="flex items-center justify-between text-zinc-600 dark:text-zinc-400">
+                  <span className="text-zinc-800 dark:text-zinc-300">[{log.service.toUpperCase()}] {log.endpoint}</span>
                   <div className="flex items-center gap-2">
-                    <span className={log.status === "success" ? "text-emerald-400" : "text-red-400"}>
+                    <span className={log.status === "success" ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}>
                       {log.status}
                     </span>
-                    <span className="text-gray-500">{log.responseTimeMs}ms</span>
+                    <span className="text-zinc-400">{log.responseTimeMs}ms</span>
                   </div>
                 </div>
               ))}
@@ -434,23 +569,23 @@ export default function SettingsPage() {
         )}
       </div>
 
-      {/* 4. Local Data Management */}
-      <div className="rounded-xl border border-red-500/20 bg-gray-900/60 p-5 space-y-4">
-        <h2 className="text-sm font-bold text-red-400 flex items-center gap-2">
+      {/* 8. Danger Zone / Data Management */}
+      <div className="rounded-xl border border-red-200 dark:border-red-900/50 bg-white dark:bg-zinc-900/60 p-5 space-y-4 shadow-sm">
+        <h2 className="text-sm font-semibold text-red-600 dark:text-red-400 flex items-center gap-2">
           <Trash2 className="h-4 w-4" />
-          <span>Local Storage & History Management</span>
+          <span>Local Storage & Session Management</span>
         </h2>
-        <p className="text-xs text-gray-400">
-          All interview transcripts, answers, and evaluations are persisted locally in SQLite (<code className="text-gray-300">interviewforge.db</code>). You can clear stored records at any time.
+        <p className="text-xs text-zinc-600 dark:text-zinc-400">
+          Clear local session history and evaluations. Note that your user profile in Supabase remains safe.
         </p>
 
-        <div className="flex items-center gap-3 pt-2">
+        <div className="flex items-center gap-3 pt-1">
           <button
             type="button"
             onClick={handleClearHistory}
-            className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2 text-xs font-semibold text-red-400 hover:bg-red-500/20 transition"
+            className="rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/40 px-3.5 py-1.5 text-xs font-semibold text-red-600 dark:text-red-300 hover:bg-red-100 dark:hover:bg-red-900/50 transition"
           >
-            Clear All Saved Interviews
+            Clear Local Interview History
           </button>
         </div>
       </div>

@@ -6,64 +6,64 @@
   :root,
   .dark,
   html[data-theme="dark"] {
-    --background: 222 47% 7%; /* #0b0f17 */
-    --foreground: 210 40% 98%; /* #f8fafc */
+    --background: 240 10% 3.9%; /* #09090b */
+    --foreground: 0 0% 98%; /* #fafafa */
 
-    --card: 222 47% 10%; /* #0d131f */
-    --card-foreground: 210 40% 98%;
+    --card: 240 10% 5.5%; /* #0e0e11 */
+    --card-foreground: 0 0% 98%;
 
-    --popover: 222 47% 10%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 240 10% 5.5%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 217 91% 60%; /* #3b82f6 */
-    --primary-foreground: 222 47% 11%;
+    --primary: 221 83% 53%; /* #2563eb */
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 217 33% 15%; /* #162032 */
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 240 3.7% 14%; /* #222226 */
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 217 33% 15%; /* #162032 */
-    --muted-foreground: 215 20% 65%; /* #94a3b8 */
+    --muted: 240 3.7% 12%; /* #1c1c20 */
+    --muted-foreground: 240 5% 65%; /* #a1a1aa */
 
-    --accent: 217 91% 60%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 240 3.7% 14%;
+    --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 217 33% 18%; /* #1e293b */
-    --input: 217 33% 20%; /* #243044 */
-    --ring: 217 91% 60%;
+    --border: 240 3.7% 16%; /* #27272a */
+    --input: 240 3.7% 16%;
+    --ring: 221 83% 53%;
   }
 
   .light,
   html.light,
   html[data-theme="light"] {
-    --background: 210 40% 98%; /* #f8fafc */
-    --foreground: 222 47% 11%; /* #0f172a */
+    --background: 0 0% 100%; /* #ffffff */
+    --foreground: 240 10% 3.9%; /* #09090b */
 
     --card: 0 0% 100%; /* #ffffff */
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 240 10% 3.9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 240 10% 3.9%;
 
     --primary: 221 83% 53%; /* #2563eb */
-    --primary-foreground: 210 40% 98%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 210 40% 96%; /* #f1f5f9 */
-    --secondary-foreground: 222 47% 11%;
+    --secondary: 240 4.8% 95.9%; /* #f4f4f5 */
+    --secondary-foreground: 240 5.9% 10%;
 
-    --muted: 210 40% 94%; /* #e2e8f0 */
-    --muted-foreground: 215 16% 47%; /* #64748b */
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%; /* #71717a */
 
-    --accent: 210 40% 96%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 214 32% 91%; /* #e2e8f0 */
-    --input: 214 32% 91%;
+    --border: 240 5.9% 90%; /* #e4e4e7 */
+    --input: 240 5.9% 90%;
     --ring: 221 83% 53%;
   }
 }
@@ -73,26 +73,19 @@ body {
   color: hsl(var(--foreground));
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   overflow-x: hidden;
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.04) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.04) 0px, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(14, 165, 233, 0.03) 0px, transparent 50%);
-  background-attachment: fixed;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Glassmorphism & SaaS Utilities */
+/* Linear-Style Utility Panels (Restrained, Flat Surfaces with Subtle 1px Borders) */
 .glass-panel {
-  background: rgba(13, 19, 31, 0.72);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background-color: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
 }
 
 .glass-panel-glow {
-  background: linear-gradient(180deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.7) 100%);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(59, 130, 246, 0.25);
-  box-shadow: 0 10px 30px -10px rgba(37, 99, 235, 0.15);
+  background-color: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
 }
 
 /* Audio Waveform Animation */
@@ -107,20 +100,20 @@ body {
 .wave-bar-4 { animation: soundwave 0.8s ease-in-out infinite 0.4s; }
 .wave-bar-5 { animation: soundwave 0.8s ease-in-out infinite 0.15s; }
 
-/* Custom scrollbars */
+/* Custom scrollbars (Minimal, Unobtrusive) */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
-  border-radius: 4px;
+  background: #3f3f46;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #52525b;
 }
 
 /* ==========================================================================
@@ -132,28 +125,22 @@ html[data-theme="light"] {
   color-scheme: light;
 }
 
-/* Background & Body */
 html.light body {
   background-color: #f8fafc !important;
-  color: #0f172a !important;
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.06) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
-    radial-gradient(at 50% 100%, rgba(14, 165, 233, 0.04) 0px, transparent 50%) !important;
+  color: #09090b !important;
 }
 
 /* Header & Nav in Light Mode */
 html.light header {
-  background-color: rgba(255, 255, 255, 0.94) !important;
+  background-color: rgba(255, 255, 255, 0.95) !important;
   border-bottom-color: #e2e8f0 !important;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
 }
 
 html.light header a,
 html.light header button,
 html.light header span.font-bold,
 html.light header .tracking-tight {
-  color: #0f172a !important;
+  color: #09090b !important;
 }
 
 html.light header p {
@@ -170,7 +157,7 @@ html.light header nav a:not([class*="bg-blue-600"]) {
 }
 
 html.light header nav a:not([class*="bg-blue-600"]):hover {
-  color: #0f172a !important;
+  color: #09090b !important;
   background-color: #e2e8f0 !important;
 }
 
@@ -191,7 +178,7 @@ html.light .sticky.top-14,
 html.light .sticky.top-0,
 html.light .bg-\[\#0c1222\]\/80,
 html.light .bg-\[\#0c1220\]\/70 {
-  background-color: rgba(255, 255, 255, 0.92) !important;
+  background-color: rgba(255, 255, 255, 0.95) !important;
   border-bottom-color: #e2e8f0 !important;
 }
 
@@ -220,20 +207,20 @@ html.light .glass-panel,
 html.light .glass-panel-glow {
   background: #ffffff !important;
   border-color: #e2e8f0 !important;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05) !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04) !important;
 }
 
 /* Roadmap & Drill Day Highlights in Light Mode */
 html.light .bg-cyan-950\/60,
 html.light .bg-blue-950\/60 {
-  background: rgba(239, 246, 255, 0.9) !important;
-  border-color: #bfdbfe !important;
+  background: #f0f7ff !important;
+  border-color: #bae6fd !important;
 }
 
 html.light .bg-amber-950\/70,
 html.light .bg-orange-950\/70,
 html.light .bg-yellow-950\/70 {
-  background: rgba(254, 243, 199, 0.85) !important;
+  background: #fffbeb !important;
   border-color: #fde68a !important;
 }
 
@@ -267,18 +254,18 @@ html.light .border-slate-700 {
 html.light .text-white,
 html.light .text-slate-100,
 html.light .text-slate-200 {
-  color: #0f172a !important;
+  color: #09090b !important;
 }
 
 html.light .text-slate-300,
 html.light .text-slate-400,
 html.light .text-gray-400 {
-  color: #475569 !important;
+  color: #52525b !important;
 }
 
 html.light .text-slate-500,
 html.light .text-gray-500 {
-  color: #64748b !important;
+  color: #71717a !important;
 }
 
 /* Preserve White Text on Solid Buttons / Highlights */
@@ -307,7 +294,7 @@ html.light input:not([type="checkbox"]):not([type="radio"]),
 html.light textarea,
 html.light select {
   background-color: #ffffff !important;
-  color: #0f172a !important;
+  color: #09090b !important;
   border-color: #cbd5e1 !important;
 }
 
@@ -321,7 +308,7 @@ html.light .hover\:bg-slate-800:hover,
 html.light .hover\:bg-slate-800\/80:hover,
 html.light .hover\:bg-white\/\[0\.06\]:hover {
   background-color: #f1f5f9 !important;
-  color: #0f172a !important;
+  color: #09090b !important;
 }
 
 /* Coding Arena Light Styles */
@@ -331,20 +318,20 @@ html.light .lg\:col-span-7.bg-\[\#1e1e1e\] {
 
 /* Footer in Light Mode */
 html.light footer {
-  background-color: #f1f5f9 !important;
+  background-color: #f8fafc !important;
   border-top-color: #e2e8f0 !important;
-  color: #64748b !important;
+  color: #71717a !important;
 }
 
 html.light footer p,
 html.light footer span:not(.author-badge) {
-  color: #64748b !important;
+  color: #71717a !important;
 }
 
 html.light footer .author-badge {
   background-color: #ffffff !important;
-  border-color: #cbd5e1 !important;
-  color: #0f172a !important;
+  border-color: #e4e4e7 !important;
+  color: #09090b !important;
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
 }
 

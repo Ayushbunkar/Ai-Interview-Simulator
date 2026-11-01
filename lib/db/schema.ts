@@ -287,3 +287,43 @@ export const interviewBlueprints = pgTable("interview_blueprints", {
   rawBlueprintJson: text("raw_blueprint_json").notNull().default("{}"),
   createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
 });
+
+export const users = pgTable("users", {
+  id: text("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  name: text("name"),
+  passwordHash: text("password_hash"),
+  role: text("role").notNull().default("user"), // 'user' | 'admin'
+  emailVerified: boolean("email_verified").notNull().default(false),
+  image: text("image"),
+  googleId: text("google_id"),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { mode: "date" }).notNull().defaultNow(),
+});
+
+export const authSessions = pgTable("auth_sessions", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  sessionToken: text("session_token").notNull().unique(),
+  expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+  ipAddress: text("ip_address"),
+  userAgent: text("user_agent"),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+});
+
+export const emailVerificationTokens = pgTable("email_verification_tokens", {
+  id: text("id").primaryKey(),
+  email: text("email").notNull(),
+  token: text("token").notNull().unique(),
+  expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+});
+
+export const passwordResetTokens = pgTable("password_reset_tokens", {
+  id: text("id").primaryKey(),
+  email: text("email").notNull(),
+  token: text("token").notNull().unique(),
+  expiresAt: timestamp("expires_at", { mode: "date" }).notNull(),
+  createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+});
+
