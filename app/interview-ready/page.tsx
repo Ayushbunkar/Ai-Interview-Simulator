@@ -170,6 +170,32 @@ export default function InterviewReadyPage() {
     ? ROADMAP_DAYS
     : ROADMAP_DAYS.filter(d => d.phaseId === selectedPhaseFilter);
 
+  // Action: Launch Speech Drill with exact question
+  const handleLaunchSpeechDrill = (q: RoadmapQuestion) => {
+    try {
+      const drillItem = {
+        id: q.id,
+        catId: currentDay.phaseId,
+        category: currentDay.phaseName,
+        num: q.qNum,
+        question: q.question,
+        modelAnswer: q.answer,
+        keyPoints: [
+          q.question,
+          ...(q.answer.split(/\.\s+/).filter(s => s.trim().length > 15).slice(0, 3)),
+        ],
+        difficulty: "Core",
+        sampleSpokenStart: `To answer directly: ${q.question.replace(/\?$/, "")}...`,
+        source: `Day ${currentDay.dayNumber} • ${currentDay.phaseName}`,
+      };
+      if (typeof window !== "undefined") {
+        localStorage.setItem("interviewforge_active_drill_question", JSON.stringify(drillItem));
+      }
+    } catch (e) {
+      console.warn("Storage error caching speech drill question:", e);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#070b12] text-slate-100 pb-28">
       {/* Top Sticky Header */}
@@ -549,13 +575,14 @@ export default function InterviewReadyPage() {
                         </div>
 
                         <div className="flex items-center gap-2 shrink-0">
-                          {/* Voice practice quick shortcut */}
+                          {/* Voice practice quick shortcut with exact question */}
                           <Link
-                            href="/speech-drill"
-                            title="Practice speaking this answer"
-                            className="p-1 text-slate-400 hover:text-cyan-400 transition-colors"
+                            href={`/speech-drill?qId=${encodeURIComponent(q.id)}`}
+                            onClick={() => handleLaunchSpeechDrill(q)}
+                            title={`Practice speaking this answer: "${q.question}"`}
+                            className="p-1.5 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-cyan-500/10 transition-all border border-transparent hover:border-cyan-500/20 group"
                           >
-                            <Mic className="h-3.5 w-3.5" />
+                            <Mic className="h-4 w-4 group-hover:scale-110 text-slate-400 group-hover:text-cyan-400 transition-transform" />
                           </Link>
 
                           {/* Accordion toggle */}
@@ -606,10 +633,12 @@ export default function InterviewReadyPage() {
                           <div className="flex items-center justify-between pt-1 text-[11px] text-slate-400">
                             <span>Mastered this concept? Tick the checkbox on the left.</span>
                             <Link
-                              href="/speech-drill"
-                              className="text-cyan-400 hover:underline flex items-center gap-1"
+                              href={`/speech-drill?qId=${encodeURIComponent(q.id)}`}
+                              onClick={() => handleLaunchSpeechDrill(q)}
+                              className="text-cyan-400 hover:text-cyan-300 font-semibold hover:underline flex items-center gap-1.5 transition-colors"
                             >
-                              <span>Test verbal articulation in Speech Drill</span>
+                              <Mic className="h-3.5 w-3.5 text-cyan-400" />
+                              <span>Practice Speaking this Answer in Speech Drill</span>
                               <ExternalLink className="h-3 w-3" />
                             </Link>
                           </div>

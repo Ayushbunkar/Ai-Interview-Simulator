@@ -203,3 +203,23 @@ export function getDaysByPhase(phaseId: number): RoadmapDay[] {
   return ROADMAP_DAYS.filter(d => d.phaseId === phaseId);
 }
 
+export function getRoadmapQuestionById(id: string): { question: RoadmapQuestion; day: RoadmapDay } | undefined {
+  for (const day of ROADMAP_DAYS) {
+    const q = day.questions.find(item => item.id === id);
+    if (q) return { question: q, day };
+  }
+  return undefined;
+}
+
+export function findRoadmapQuestionByText(text: string): { question: RoadmapQuestion; day: RoadmapDay } | undefined {
+  const clean = text.toLowerCase().trim().replace(/[^a-z0-9]/g, "");
+  for (const day of ROADMAP_DAYS) {
+    const q = day.questions.find(item => {
+      const qClean = item.question.toLowerCase().trim().replace(/[^a-z0-9]/g, "");
+      return qClean === clean || qClean.includes(clean) || clean.includes(qClean);
+    });
+    if (q) return { question: q, day };
+  }
+  return undefined;
+}
+

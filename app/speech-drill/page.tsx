@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import {
   Mic,
@@ -45,6 +46,7 @@ import {
   getQuestionsByCategory,
   ALL_QUESTIONS,
 } from "@/lib/data/questionBank700";
+import { getRoadmapQuestionById, findRoadmapQuestionByText } from "@/lib/data/interviewReadyRoadmap";
 import { SpeechEvaluationResult } from "@/lib/assessment/speech-articulation-evaluator";
 import { BrowserSpeechSynthesizer } from "@/lib/voice/speech-synthesis";
 import { BrowserSpeechRecognizer } from "@/lib/voice/speech-recognition";
@@ -68,7 +70,11 @@ const ICON_MAP: Record<string, any> = {
   BrainCircuit,
 };
 
-export default function SpeechDrillPage() {
+function SpeechDrillContent() {
+  const searchParams = useSearchParams();
+  const qIdParam = searchParams.get("qId");
+  const qTextParam = searchParams.get("qText");
+
   // Topic and Question State
   const [selectedCatId, setSelectedCatId] = useState<number | "all">("all");
   const [currentQuestion, setCurrentQuestion] = useState<QuestionBankItem>(ALL_QUESTIONS[0]);
@@ -103,13 +109,89 @@ export default function SpeechDrillPage() {
   // Topic selector drawer / modal
   const [isTopicModalOpen, setIsTopicModalOpen] = useState<boolean>(false);
 
-  // Initialize Speech Services on mount
+  // Initialize Speech Services & Load Question (from URL params or random)
   useEffect(() => {
     synthesizerRef.current = new BrowserSpeechSynthesizer();
-    const initialQ = getRandomQuestion("all");
-    setCurrentQuestion(initialQ);
-    setQuestionHistory([initialQ.id]);
+
+    let targetQuestion: QuestionBankItem | null = null;
+
+    // 1. Check if qIdParam matches in ALL_QUESTIONS (700 bank)
+    if (qIdParam) {
+      const bankMatch = ALL_QUESTIONS.find(q => q.id === qIdParam);
+      if (bankMatch) {
+        targetQuestion = bankMatch;
+      } else {
+        // Check in 34-day Interview Ready Roadmap
+        const rmqMatch = getRoadmapQuestionById(qIdParam);
+        if (rmqMatch) {
+          targetQuestion = {
+            id: rmqMatch.question.id,
+            catId: rmqMatch.day.phaseId,
+            category: rmqMatch.day.phaseName,
+            num: rmqMatch.question.qNum,
+            question: rmqMatch.question.question,
+            modelAnswer: rmqMatch.question.answer,
+            keyPoints: [
+              rmqMatch.question.question,
+              ...(rmqMatch.question.answer.split(/\.\s+/).filter(s => s.trim().length > 15).slice(0, 3)),
+            ],
+            difficulty: "Core",
+            sampleSpokenStart: `To answer directly: ${rmqMatch.question.question.replace(/\?$/, "")}...`,
+            ...( { source: `Day ${rmqMatch.day.dayNumber} • ${rmqMatch.day.phaseName}` } as any )
+          };
+        }
+      }
+    }
+
+    // 2. Check localStorage for cached question from clicking mic in roadmap
+    if (!targetQuestion && typeof window !== "undefined") {
+      try {
+        const cachedStr = localStorage.getItem("interviewforge_active_drill_question");
+        if (cachedStr) {
+          const cached = JSON.parse(cachedStr);
+          if (cached && cached.question && (!qIdParam || cached.id === qIdParam)) {
+            targetQuestion = cached;
+          }
+        }
+      } catch (e) {
+        console.warn("Storage parse error:", e);
+      }
+    }
+
+    // 3. Fallback to question text match if provided
+    if (!targetQuestion && qTextParam) {
+      const textMatch = findRoadmapQuestionByText(qTextParam);
+      if (textMatch) {
+        targetQuestion = {
+          id: textMatch.question.id,
+          catId: textMatch.day.phaseId,
+          category: textMatch.day.phaseName,
+          num: textMatch.question.qNum,
+          question: textMatch.question.question,
+          modelAnswer: textMatch.question.answer,
+          keyPoints: [
+            textMatch.question.question,
+            ...(textMatch.question.answer.split(/\.\s+/).filter(s => s.trim().length > 15).slice(0, 3)),
+          ],
+          difficulty: "Core",
+          sampleSpokenStart: `To answer directly: ${textMatch.question.question.replace(/\?$/, "")}...`,
+          ...( { source: `Day ${textMatch.day.dayNumber} • ${textMatch.day.phaseName}` } as any )
+        };
+      }
+    }
+
+    const qToLoad = targetQuestion || getRandomQuestion("all");
+    setCurrentQuestion(qToLoad);
+    if (targetQuestion && targetQuestion.catId) {
+      setSelectedCatId(targetQuestion.catId);
+    }
+    setQuestionHistory([qToLoad.id]);
     setHistoryIndex(0);
+    setTranscript("");
+    setEvaluation(null);
+    setIsEvaluating(false);
+    setPracticeMode("initial");
+    setShowModelAnswer(false);
 
     return () => {
       if (synthesizerRef.current) synthesizerRef.current.stop();
@@ -117,7 +199,7 @@ export default function SpeechDrillPage() {
       if (audioRecorderRef.current) audioRecorderRef.current.stop();
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, []);
+  }, [qIdParam, qTextParam]);
 
   // Timer for recording duration
   useEffect(() => {
@@ -407,17 +489,40 @@ export default function SpeechDrillPage() {
           
           {/* LEFT COLUMN: Question & Voice Workspace (7 cols) */}
           <div className="lg:col-span-7 space-y-5">
+            {/* If navigated from roadmap, show return trail */}
+            {((currentQuestion as any).source || qIdParam) && (
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-cyan-950/30 border border-cyan-500/20">
+                <Link
+                  href="/interview-ready"
+                  className="text-xs text-cyan-300 hover:text-cyan-200 flex items-center gap-1.5 font-semibold hover:underline group"
+                >
+                  <ArrowRight className="h-3.5 w-3.5 rotate-180 group-hover:-translate-x-0.5 transition-transform" />
+                  <span>Return to Interview Ready Roadmap</span>
+                </Link>
+                <span className="text-[11px] text-cyan-400/80 font-mono bg-cyan-500/10 px-2 py-0.5 rounded border border-cyan-500/20">
+                  Target Question Loaded
+                </span>
+              </div>
+            )}
+
             {/* Question Card */}
             <div className="rounded-2xl border border-white/[0.08] bg-[#0c1222]/90 p-5 sm:p-6 shadow-xl relative overflow-hidden backdrop-blur-md">
               <div className="flex items-center justify-between gap-2 mb-3">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold border ${activeCategoryMeta?.gradient || "bg-blue-500/10 text-blue-400 border-blue-500/20"}`}>
                     <CurrentIcon className="h-3 w-3" />
                     {currentQuestion.category}
                   </span>
-                  <span className="text-xs text-slate-400 font-mono">
-                    Q{currentQuestion.num} of 50
-                  </span>
+                  {(currentQuestion as any).source ? (
+                    <span className="text-[11px] text-amber-300 font-semibold bg-amber-500/10 px-2.5 py-1 rounded-md border border-amber-500/20 flex items-center gap-1">
+                      <Sparkles className="h-3 w-3 text-amber-400" />
+                      {(currentQuestion as any).source}
+                    </span>
+                  ) : (
+                    <span className="text-xs text-slate-400 font-mono">
+                      Q{currentQuestion.num} of 50
+                    </span>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -1029,5 +1134,20 @@ export default function SpeechDrillPage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function SpeechDrillPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#070b14] flex flex-col items-center justify-center text-slate-400 gap-3">
+          <div className="h-8 w-8 border-2 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+          <span className="text-xs font-mono">Loading Speech Drill Station...</span>
+        </div>
+      }
+    >
+      <SpeechDrillContent />
+    </Suspense>
   );
 }
