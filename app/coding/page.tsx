@@ -4,6 +4,7 @@ import { Suspense, useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Editor from "@monaco-editor/react";
 import Link from "next/link";
+import { useTheme } from "@/components/ThemeProvider";
 import {
   Play,
   CheckCircle2,
@@ -74,6 +75,7 @@ function CodingArenaContent() {
   const [currentProblem, setCurrentProblem] = useState<Problem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { theme } = useTheme();
 
   // Editor states
   const [language, setLanguage] = useState<"java" | "python" | "cpp">("java");
@@ -533,7 +535,7 @@ function CodingArenaContent() {
               language={language === "cpp" ? "cpp" : language}
               value={code}
               onChange={val => setCode(val || "")}
-              theme="vs-dark"
+              theme={theme === "light" ? "light" : "vs-dark"}
               options={{
                 minimap: { enabled: false },
                 fontSize: 13,

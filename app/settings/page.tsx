@@ -312,7 +312,21 @@ export default function SettingsPage() {
       <form onSubmit={handleSavePreferences} className="rounded-xl border border-gray-800 bg-gray-900/60 p-5 space-y-4">
         <h2 className="text-sm font-bold text-white">Default Preferences</h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="space-y-1.5">
+            <label className="text-xs text-gray-400">Display Theme</label>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="w-full flex items-center justify-between rounded-lg border border-gray-800 bg-gray-950 px-3 py-2 text-xs text-white hover:border-gray-700 transition"
+            >
+              <span>{theme === "dark" ? "Dark (Night)" : "Light (Day)"}</span>
+              <span className="text-[10px] uppercase font-bold px-1.5 py-0.5 rounded bg-blue-600/30 text-blue-400 border border-blue-500/30">
+                Toggle
+              </span>
+            </button>
+          </div>
+
           <div className="space-y-1.5">
             <label className="text-xs text-gray-400">Default Language</label>
             <select

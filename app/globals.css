@@ -3,7 +3,9 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
+  :root,
+  .dark,
+  html[data-theme="dark"] {
     --background: 222 47% 7%; /* #0b0f17 */
     --foreground: 210 40% 98%; /* #f8fafc */
 
@@ -33,7 +35,9 @@
     --ring: 217 91% 60%;
   }
 
-  .light {
+  .light,
+  html.light,
+  html[data-theme="light"] {
     --background: 210 40% 98%; /* #f8fafc */
     --foreground: 222 47% 11%; /* #0f172a */
 
@@ -58,8 +62,8 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214 32% 88%; /* #cbd5e1 */
-    --input: 214 32% 88%;
+    --border: 214 32% 91%; /* #e2e8f0 */
+    --input: 214 32% 91%;
     --ring: 221 83% 53%;
   }
 }
@@ -117,4 +121,231 @@ body {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #475569;
+}
+
+/* ==========================================================================
+   DAY / LIGHT THEME ENGINE (EVERY PAGE & COMPONENT)
+   ========================================================================== */
+
+html.light,
+html[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* Background & Body */
+html.light body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.06) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(99, 102, 241, 0.06) 0px, transparent 50%),
+    radial-gradient(at 50% 100%, rgba(14, 165, 233, 0.04) 0px, transparent 50%) !important;
+}
+
+/* Header & Nav in Light Mode */
+html.light header {
+  background-color: rgba(255, 255, 255, 0.94) !important;
+  border-bottom-color: #e2e8f0 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+html.light header a,
+html.light header button,
+html.light header span.font-bold,
+html.light header .tracking-tight {
+  color: #0f172a !important;
+}
+
+html.light header p {
+  color: #64748b !important;
+}
+
+html.light header nav {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+}
+
+html.light header nav a:not([class*="bg-blue-600"]) {
+  color: #475569 !important;
+}
+
+html.light header nav a:not([class*="bg-blue-600"]):hover {
+  color: #0f172a !important;
+  background-color: #e2e8f0 !important;
+}
+
+/* Page Containers */
+html.light .bg-\[\#070b12\],
+html.light .bg-\[\#070b14\],
+html.light .bg-\[\#0b0f17\],
+html.light .bg-\[\#090d16\],
+html.light .bg-\[\#0c1220\],
+html.light .bg-\[\#0d1117\],
+html.light .bg-slate-950,
+html.light .bg-gray-950 {
+  background-color: #f8fafc !important;
+}
+
+/* Sticky Action & Filter Bars */
+html.light .sticky.top-14,
+html.light .sticky.top-0,
+html.light .bg-\[\#0c1222\]\/80,
+html.light .bg-\[\#0c1220\]\/70 {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+  border-bottom-color: #e2e8f0 !important;
+}
+
+/* Cards, Modals, Panels, Accordions & Drawers */
+html.light .bg-\[\#0c1222\],
+html.light .bg-\[\#0c1222\]\/90,
+html.light .bg-\[\#0c1222\]\/80,
+html.light .bg-\[\#0a1020\]\/90,
+html.light .bg-\[\#0b101e\],
+html.light .bg-slate-900,
+html.light .bg-slate-900\/40,
+html.light .bg-slate-900\/50,
+html.light .bg-slate-900\/60,
+html.light .bg-slate-900\/70,
+html.light .bg-slate-900\/80,
+html.light .bg-slate-900\/90,
+html.light .bg-slate-950\/50,
+html.light .bg-slate-950\/60,
+html.light .bg-slate-950\/70,
+html.light .bg-slate-950\/80,
+html.light .bg-slate-950\/90,
+html.light .bg-gray-900,
+html.light .bg-gray-900\/50,
+html.light .bg-gray-900\/80,
+html.light .glass-panel,
+html.light .glass-panel-glow {
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Roadmap & Drill Day Highlights in Light Mode */
+html.light .bg-cyan-950\/60,
+html.light .bg-blue-950\/60 {
+  background: rgba(239, 246, 255, 0.9) !important;
+  border-color: #bfdbfe !important;
+}
+
+html.light .bg-amber-950\/70,
+html.light .bg-orange-950\/70,
+html.light .bg-yellow-950\/70 {
+  background: rgba(254, 243, 199, 0.85) !important;
+  border-color: #fde68a !important;
+}
+
+html.light .text-amber-300,
+html.light .text-amber-400 {
+  color: #b45309 !important;
+}
+
+html.light .text-cyan-300,
+html.light .text-cyan-400 {
+  color: #0284c7 !important;
+}
+
+/* Borders */
+html.light .border-white\/\[0\.05\],
+html.light .border-white\/\[0\.08\],
+html.light .border-white\/\[0\.1\],
+html.light .border-white\/\[0\.12\],
+html.light .border-white\/\[0\.15\],
+html.light .border-white\/\[0\.2\],
+html.light .border-gray-800,
+html.light .border-gray-800\/60,
+html.light .border-gray-800\/80,
+html.light .border-slate-800,
+html.light .border-slate-800\/60,
+html.light .border-slate-700 {
+  border-color: #e2e8f0 !important;
+}
+
+/* Typography Overrides */
+html.light .text-white,
+html.light .text-slate-100,
+html.light .text-slate-200 {
+  color: #0f172a !important;
+}
+
+html.light .text-slate-300,
+html.light .text-slate-400,
+html.light .text-gray-400 {
+  color: #475569 !important;
+}
+
+html.light .text-slate-500,
+html.light .text-gray-500 {
+  color: #64748b !important;
+}
+
+/* Preserve White Text on Solid Buttons / Highlights */
+html.light .bg-blue-600,
+html.light .bg-blue-600 *,
+html.light .bg-blue-500,
+html.light .bg-blue-500 *,
+html.light .bg-emerald-600,
+html.light .bg-emerald-600 *,
+html.light .bg-emerald-500,
+html.light .bg-emerald-500 *,
+html.light .bg-indigo-600,
+html.light .bg-indigo-600 *,
+html.light .bg-purple-600,
+html.light .bg-purple-600 *,
+html.light .bg-red-600,
+html.light .bg-red-600 *,
+html.light button.bg-blue-600,
+html.light a.bg-blue-600,
+html.light [class*="bg-blue-600"] span {
+  color: #ffffff !important;
+}
+
+/* Inputs, Textareas, and Dropdown Selects */
+html.light input:not([type="checkbox"]):not([type="radio"]),
+html.light textarea,
+html.light select {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Interactive Hovers */
+html.light .hover\:bg-slate-800:hover,
+html.light .hover\:bg-slate-800\/80:hover,
+html.light .hover\:bg-white\/\[0\.06\]:hover {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+/* Coding Arena Light Styles */
+html.light .lg\:col-span-7.bg-\[\#1e1e1e\] {
+  background-color: #ffffff !important;
+}
+
+/* Footer in Light Mode */
+html.light footer {
+  background-color: #f1f5f9 !important;
+  border-top-color: #e2e8f0 !important;
+  color: #64748b !important;
+}
+
+html.light footer p,
+html.light footer span {
+  color: #64748b !important;
+}
+
+/* Custom Scrollbars in Light Mode */
+html.light ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }

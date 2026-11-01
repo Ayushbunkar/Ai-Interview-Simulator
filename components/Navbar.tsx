@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, useEffect } from "react";
 import {
   Flame,
   LayoutDashboard,
@@ -13,8 +12,6 @@ import {
   Settings as SettingsIcon,
   Sun,
   Moon,
-  Cpu,
-  Terminal,
   Mic,
   CalendarCheck2,
 } from "lucide-react";
@@ -23,17 +20,6 @@ import { useTheme } from "./ThemeProvider";
 export function Navbar() {
   const pathname = usePathname();
   const { theme, toggleTheme } = useTheme();
-  const [health, setHealth] = useState<{
-    compiler?: { configured: boolean };
-    ai?: { configured: boolean; provider: string };
-  } | null>(null);
-
-  useEffect(() => {
-    fetch("/api/health")
-      .then(r => r.json())
-      .then(setHealth)
-      .catch(() => {});
-  }, []);
 
   const navItems = [
     { label: "Dashboard", href: "/", icon: LayoutDashboard },
@@ -89,55 +75,25 @@ export function Navbar() {
           })}
         </nav>
 
-        {/* System Status Indicators & Theme */}
-        <div className="flex items-center gap-2 sm:gap-2.5">
-          {/* Compiler Status */}
-          <div
-            title={
-              health?.compiler?.configured
-                ? "OnlineCompiler.io: Active & Ready"
-                : "Compiler: Key missing (configure in Settings)"
-            }
-            className="flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-slate-900/70 px-3 py-1 text-[11px] text-slate-300 shadow-sm"
-          >
-            <span
-              className={`h-2 w-2 rounded-full ${
-                health?.compiler?.configured
-                  ? "bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"
-                  : "bg-amber-400"
-              }`}
-            />
-            <Terminal className="h-3 w-3 text-slate-400 hidden sm:inline" />
-            <span className="hidden sm:inline font-medium">
-              {health?.compiler?.configured ? "Compiler Ready" : "Compiler Offline"}
-            </span>
-          </div>
-
-          {/* AI Status */}
-          <div
-            title={health?.ai?.provider || "AI Engine Status"}
-            className="flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-slate-900/70 px-3 py-1 text-[11px] text-slate-300 shadow-sm"
-          >
-            <span
-              className={`h-2 w-2 rounded-full ${
-                health?.ai?.configured
-                  ? "bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.8)]"
-                  : "bg-cyan-400"
-              }`}
-            />
-            <Cpu className="h-3 w-3 text-slate-400 hidden sm:inline" />
-            <span className="hidden sm:inline font-medium">
-              {health?.ai?.configured ? "Groq AI" : "Local AI"}
-            </span>
-          </div>
-
-          {/* Theme Toggle */}
+        {/* Theme Toggle Button */}
+        <div className="flex items-center gap-2">
           <button
             onClick={toggleTheme}
-            className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/[0.08] bg-slate-900/80 text-slate-300 hover:text-white hover:bg-slate-800 transition shadow-sm"
+            title={theme === "dark" ? "Switch to Day Mode (Light)" : "Switch to Night Mode (Dark)"}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-white/[0.1] bg-slate-900/80 text-slate-200 hover:text-white hover:bg-slate-800 transition-all shadow-sm text-xs font-semibold cursor-pointer active:scale-95"
             aria-label="Toggle theme"
           >
-            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            {theme === "dark" ? (
+              <>
+                <Sun className="h-4 w-4 text-amber-400 animate-spin-slow" />
+                <span className="hidden sm:inline font-medium">Day Mode</span>
+              </>
+            ) : (
+              <>
+                <Moon className="h-4 w-4 text-indigo-500" />
+                <span className="hidden sm:inline font-medium">Dark Mode</span>
+              </>
+            )}
           </button>
         </div>
       </div>

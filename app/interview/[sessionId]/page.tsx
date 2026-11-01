@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Editor from "@monaco-editor/react";
+import { useTheme } from "@/components/ThemeProvider";
 import {
   Play,
   Pause,
@@ -81,6 +82,7 @@ export default function InterviewRoomPage() {
   const params = useParams();
   const router = useRouter();
   const sessionId = params.sessionId as string;
+  const { theme } = useTheme();
 
   const [session, setSession] = useState<SessionData | null>(null);
   const [rounds, setRounds] = useState<RoundData[]>([]);
@@ -1314,7 +1316,7 @@ export default function InterviewRoomPage() {
               <Editor
                 height="100%"
                 language={codingLanguage === "cpp" ? "cpp" : codingLanguage}
-                theme="vs-dark"
+                theme={theme === "light" ? "light" : "vs-dark"}
                 value={code}
                 onChange={(v) => setCode(v || "")}
                 options={{
