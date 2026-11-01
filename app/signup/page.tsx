@@ -132,6 +132,7 @@ export default function SignupPage() {
                 <input
                   type="text"
                   required
+                  autoComplete="name"
                   placeholder="Alex Rivera"
                   value={name}
                   onChange={e => setName(e.target.value)}
@@ -147,6 +148,7 @@ export default function SignupPage() {
                 <input
                   type="email"
                   required
+                  autoComplete="email"
                   placeholder="name@company.com"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
@@ -162,6 +164,7 @@ export default function SignupPage() {
                 <input
                   type={showPassword ? "text" : "password"}
                   required
+                  autoComplete="new-password"
                   placeholder="At least 8 characters"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
@@ -225,6 +228,7 @@ export default function SignupPage() {
                 <input
                   type={showPassword ? "text" : "password"}
                   required
+                  autoComplete="new-password"
                   placeholder="Repeat your password"
                   value={confirmPassword}
                   onChange={e => setConfirmPassword(e.target.value)}

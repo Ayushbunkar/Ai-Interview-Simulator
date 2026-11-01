@@ -107,6 +107,7 @@ function ResetPasswordContent() {
                   <input
                     type={showPassword ? "text" : "password"}
                     required
+                    autoComplete="new-password"
                     placeholder="At least 8 characters"
                     value={password}
                     onChange={e => setPassword(e.target.value)}
@@ -129,6 +130,7 @@ function ResetPasswordContent() {
                   <input
                     type={showPassword ? "text" : "password"}
                     required
+                    autoComplete="new-password"
                     placeholder="Repeat new password"
                     value={confirmPassword}
                     onChange={e => setConfirmPassword(e.target.value)}

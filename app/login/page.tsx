@@ -130,6 +130,7 @@ function LoginForm() {
                 <input
                   type="email"
                   required
+                  autoComplete="username email"
                   placeholder="name@company.com"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
@@ -153,6 +154,7 @@ function LoginForm() {
                 <input
                   type={showPassword ? "text" : "password"}
                   required
+                  autoComplete="current-password"
                   placeholder="••••••••"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
