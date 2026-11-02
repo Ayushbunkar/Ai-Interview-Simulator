@@ -103,6 +103,17 @@ export class BrowserSpeechRecognizer {
           currentInterim += (currentInterim ? " " : "") + transcriptSegment.trim();
         }
       }
+
+      // Check if browser speech recognition emitted Hindi Devanagari script (\u0900-\u097F)
+      // If detected, do not accept it as English transcript
+      const hasDevanagari = /[\u0900-\u097F]/.test(newFinal || currentInterim);
+      if (hasDevanagari) {
+        if (this.recognition) {
+          this.recognition.lang = "en-US";
+        }
+        return;
+      }
+
       if (newFinal) {
         this.finalTranscript = (this.finalTranscript ? this.finalTranscript + " " : "") + newFinal;
         this.options.onFinalTranscript?.(this.finalTranscript);
@@ -140,6 +151,7 @@ export class BrowserSpeechRecognizer {
         this.restartTimer = setTimeout(() => {
           if (this.isListening && this.recognition) {
             try {
+              this.recognition.lang = this.options.lang || "en-US";
               this.recognition.start();
               this.setStatus("listening");
             } catch (err: any) {
@@ -147,6 +159,7 @@ export class BrowserSpeechRecognizer {
                 setTimeout(() => {
                   if (this.isListening && this.recognition) {
                     try {
+                      this.recognition.lang = this.options.lang || "en-US";
                       this.recognition.start();
                       this.setStatus("listening");
                     } catch {}
@@ -173,6 +186,7 @@ export class BrowserSpeechRecognizer {
       this.finalTranscript = "";
       this.interimTranscript = "";
       this.isListening = true;
+      this.recognition.lang = this.options.lang || "en-US";
       this.recognition.start();
       this.setStatus("listening");
       return true;

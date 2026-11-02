@@ -12,6 +12,51 @@ import { transcribeWithSpeechmatics } from "@/lib/voice/speechmatics-client";
 import { transcribeWithGladia } from "@/lib/voice/gladia-client";
 import { transcribeWithSarvam } from "@/lib/voice/sarvam-client";
 
+/**
+ * Ensures transcribed text is in clean English.
+ * If an ASR engine incorrectly outputs Hindi Devanagari script,
+ * converts or transliterates it back to technical English terminology.
+ */
+async function ensureEnglishTranscript(text: string, groqKey?: string | null): Promise<string> {
+  const trimmed = (text || "").trim();
+  if (!trimmed) return "";
+
+  // Check if text contains Devanagari Hindi characters (\u0900-\u097F)
+  const hasDevanagari = /[\u0900-\u097F]/.test(trimmed);
+  if (!hasDevanagari) {
+    return trimmed;
+  }
+
+  if (groqKey) {
+    try {
+      const groq = new Groq({ apiKey: groqKey });
+      const completion = await groq.chat.completions.create({
+        model: "llama-3.3-70b-versatile",
+        messages: [
+          {
+            role: "system",
+            content:
+              "You are an expert technical interview speech-to-text transliterator. The candidate answered a technical computer science interview question in English, but an ASR engine incorrectly transcribed it into Hindi Devanagari script. Transliterate or translate this back into natural, accurate, fluent English technical terminology. Return ONLY the English text with no quotes, commentary, or markdown.",
+          },
+          {
+            role: "user",
+            content: trimmed,
+          },
+        ],
+        temperature: 0.1,
+      });
+      const converted = completion.choices[0]?.message?.content?.trim();
+      if (converted) {
+        return converted;
+      }
+    } catch (err: any) {
+      console.warn("Devanagari English conversion notice:", err.message || err);
+    }
+  }
+
+  return trimmed;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
@@ -52,9 +97,10 @@ export async function POST(request: NextRequest) {
         });
 
         if (transcript.status === "completed" && transcript.text) {
+          const englishText = await ensureEnglishTranscript(transcript.text, groqKey);
           return NextResponse.json({
             success: true,
-            text: transcript.text.trim(),
+            text: englishText,
             provider: "assemblyai-primary",
             confidence: transcript.confidence,
           });
@@ -81,9 +127,10 @@ export async function POST(request: NextRequest) {
         });
 
         if (transcript.status === "completed" && transcript.text) {
+          const englishText = await ensureEnglishTranscript(transcript.text, groqKey);
           return NextResponse.json({
             success: true,
-            text: transcript.text.trim(),
+            text: englishText,
             provider: "assemblyai-secondary",
             confidence: transcript.confidence,
           });
@@ -108,9 +155,10 @@ export async function POST(request: NextRequest) {
         );
 
         if (speechmaticsRes.text) {
+          const englishText = await ensureEnglishTranscript(speechmaticsRes.text, groqKey);
           return NextResponse.json({
             success: true,
-            text: speechmaticsRes.text,
+            text: englishText,
             provider: "speechmatics-fallback",
             jobId: speechmaticsRes.jobId,
           });
@@ -133,9 +181,10 @@ export async function POST(request: NextRequest) {
         );
 
         if (gladiaRes.text) {
+          const englishText = await ensureEnglishTranscript(gladiaRes.text, groqKey);
           return NextResponse.json({
             success: true,
-            text: gladiaRes.text,
+            text: englishText,
             provider: "gladia-fallback",
             jobId: gladiaRes.id,
           });
@@ -159,9 +208,10 @@ export async function POST(request: NextRequest) {
         );
 
         if (sarvamRes.text) {
+          const englishText = await ensureEnglishTranscript(sarvamRes.text, groqKey);
           return NextResponse.json({
             success: true,
-            text: sarvamRes.text,
+            text: englishText,
             provider: "sarvam-ai-fallback",
             requestId: sarvamRes.requestId,
             languageCode: sarvamRes.languageCode,
@@ -189,6 +239,7 @@ export async function POST(request: NextRequest) {
           whisperRes = await groq.audio.transcriptions.create({
             file: safeAudioFile,
             model: "whisper-large-v3-turbo",
+            language: "en",
             response_format: "json",
             temperature: 0.1,
             prompt:
@@ -199,16 +250,18 @@ export async function POST(request: NextRequest) {
           whisperRes = await groq.audio.transcriptions.create({
             file: safeAudioFile,
             model: "whisper-large-v3",
+            language: "en",
             response_format: "json",
             temperature: 0.1,
           });
         }
 
-        const text = (whisperRes?.text || "").trim();
-        if (text) {
+        const rawWhisperText = (whisperRes?.text || "").trim();
+        if (rawWhisperText) {
+          const englishText = await ensureEnglishTranscript(rawWhisperText, groqKey);
           return NextResponse.json({
             success: true,
-            text,
+            text: englishText,
             provider: "groq-whisper-fallback",
           });
         }

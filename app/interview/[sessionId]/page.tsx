@@ -276,7 +276,8 @@ export default function InterviewRoomPage() {
 
       if (!textToSubmit) {
         const spoken = (finalTranscript + (interimTranscript ? " " + interimTranscript : "")).trim();
-        textToSubmit = spoken || manualText.trim();
+        const candidateText = spoken || manualText.trim();
+        textToSubmit = /[\u0900-\u097F]/.test(candidateText) ? "" : candidateText;
       }
 
       if (textToSubmit) {
@@ -302,7 +303,7 @@ export default function InterviewRoomPage() {
     try {
       if (voiceControllerRef.current) {
         const text = await voiceControllerRef.current.stopAndGetTranscript();
-        if (text) {
+        if (text && !/[\u0900-\u097F]/.test(text)) {
           setFinalTranscript(text);
           setManualText(text);
         }

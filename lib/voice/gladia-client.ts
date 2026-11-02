@@ -52,6 +52,10 @@ export async function transcribeWithGladia(
     },
     body: JSON.stringify({
       audio_url: uploadData.audio_url,
+      language_config: {
+        languages: ["en"],
+        code_switching: false,
+      },
     }),
   });
 

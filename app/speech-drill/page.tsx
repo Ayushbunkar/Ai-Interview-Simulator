@@ -347,9 +347,11 @@ function SpeechDrillContent() {
       } catch {}
     }
 
-    // Check if live speech recognition already captured a full response (> 15 chars)
+    // Check if live speech recognition already captured a full English response (> 15 chars and no Devanagari)
     const currentLiveText = (liveFinalTranscriptRef.current || transcript).trim();
-    if (currentLiveText.length >= 15) {
+    const hasDevanagari = /[\u0900-\u097F]/.test(currentLiveText);
+
+    if (!hasDevanagari && currentLiveText.length >= 15) {
       setTranscript(currentLiveText);
       // Clean up audio recorder without waiting for network transcribe
       if (audioRecorderRef.current && audioRecorderRef.current.isRecording()) {
@@ -358,7 +360,7 @@ function SpeechDrillContent() {
       return;
     }
 
-    // If live text is empty or very short, automatically transcribe with Groq Whisper Cloud STT!
+    // If live text is empty, short, or contained Hindi Devanagari, automatically transcribe with Groq Whisper Cloud STT in English!
     if (audioRecorderRef.current) {
       setIsTranscribing(true);
       try {

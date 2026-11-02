@@ -26,9 +26,9 @@ export async function transcribeWithSarvam(
   const audioBlob = new Blob([uint8], { type: "audio/webm" });
 
   formData.append("file", audioBlob, filename);
-  formData.append("language_code", languageCode);
+  formData.append("language_code", languageCode || "en-IN");
   formData.append("model", "saaras:v4");
-  formData.append("mode", "transcribe");
+  formData.append("mode", "translate");
 
   const response = await fetch("https://api.sarvam.ai/speech-to-text", {
     method: "POST",

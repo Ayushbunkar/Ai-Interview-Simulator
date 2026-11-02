@@ -216,16 +216,19 @@ export class VoiceSessionController {
 
   /**
    * Stops listening and returns best transcribed text:
-   * If live Web Speech API captured >= 3 words, returns it immediately.
-   * If live Web Speech was empty/failed, automatically transcribes the recorded audio via Whisper AI!
+   * If live Web Speech API captured clean English words (>= 3 words and no Devanagari), returns it immediately.
+   * If live Web Speech was empty, failed, OR emitted Hindi Devanagari script,
+   * automatically transcribes the recorded audio via Whisper AI in English!
    */
   public async stopAndGetTranscript(): Promise<string> {
     const liveText = this.recognizer.getFinalTranscript();
     this.recognizer.stop();
 
+    const hasDevanagari = /[\u0900-\u097F]/.test(liveText);
     const liveWords = liveText.trim().split(/\s+/).filter(Boolean);
-    // If live text produced an answer, use it and stop audio recorder
-    if (liveWords.length >= 3) {
+
+    // If live text produced a valid English answer (>= 3 words and no Devanagari), use it
+    if (!hasDevanagari && liveWords.length >= 3) {
       if (this.audioRecorder.isRecording()) {
         await this.audioRecorder.stop();
       }
@@ -233,9 +236,9 @@ export class VoiceSessionController {
       return liveText.trim();
     }
 
-    // If live text was empty/insufficient, transcribe via Whisper AI
+    // If live text was empty, insufficient, OR contained Devanagari Hindi, transcribe via Whisper AI in English
     if (this.audioRecorder.isRecording()) {
-      this.callbacks.onInterimTranscript("Transcribing audio with Whisper AI...");
+      this.callbacks.onInterimTranscript("Transcribing in English with Whisper AI...");
       const whisperText = await this.audioRecorder.stopAndTranscribe();
       this.callbacks.onInterimTranscript("");
       this.setState("idle");
@@ -246,7 +249,7 @@ export class VoiceSessionController {
     }
 
     this.setState("idle");
-    return liveText.trim();
+    return hasDevanagari ? "" : liveText.trim();
   }
 
   /**
